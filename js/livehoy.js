@@ -50,9 +50,39 @@
     byDom: {},
     byEvent: {},
     queue: [],
+    inFlight: {},   /* partido -> true mientras hay una petición en curso */
     running: 0,
     timer: null
   };
+
+  /* ---------- ingesta automática de partidos finalizados ---------- */
+  function tryAutoIngest(card) {
+    try {
+      if (!card || !window.AD.liveIngest) return;
+      var st = card.status || {};
+      var isPost = st.type === "post" || st.completed === true || /final/i.test(st.desc || "");
+      if (!isPost) return;
+      var sc = card.score || {};
+      if (sc.home == null || sc.away == null) return;
+      var home = card.home && card.home.name ? card.home.name : "";
+      var away = card.away && card.away.name ? card.away.name : "";
+      if (!home || !away) return;
+      var ev = card.eventId ? String(card.eventId) : "";
+      var date = card.date || (card.kickoffIso ? String(card.kickoffIso).slice(0,10) : "");
+      var comp = card.competition || card.comp || "";
+      var lg = card.league || comp || "";
+      window.AD.liveIngest.ingestFromEspn({
+        eventId: ev,
+        date: date,
+        competition: comp,
+        league: lg,
+        home: home,
+        away: away,
+        homeGoals: sc.home,
+        awayGoals: sc.away
+      });
+    } catch (e) {}
+  }
 
   /* ---------- utilidades ---------- */
   function clamp(x, a, b) { return x < a ? a : x > b ? b : x; }
@@ -365,7 +395,7 @@
 
     var a = {
       live: live, pre: pre, post: post, shootout: shootout,
-      minute: minute, sh: sh, sa: sa,
+      minute: minute, period: st.period || (minute >= 90 ? 3 : minute >= 45 ? 2 : 1), sh: sh, sa: sa,
       xg: xg, pens: pens, box: box, shotN: shotN,
       cards: cards, recent: recent,
       probs: probs, preProbs: pm,
@@ -549,6 +579,11 @@
   }
 
   function fetchOne(it) {
+    /* Cada repintado de la portada crea objetos nuevos para los mismos
+       partidos. Si ya hay una petición en curso para ese partido, no se repite:
+       la respuesta repinta la tarjeta que esté en pantalla. */
+    if (state.inFlight[it.fk]) { it._busy = true; return; }
+    state.inFlight[it.fk] = true;
     state.running++;
     it._busy = true;
     resolveId(it).then(function (id) {
@@ -560,9 +595,23 @@
           key: it.fk, slug: it.slug, id: String(id), domId: it.domId, it: it
         };
         rec.analysis = analyze(it, m);
+        try {
+          var cardIng = {
+            eventId: String(id),
+            status: { type: rec.analysis.post ? "post" : (rec.analysis.live ? "in" : "pre"), completed: !!rec.analysis.post, desc: (m && m.status && m.status.detail) || "" },
+            score: { home: rec.analysis.sh, away: rec.analysis.sa },
+            home: { name: it.f && it.f.home ? it.f.home : "" },
+            away: { name: it.f && it.f.away ? it.f.away : "" },
+            date: it.f && it.f.date ? it.f.date : "",
+            kickoffIso: it.f && it.f.date ? it.f.date : "",
+            competition: it.f && it.f.competition ? it.f.competition : "",
+            league: it.f && (it.f.league || it.f.competition) ? (it.f.league || it.f.competition) : ""
+          };
+          tryAutoIngest(cardIng);
+        } catch (e) {}
         state.byKey[it.fk] = rec;
         state.byEvent[it.slug + "|" + id] = rec;
-        paint(it);
+        paintKey(it.fk);
         if (rec.analysis.post && window.AD.v2 && window.AD.v2.matchEnded) {
           try { window.AD.v2.matchEnded(it.fk); } catch (e) {}
         }
@@ -576,9 +625,10 @@
       rec.next = Date.now() + Math.min(RETRY_MAX, 15000 * Math.pow(2, Math.min(4, fail - 1)));
       rec.key = it.fk;
       state.byKey[it.fk] = rec;
-      paint(it);
+      paintKey(it.fk);
     }).then(function () {
       it._busy = false;
+      state.inFlight[it.fk] = false;
       state.running--;
       runQueue();
     });
@@ -662,6 +712,29 @@
     state.plan.forEach(function (it) { paint(it); });
   }
 
+  /* Repinta la tarjeta del partido, sea cual sea el objeto de la lista que la
+     ocupa ahora (los objetos se recrean en cada repintado de la portada). */
+  function paintKey(fk) {
+    if (!fk) return;
+    state.plan.forEach(function (it) { if (it.fk === fk) paint(it); });
+  }
+
+  function liveClockLabel(a, rec) {
+    if (!a || !a.live) return null;
+    var base = a.minute || 0;
+    var at = rec && rec.at ? rec.at : Date.now();
+    var elapsedMin = Math.floor((Date.now() - at) / 60000);
+    var m = base + elapsedMin;
+    var p = a.period || 1;
+    if (p <= 1 && m >= 45) m = 45;
+    else if (p == 2 && m >= 90) m = 90;
+    else if (p >= 3 && m >= 120) m = 120;
+    if (m < base) m = base;
+    if (p >= 3 && base >= 90 && m < 90) m = base;
+    if (p == 2 && base >= 45 && m < 45) m = base;
+    return m;
+  }
+
   function paint(it) {
     /* Si la lista se volvió a pintar, el índice de la tarjeta puede haber
        cambiado: solo se pinta si este ítem sigue siendo el de ese lugar. */
@@ -679,11 +752,14 @@
     var when = art.querySelector("[data-fkwhen]");
     if (when && a) {
       if (a.live) {
-        when.innerHTML = '<span class="fxl-inline is-live"><i></i>EN VIVO · ' + esc(a.minute) + "'</span>";
+        var lm = liveClockLabel(a, rec);
+        if (lm == null) lm = a.minute || 0;
+        when.innerHTML = '<span class="fxl-inline is-live" data-live-clock="1"><i></i>EN VIVO · ' + esc(lm) + "'</span>";
       } else if (a.pre) {
         when.innerHTML = '<span class="fxl-inline is-pre">Empieza en ' + esc(countdown(it.ms)) + "</span>";
       }
     }
+    try { updateLiveClockNow(); } catch (e) {}
 
     if (a && a.probs) {
       var th = art.querySelector('[data-fktag="h"]');
@@ -943,6 +1019,44 @@
       '<span class="cmp-v right">' + esc(av == null ? "—" : av) + "</span>" +
     "</div>";
   }
+
+  function updateLiveClockNow() {
+    if (document.visibilityState === "hidden") return;
+    var v = document.getElementById("view-hoy");
+    if (!v || !v.classList.contains("is-active")) return;
+    var items = document.querySelectorAll(".fx [data-live-clock='1'], .fx .fxl-inline.is-live");
+    for (var i = 0; i < items.length; i++) {
+      var el = items[i];
+      var art = el.closest(".fx");
+      if (!art) continue;
+      var fk = art.getAttribute("data-fk");
+      var rec = state.byKey[fk];
+      var a = rec && rec.analysis;
+      if (!a || !a.live) continue;
+      var base = a.minute || 0;
+      var at = rec.at || Date.now();
+      var elapsedMin = Math.floor((Date.now() - at) / 60000);
+      var m = base + elapsedMin;
+      var p = a.period || 1;
+      if (p <= 1 && m >= 45) m = 45;
+      else if (p == 2 && m >= 90) m = 90;
+      else if (p >= 3 && m >= 120) m = 120;
+      if (m < base) m = base;
+      if (p == 2 && base >= 45 && m < 45) m = base;
+      if (p >= 3 && base >= 90 && m < 90) m = base;
+      el.setAttribute("data-live-clock", "1");
+      el.innerHTML = '<i></i>EN VIVO · ' + m + "'";
+    }
+  }
+
+  function startLiveClock() {
+    if (window._futbolityxLiveClock) {
+      try { clearInterval(window._futbolityxLiveClock); } catch (e) {}
+    }
+    updateLiveClockNow();
+    window._futbolityxLiveClock = setInterval(updateLiveClockNow, 1000);
+  }
+  try { startLiveClock(); } catch (e) {}
 
   function htmlFor(slug, id) {
     var rec = state.byEvent[String(slug) + "|" + String(id)];

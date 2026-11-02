@@ -133,6 +133,26 @@ body.simple [data-adv] { display: none !important; }
 }
 .fx--nodata { opacity: 0.92; }
 
+/* Partido en juego: borde y barra superior en rojo, marcador en el centro. */
+.fx--live {
+  border-color: rgba(255, 86, 86, 0.5);
+  box-shadow: 0 0 0 1px rgba(255, 86, 86, 0.18), var(--shadow-sm);
+}
+.fx--live::before { background: linear-gradient(90deg, #ff5656, #ff9d9d); opacity: 1; }
+.fx-score {
+  font-size: clamp(1.1rem, 3vw, 1.45rem);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.fx-score i { font-style: normal; color: var(--muted); margin: 0 0.18rem; font-weight: 600; }
+.fx-livenote {
+  margin: 0.55rem 0 0;
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+
 .fx-top {
   display: flex;
   justify-content: space-between;

@@ -88,24 +88,26 @@ a { color: var(--accent-2); }
   gap: 1rem;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.4rem;
+  padding: 0.35rem 1.4rem;
   background: linear-gradient(180deg, rgba(17, 27, 44, 0.92), rgba(8, 13, 22, 0.72));
   border-bottom: 1px solid var(--border-soft);
   position: sticky;
   top: 0;
   z-index: 20;
   backdrop-filter: blur(14px) saturate(150%);
+  min-height: 86px;
 }
-.brand { display: flex; gap: 0.85rem; align-items: center; }
+.brand { display: flex; gap: 1rem; align-items: center; }
 .brand-logo {
-  width: 48px;
-  height: 48px;
+  width: 98px;
+  height: 98px;
   object-fit: contain;
   flex: none;
-  filter: drop-shadow(0 10px 20px rgba(34, 227, 154, 0.45));
+  margin: -14px 0;
+  filter: drop-shadow(0 16px 36px rgba(34, 227, 154, 0.62));
 }
 .brand h1 {
-  font-size: 1.45rem;
+  font-size: 1.6rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   background: linear-gradient(90deg, #ffffff, #a9f0d2 70%, #8fd8ff);

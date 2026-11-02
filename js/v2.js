@@ -314,9 +314,17 @@
      paquete local sea de una fecha anterior. Si no hay internet, se usa lo
      último guardado y la portada sigue mostrando el resto (datos locales).
      Fuente citada en pantalla. */
-  var AR_LIVE_URL = "https://site.api.espn.com/apis/site/v2/sports/soccer/arg.1/scoreboard?dates=2026&limit=1000";
-  var AR_LIVE_CACHE_KEY = "futbolityx:ar-live";
-  var AR_LIVE_TTL = 3 * 60 * 60 * 1000; /* 3 horas */
+  var AR_LEAGUE = "arg.1"; /* slug de ESPN */
+  var AR_CODE = "ar.1";    /* código interno (el que usan las demás capas) */
+  /* Archivo de la temporada en curso (≈5 MB): partidos futuros + historial.
+     Se pide en segundo plano y queda cacheado; el tablero del día (≈50 KB) es
+     el que manda para el estado y el marcador en vivo. */
+  var AR_SEASON_URL = "https://site.api.espn.com/apis/site/v2/sports/soccer/" + AR_LEAGUE +
+    "/scoreboard?dates=" + new Date().getFullYear() + "&limit=1000";
+  var AR_BOARD_URL = "https://site.api.espn.com/apis/site/v2/sports/soccer/" + AR_LEAGUE + "/scoreboard?dates=";
+  var AR_LIVE_CACHE_KEY = "futbolityx:ar-live:v2";
+  var AR_LIVE_TTL = 6 * 60 * 60 * 1000; /* temporada: 6 horas */
+  var AR_BOARD_TTL = 60 * 1000;         /* tablero del día: 1 minuto */
 
   /* Nombres de equipo de ESPN -> nombre canónico que usa la base, para que el
      historial de un club no quede partido en dos equipos. Es el mismo mapa que
@@ -387,6 +395,10 @@
     return "Liga Profesional (Argentina)";
   }
 
+  /* Convierte los eventos de ESPN en partidos para la portada "Hoy".
+     Incluye los que todavía no empezaron (pre) y los que están en juego (in),
+     con marcador y minuto; los finalizados (post) se usan solo para retirar la
+     tarjeta y para importar el resultado. */
   function parseArLive(payload) {
     var evs = payload && payload.events;
     if (!Array.isArray(evs)) return [];
@@ -396,27 +408,38 @@
       var ev = evs[i];
       var comp = ev.competitions && ev.competitions[0];
       if (!comp || !Array.isArray(comp.competitors)) continue;
-      var st = ev.status && ev.status.type ? ev.status.type.name : "";
-      if (st && st !== "STATUS_SCHEDULED") continue; /* solo partidos por jugar */
+      var stt = (ev.status && ev.status.type) || {};
+      var state = String(stt.state || ""); /* pre | in | post */
       var m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(String(ev.date || ""));
       if (!m) continue;
       var date = m[1] + "-" + m[2] + "-" + m[3];
-      if (date < today) continue;
-      var home = "", away = "";
+      /* Los de días anteriores solo interesan si siguen en juego
+         (un partido de madrugada que ESPN agrupa en otro día). */
+      if (state === "post" && date < today) continue;
+      if (state !== "in" && state !== "post" && date < today) continue;
+      var home = "", away = "", hg = null, ag = null;
       for (var j = 0; j < comp.competitors.length; j++) {
         var c = comp.competitors[j];
-        if (c.homeAway === "home") home = c.team && c.team.displayName;
-        else if (c.homeAway === "away") away = c.team && c.team.displayName;
+        var nm = c.team && (c.team.displayName || c.team.name);
+        var sc = c.score != null && c.score !== "" ? Number(c.score) : NaN;
+        if (c.homeAway === "home") { home = nm; hg = isFinite(sc) ? sc : null; }
+        else if (c.homeAway === "away") { away = nm; ag = isFinite(sc) ? sc : null; }
       }
       if (!home || !away) continue;
       out.push({
         date: date,
         time: m[4] + ":" + m[5] + " UTC+0", /* ESPN entrega la hora en UTC */
         competition: arCompName(ev),
-        code: "ar.1",
+        code: AR_CODE,
         home: String(home),
         away: String(away),
-        live: true,
+        state: state === "in" ? "in" : state === "post" ? "post" : "pre",
+        live: state === "in",
+        homeGoals: hg,
+        awayGoals: ag,
+        clock: String((ev.status && ev.status.displayClock) || ""),
+        period: Number(ev.status && ev.status.period) || 0,
+        detail: String((ev.status && ev.status.detail) || ""),
         externalId: ev.id != null ? ("espn:" + ev.id) : null
       });
     }
@@ -462,14 +485,44 @@
     return out;
   }
 
-  var arResultsImported = false;
+  /* Los resultados se importan de forma incremental: cada tablero puede traer
+     un partido que acaba de terminar. Se evita duplicar por id de ESPN y, si
+     los equipos existen en la base, también por fecha + equipos: la ingesta en
+     vivo guarda el id sin el prefijo "espn:", así que comparar el texto exacto
+     no alcanza. */
+  function espnIdKey(x) { return String(x == null ? "" : x).replace(/^espn:/, ""); }
+
   function importArResultRows(rows) {
-    if (arResultsImported || !rows || !rows.length) return 0;
-    arResultsImported = true;
-    var seen = {};
+    if (!rows || !rows.length) return 0;
+    var seenExt = {}, i;
     var ms = S.state.matches;
-    for (var i = 0; i < ms.length; i++) { if (ms[i].externalId != null) seen[ms[i].externalId] = true; }
-    var fresh = rows.filter(function (r) { return !(r.externalId && seen[r.externalId]); });
+    for (i = 0; i < ms.length; i++) {
+      if (ms[i].externalId != null) seenExt[espnIdKey(ms[i].externalId)] = true;
+    }
+    /* Primero descarta por id (barato y suficiente el 99% de las veces). */
+    var pending = rows.filter(function (r) {
+      if (r.externalId && seenExt[espnIdKey(r.externalId)]) return false;
+      if (r.externalId) seenExt[espnIdKey(r.externalId)] = true;
+      return true;
+    });
+    if (!pending.length) return 0;
+
+    /* Solo si queda algo: descarta por fecha + equipos. Cubre el mismo partido
+       guardado con el id sin prefijo (ingesta en vivo). */
+    var seenPair = {};
+    for (i = 0; i < ms.length; i++) {
+      var m = ms[i];
+      if (m.date && m.homeId != null && m.awayId != null) {
+        seenPair[m.date + "|" + m.homeId + "|" + m.awayId] = true;
+      }
+    }
+    var fresh = pending.filter(function (r) {
+      var ht = S.findTeamByName(r.home), at = S.findTeamByName(r.away);
+      var pair = ht && at ? r.date + "|" + ht.id + "|" + at.id : "";
+      if (pair && seenPair[pair]) return false;
+      if (pair) seenPair[pair] = true;
+      return true;
+    });
     if (!fresh.length) return 0;
     var res = S.importBulk(fresh, "espn-arg");
     ctx = null; /* cambió la base: se reconstruye el contexto de pronóstico */
@@ -480,47 +533,165 @@
   }
   function importArResults(payload) { return importArResultRows(parseArResults(payload)); }
 
-  var arLivePromise = null;
-  function loadArLive(force) {
-    if (arLivePromise && !force) return arLivePromise;
-
-    var cached = null;
-    try { var raw = localStorage.getItem(AR_LIVE_CACHE_KEY); if (raw) cached = JSON.parse(raw); } catch (e) { cached = null; }
-    function fromCache() {
-      var fx = (cached && Array.isArray(cached.fixtures)) ? cached.fixtures : [];
-      try { importArResultRows(cached && cached.results); } catch (e) {} /* por si el guardado no traía el historial */
-      var today = new Date().toISOString().slice(0, 10);
-      return fx.filter(function (f) { return f && f.date >= today; });
-    }
-
-    /* La caché solo se reutiliza si ya incluye los resultados (formato nuevo).
-       Las cachés viejas (solo partidos por jugar) se ignoran para poder importar
-       el historial una vez. */
-    if (!force && cached && Array.isArray(cached.results) && (Date.now() - (cached.ts || 0)) < AR_LIVE_TTL) {
-      arLivePromise = Promise.resolve(fromCache());
-      return arLivePromise;
-    }
-
-    arLivePromise = fetch(AR_LIVE_URL, { cache: "no-store" })
-      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-      .then(function (p) {
-        var fx = parseArLive(p);
-        try { importArResults(p); } catch (e) {} /* historial real de la liga argentina */
-        var results = [];
-        try { results = parseArResults(p); } catch (e) {}
-        try { localStorage.setItem(AR_LIVE_CACHE_KEY, JSON.stringify({ ts: Date.now(), fixtures: fx, results: results })); } catch (e) {}
-        return fx;
-      })
-      .catch(function () { arLivePromise = null; return fromCache(); });
-    return arLivePromise;
+  /* Ningún partido comparte identidad si no es el mismo evento de ESPN. */
+  function arKey(f) {
+    return f.externalId ? String(f.externalId) : (f.date + "|" + f.home + "|" + f.away);
   }
 
-  /* Próximos partidos = locales (openfootball) + Liga Argentina en vivo
-     (si el usuario no la desactivó). */
-  function upcomingWithLive(localFx) {
+  /* ---- tablero del día (rápido): estado, marcador y minuto en vivo ---- */
+  var arBoard = { ts: 0, fixtures: [], promise: null };
+
+  function arDayKeys() {
+    var now = Date.now(), out = [];
+    /* Ayer y hoy: un partido de madrugada puede quedar agrupado en otro día. */
+    for (var d = -1; d <= 0; d++) {
+      out.push(new Date(now + d * 86400000).toISOString().slice(0, 10).replace(/-/g, ""));
+    }
+    return out;
+  }
+
+  function loadArBoard(force) {
+    var now = Date.now();
+    if (!force && arBoard.ts && (now - arBoard.ts) < AR_BOARD_TTL) return Promise.resolve(arBoard.fixtures);
+    if (arBoard.promise && !force) return arBoard.promise;
+    var jobs = arDayKeys().map(function (day) {
+      return fetch(AR_BOARD_URL + day, { cache: "no-store" })
+        .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+        .catch(function () { return null; });
+    });
+    arBoard.promise = Promise.all(jobs).then(function (payloads) {
+      var fixtures = [], results = [], seen = {};
+      payloads.forEach(function (p) {
+        if (!p) return;
+        parseArLive(p).forEach(function (f) {
+          var k = arKey(f);
+          if (seen[k]) return;
+          seen[k] = 1;
+          fixtures.push(f);
+        });
+        try { results = results.concat(parseArResults(p)); } catch (e) {}
+      });
+      arBoard.ts = Date.now();
+      arBoard.fixtures = fixtures;
+      arBoard.promise = null;
+      if (results.length) { try { importArResultRows(results); } catch (e) {} }
+      return fixtures;
+    }).catch(function () { arBoard.promise = null; return arBoard.fixtures; });
+    return arBoard.promise;
+  }
+
+  /* ---- archivo de la temporada (grande): futuros + historial, en segundo plano ---- */
+  var arSeasonPromise = null;
+
+  function readArCache() {
+    try {
+      var raw = localStorage.getItem(AR_LIVE_CACHE_KEY);
+      var o = raw ? JSON.parse(raw) : null;
+      return o && Array.isArray(o.fixtures) ? o : null;
+    } catch (e) { return null; }
+  }
+
+  function seasonFixtures() {
+    var c = readArCache();
+    var arr = c && Array.isArray(c.fixtures) ? c.fixtures : [];
+    /* La caché de temporada solo aporta partidos por jugar: el estado en vivo
+       siempre lo manda el tablero del día (si no, un "en vivo" viejo quedaría
+       pegado para siempre). */
+    arr.forEach(function (f) { if (f) { f.state = "pre"; f.live = false; } });
+    return arr;
+  }
+
+  function refreshArSeason(force) {
+    if (arSeasonPromise && !force) return arSeasonPromise;
+    if (!force) {
+      var c = readArCache();
+      if (c && (Date.now() - (c.ts || 0)) < AR_LIVE_TTL) return Promise.resolve(c.fixtures || []);
+    }
+    arSeasonPromise = fetch(AR_SEASON_URL, { cache: "no-store" })
+      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then(function (p) {
+        try { importArResults(p); } catch (e) {} /* historial real de la liga argentina */
+        var fx = parseArLive(p).filter(function (f) { return f.state === "pre"; });
+        try {
+          localStorage.setItem(AR_LIVE_CACHE_KEY, JSON.stringify({ ts: Date.now(), fixtures: fx }));
+        } catch (e) {}
+        arSeasonPromise = null;
+        /* Los futuros llegaron después del primer pintado: se refresca solo. */
+        if (isActive() && cache.fixtures) {
+          upcomingWithLive(cache.local).then(function (list) {
+            if (!isActive()) return;
+            cache.fixtures = list || [];
+            renderList();
+          });
+        }
+        return fx;
+      })
+      .catch(function () { arSeasonPromise = null; return seasonFixtures(); });
+    return arSeasonPromise;
+  }
+
+  /* Une los futuros de la temporada con el tablero del día. El tablero manda:
+     trae el estado real, el marcador y el minuto. */
+  function mergeArFixtures(season, board, now) {
+    var byKey = {}, out = [];
+    (season || []).forEach(function (f) {
+      var k = arKey(f);
+      if (byKey[k]) return;
+      byKey[k] = f;
+      out.push(f);
+    });
+    (board || []).forEach(function (b) {
+      var k = arKey(b), cur = byKey[k];
+      if (!cur) { byKey[k] = b; out.push(b); return; }
+      cur.state = b.state;
+      cur.live = b.live;
+      if (b.state === "in" || b.state === "post") {
+        cur.homeGoals = b.homeGoals;
+        cur.awayGoals = b.awayGoals;
+      }
+      cur.clock = b.clock;
+      cur.period = b.period;
+      cur.detail = b.detail;
+    });
+    var live = [], next = [];
+    out.forEach(function (f) {
+      var fk = fixtureKey(f);
+      if (f.state === "post") {
+        liveState[fk] = { state: "post", ts: now };
+        return;
+      }
+      if (f.state === "in") {
+        liveState[fk] = { state: "in", ts: now,
+          hg: f.homeGoals, ag: f.awayGoals, clock: f.clock, period: f.period };
+        live.push(f);
+        return;
+      }
+      next.push(f);
+    });
+    return live.concat(next);
+  }
+
+  /* Próximos partidos = locales (openfootball) + Liga Argentina (ESPN).
+     Primero el tablero del día (rápido y con el estado en vivo); el archivo de
+     la temporada se actualiza en segundo plano para los partidos futuros. */
+  function upcomingWithLive(localFx, force) {
     localFx = localFx || [];
     if (prefs.arLive === false) return Promise.resolve(localFx);
-    return loadArLive().then(function (ar) { return localFx.concat(ar || []); });
+    return loadArBoard(force).then(function (board) {
+      var merged = mergeArFixtures(seasonFixtures(), board, Date.now());
+      refreshArSeason(false); /* no bloquea el pintado */
+      return localFx.concat(merged);
+    });
+  }
+
+  /* Firma del estado de la liga argentina: si cambia (gol, inicio, final)
+     se vuelve a pintar la lista. */
+  function arSignature(fx) {
+    return (fx || []).filter(function (f) { return f && f.code === AR_CODE; }).map(function (f) {
+      return arKey(f) + "|" + (f.state || "") + "|" +
+        (f.homeGoals == null ? "" : f.homeGoals) + "-" + (f.awayGoals == null ? "" : f.awayGoals) +
+        "|" + (f.clock || "");
+    }).join(";");
   }
 
   /* ===== Motor de pronóstico (reutiliza AD.stats) ============== */
@@ -579,20 +750,19 @@
     return !!v && v.classList.contains("is-active");
   }
 
-  /* ===== Partidos que ya terminaron ========================== */
-  /* "Hoy" muestra solo partidos que todavía no terminaron. Para los partidos
-     de la ventana de cierre se consulta el estado real a ESPN (una petición
-     por competición y día, cada 2 minutos): si ya terminó (FT) la tarjeta se
-     retira en el acto y, si sigue en juego (alargue/penales), se mantiene
-     hasta un tope de 3 h. Sin dato de ESPN se usa la duración máxima habitual
-     (≈2 h 05). Los análisis guardados no se tocan: siguen en "Mis
-     predicciones" y en el historial. */
+  /* ===== Partidos en vivo y partidos que ya terminaron ======== */
+  /* "Hoy" muestra los partidos que todavía no terminaron. El estado real se
+     consulta a ESPN (una petición por competición y día, cada 2 minutos) desde
+     poco antes del inicio: así el partido se marca EN VIVO con su marcador y,
+     cuando llega el pitazo final, la tarjeta se retira en el acto. Sin dato de
+     ESPN se usa la duración máxima habitual (≈2 h 05). Los análisis guardados
+     no se tocan: siguen en "Mis predicciones" y en el historial. */
   var MATCH_LEN_MS = 125 * 60000;  /* ≈2 h 05: 90' + 15' de descanso + añadido */
   var MATCH_HARD_MS = 180 * 60000; /* tope: 3 h (alargue + penales + demoras) */
-  var ESPN_CHECK_FROM = 100 * 60000; /* se empieza a consultar a los 100' */
+  var ESPN_PRE_MS = 5 * 60000;     /* se consulta desde 5 min antes del inicio */
   var ESPN_BOARD_TTL = 120000;
 
-  var liveState = {};   /* partido -> { state, ts } (pre/in/post) */
+  var liveState = {};   /* partido -> { state, ts, hg, ag, clock, period } */
   var boardCache = {};  /* "liga|AAAAMMDD" -> { ts, events } */
   var boardFetch = {};  /* "liga|AAAAMMDD" -> true mientras descarga */
 
@@ -624,10 +794,25 @@
     var k = kickoff(f);
     if (!k || !k.ms) return false;
     if (now - k.ms >= MATCH_HARD_MS) return true;
+    if (f && f.state === "in") return false; /* fuente en vivo: sigue en juego */
     var st = stateFor(f, now);
     if (st === "post") return true;   /* pitazo final confirmado por ESPN */
     if (st === "in" || st === "pre") return false; /* sigue en juego o demorado */
     return now - k.ms >= MATCH_LEN_MS; /* sin dato: regla por tiempo */
+  }
+
+  /* Datos del partido en juego (marcador y minuto), o null si no está en vivo. */
+  function liveOf(f, now) {
+    if (!f) return null;
+    var rec = liveState[fixtureKey(f)];
+    var st = stateFor(f, now);
+    if (st === "in" && rec) {
+      return { hg: rec.hg, ag: rec.ag, clock: rec.clock || "", period: rec.period || 0 };
+    }
+    if (f.state === "in") {
+      return { hg: f.homeGoals, ag: f.awayGoals, clock: f.clock || "", period: f.period || 0 };
+    }
+    return null;
   }
 
   function overCount(all, now) {
@@ -675,17 +860,21 @@
     evs.forEach(function (ev) {
       var comp = ev.competitions && ev.competitions[0];
       if (!comp) return;
-      var home = "", away = "";
+      var home = "", away = "", hg = null, ag = null;
       (comp.competitors || []).forEach(function (c) {
         var nm = c.team && (c.team.displayName || c.team.name);
-        if (c.homeAway === "home") home = nm || "";
-        else if (c.homeAway === "away") away = nm || "";
+        var sc = c.score != null && c.score !== "" ? Number(c.score) : NaN;
+        if (c.homeAway === "home") { home = nm || ""; hg = isFinite(sc) ? sc : null; }
+        else if (c.homeAway === "away") { away = nm || ""; ag = isFinite(sc) ? sc : null; }
       });
       var st = ev.status && ev.status.type ? ev.status.type.state : "";
       var ms = Date.parse(ev.date || "");
       if (home && away && st) {
         out.push({ id: ev.id != null ? String(ev.id) : "", home: home, away: away,
-          state: st, ms: isNaN(ms) ? null : ms });
+          state: st, ms: isNaN(ms) ? null : ms,
+          hg: hg, ag: ag,
+          clock: String((ev.status && ev.status.displayClock) || ""),
+          period: Number(ev.status && ev.status.period) || 0 });
       }
     });
     return out;
@@ -711,12 +900,12 @@
   }
 
   function applyBoard(key, events, now) {
-    var fallback = {};
+    var fallback = {}, changed = false;
     (cache.fixtures || []).forEach(function (f) {
       var k = kickoff(f);
       if (!k || !k.ms) return;
       var el = now - k.ms;
-      if (el < ESPN_CHECK_FROM || el >= MATCH_HARD_MS) return;
+      if (el < -ESPN_PRE_MS || el >= MATCH_HARD_MS) return;
       if (boardKey(f, "et") !== key && boardKey(f, "utc") !== key) return;
       var ev = findEvent(f, events);
       if (!ev) {
@@ -725,14 +914,19 @@
         return;
       }
       var fk = fixtureKey(f), rec = liveState[fk];
-      if (rec && rec.state === ev.state) { rec.ts = now; return; }
-      liveState[fk] = { state: ev.state, ts: now };
+      /* El estado no retrocede: si ya está en juego (o terminado), un tablero
+         viejo que todavía lo da por "por jugar" no lo apaga. */
+      if (rec && (rec.state === "post" || (rec.state === "in" && ev.state === "pre"))) return;
+      if (rec && rec.state === ev.state && rec.hg === ev.hg && rec.ag === ev.ag &&
+          rec.clock === ev.clock && rec.period === ev.period) { rec.ts = now; return; }
+      liveState[fk] = { state: ev.state, ts: now,
+        hg: ev.hg, ag: ev.ag, clock: ev.clock, period: ev.period };
+      changed = true;
     });
     Object.keys(fallback).forEach(function (k2) { if (k2) fetchBoard(k2, now); });
-    /* Se vuelve a pintar si el conjunto de partidos terminados cambió: al
-       confirmarse el pitazo final (se retira) o al refrescar un estado viejo
-       que seguía "en juego" (se mantiene). */
-    if (isActive() && overCount(cache.fixtures, Date.now()) !== cache.ended) renderList();
+    /* Se repinta si cambió el estado (inicio, gol, final): así el marcador y
+       el minuto en vivo se ven sin recargar la página. */
+    if (isActive() && (changed || overCount(cache.fixtures, Date.now()) !== cache.ended)) renderList();
   }
 
   function fetchBoard(key, now) {
@@ -761,7 +955,9 @@
       var f = all[i], k = kickoff(f);
       if (!k || !k.ms) continue;
       var el = now - k.ms;
-      if (el < ESPN_CHECK_FROM || el >= MATCH_HARD_MS) continue;
+      /* Desde poco antes del inicio (para detectar el arranque y marcarlo en
+         vivo) hasta el tope de duración del partido. */
+      if (el < -ESPN_PRE_MS || el >= MATCH_HARD_MS) continue;
       var key = boardKey(f, "et");
       if (!key || seen[key]) continue;
       seen[key] = true;
@@ -769,15 +965,32 @@
     }
   }
 
-  /* Mientras la portada está abierta, revisa si algún partido terminó y vuelve
-     a pintar la lista (así la tarjeta desaparece sin recargar la página). */
+  /* Mientras la portada está abierta, revisa el estado de los partidos (en vivo
+     y finalizados) y refresca el tablero argentino cada minuto. */
   var retireTimer = null;
+  var arPollTs = 0;
+
+  function pollAr(now) {
+    if (prefs.arLive === false) return;
+    if (now - arPollTs < 55000) return;
+    if (!cache.fixtures || !cache.fixtures.some(function (f) { return f.code === AR_CODE; })) return;
+    arPollTs = now;
+    upcomingWithLive(cache.local, true).then(function (fx) {
+      if (!isActive()) return;
+      var sig = arSignature(fx);
+      if (sig === cache.arSig) return;
+      cache.fixtures = fx || [];
+      renderList();
+    }).catch(function () { /* sin conexión: queda lo último mostrado */ });
+  }
+
   function watchRetired() {
     if (retireTimer) return;
     retireTimer = setInterval(function () {
       if (!isActive() || !cache.fixtures || !cache.fixtures.length) return;
       var now = Date.now();
       refreshStatuses(now);
+      pollAr(now);
       if (overCount(cache.fixtures, now) === cache.ended) return;
       renderList();
     }, 30000);
@@ -786,6 +999,8 @@
     document.addEventListener("visibilitychange", function () {
       if (document.visibilityState !== "visible" || !isActive()) return;
       if (!cache.fixtures || !cache.fixtures.length) return;
+      arPollTs = 0;
+      pollAr(Date.now());
       renderList();
     });
   }
@@ -877,7 +1092,7 @@
     var sub = $("hoy-sub");
 
     if (!fixtures.length) {
-      if (sub) sub.textContent = "No hay partidos por jugar en este momento.";
+      if (sub) sub.textContent = "No hay partidos en vivo ni por jugar en este momento.";
       listEl.innerHTML = '<div class="panel"><p class="muted">' +
         (all.length
           ? "Ya terminaron los partidos que había en la base. Los resultados están en <strong>Partidos</strong>."
@@ -897,12 +1112,13 @@
     refreshDayKeys();
 
     /* Ordena por el instante real (ya convertido a la zona del usuario) y
-       agrupa por día en esa misma zona. */
+       agrupa por día en esa misma zona. Los partidos EN VIVO van primero. */
     var decorated = filtered.map(function (f) {
       var k = kickoff(f);
-      return { f: f, ms: k.ms, key: groupKey(f) };
+      return { f: f, ms: k.ms, key: groupKey(f), live: liveOf(f, now) };
     });
     decorated.sort(function (a, b) {
+      if (!!a.live !== !!b.live) return a.live ? -1 : 1;
       var av = a.ms != null ? a.ms : Date.parse(a.f.date + "T12:00:00");
       var bv = b.ms != null ? b.ms : Date.parse(b.f.date + "T12:00:00");
       if (av !== bv) return av - bv;
@@ -922,20 +1138,21 @@
       var act = !!(slug && d.ms && window.AD.livehoy &&
         window.AD.livehoy.isCandidate({ slug: slug, ms: d.ms }, now));
       return {
-        f: f, ht: ht, at: at, p: p, key: d.key,
+        f: f, ht: ht, at: at, p: p, key: d.key, live: d.live,
         fk: fixtureKey(f), domId: "fxl" + i,
         slug: slug, ms: d.ms, id: em ? em[1] : null, act: act
       };
     });
 
+    var liveCount = items.filter(function (it) { return !!it.live; }).length;
     if (sub) {
-      sub.textContent = filtered.length.toLocaleString("es") +
-        (filtered.length === 1 ? " próximo partido" : " próximos partidos") +
+      sub.textContent = (liveCount ? liveCount + " en vivo · " : "") +
+        filtered.length.toLocaleString("es") +
+        (filtered.length === 1 ? " partido" : " partidos") +
         (filtered.length > MAX_CARDS ? " · mostrando los primeros " + MAX_CARDS : "") +
         " · horarios en " + tzLabel() + " (" + gmtLabel() + ")";
     }
 
-    var anyLive = fixtures.some(function (f) { return f.live; });
     var parts = [];
     parts.push('<div class="hoy-tools">' +
       '<label class="hoy-field"><span>Competición</span>' +
@@ -945,7 +1162,9 @@
           (prefs.arLive !== false ? " checked" : "") +
         "> Liga Argentina (en vivo)</span></label>" +
       "</div>");
-    if (anyLive) parts.push('<p class="hoy-src">Liga Profesional (Argentina) en vivo · datos actualizados</p>');
+    if (liveCount) parts.push('<p class="hoy-src">' + liveCount +
+      (liveCount === 1 ? " partido en vivo" : " partidos en vivo") +
+      " · marcadores actualizados desde ESPN</p>");
 
     var lastDay = null;
     items.forEach(function (it, i) {
@@ -957,6 +1176,10 @@
     });
 
     listEl.innerHTML = parts.join("");
+
+    /* Firma del estado en vivo de la liga argentina: se usa para no repintar
+       si el tablero no cambió. */
+    cache.arSig = arSignature(cache.fixtures);
 
     var sel = $("hoy-comp");
     if (sel) {
@@ -985,16 +1208,26 @@
   }
 
   function cardHTML(it, i) {
-    var f = it.f, p = it.p;
+    var f = it.f, p = it.p, live = it.live;
     var when = whenText(f);
 
+    var whenHTML = (live && live.clock)
+      ? '<span class="fxl-inline is-live" data-live-clock="1"><i></i>EN VIVO · ' + esc(live.clock) + "</span>"
+      : live
+        ? '<span class="fxl-inline is-live" data-live-clock="1"><i></i>EN VIVO</span>'
+        : esc(when);
+
     var head = '<div class="fx-top"><span class="fx-comp">' + esc(f.competition) + "</span>" +
-      '<span class="fx-when" data-fkwhen="1">' + esc(when) + "</span></div>";
+      '<span class="fx-when" data-fkwhen="1">' + whenHTML + "</span></div>";
+
+    var middle = (live && live.hg != null && live.ag != null)
+      ? '<div class="fx-score">' + esc(live.hg) + "<i>:</i>" + esc(live.ag) + "</div>"
+      : '<div class="fx-vs">VS</div>';
 
     var teams = '<div class="fx-teams">' +
       '<div class="fx-team home"><span class="fx-name">' + esc(dispName(f.home)) + "</span>" +
         (p ? '<span class="fx-tag" data-fktag="h">' + pct1(p.hw) + "%</span>" : "") + "</div>" +
-      '<div class="fx-vs">VS</div>' +
+      middle +
       '<div class="fx-team away"><span class="fx-name">' + esc(dispName(f.away)) + "</span>" +
         (p ? '<span class="fx-tag" data-fktag="a">' + pct1(p.aw) + "%</span>" : "") + "</div>" +
       "</div>";
@@ -1043,8 +1276,13 @@
         '<span class="fxl-dot"></span>Actualizando datos…</div></div>'
       : "";
 
-    return '<article class="fx' + (p ? "" : " fx--nodata") + '" data-fk="' + esc(it.domId) + '">' +
-      head + teams + '<div class="fx-static-body">' + body + "</div>" + liveHost + actions + "</article>";
+    var note = live
+      ? '<p class="fx-livenote">El pronóstico 1X2 es previo al partido; el marcador y el análisis se actualizan en vivo.</p>'
+      : "";
+
+    return '<article class="fx' + (live ? " fx--live" : "") + (p ? "" : " fx--nodata") +
+      '" data-fk="' + esc(it.domId) + '">' +
+      head + teams + '<div class="fx-static-body">' + note + body + "</div>" + liveHost + actions + "</article>";
   }
 
   function onCardAction(btn, items) {

@@ -235,8 +235,17 @@
     // activa, se usa esa base; si no, la global (comportamiento clásico).
     var perComp = !!(ST.config.compHomeAdv && cfg.competition);
     var base = perComp ? ST.competitionBaseline(matches, cfg.competition) : ST.leagueBaselines(matches);
-    var hs = ST.teamStats(cfg.homeId, matches, cfg.recency);
-    var as = ST.teamStats(cfg.awayId, matches, cfg.recency);
+    var compLow2 = String(cfg.competition || "").toLowerCase();
+    var isArg2 = compLow2.indexOf("arg") >= 0 || compLow2.indexOf("profesional") >= 0 || compLow2.indexOf("superliga") >= 0;
+    var recencyUse = cfg.recency;
+    if (isArg2 && (recencyUse == null || recencyUse === "")) {
+      // En Argentina damos un poco más de peso a la forma reciente por defecto
+      recencyUse = Math.max(recencyUse || 0, 0.42);
+    } else if (isArg2 && typeof recencyUse === "number") {
+      recencyUse = Math.min(0.6, Math.max(0.35, recencyUse + 0.07));
+    }
+    var hs = ST.teamStats(cfg.homeId, matches, recencyUse);
+    var as = ST.teamStats(cfg.awayId, matches, recencyUse);
 
     var eg = ST.expectedGoals(hs, as, base);
     var lh = eg.home, la = eg.away;
@@ -260,6 +269,34 @@
       var ratings = ST.eloRatings(matches);
       d.markets = ST.blendElo(d.markets, ratings[cfg.homeId], ratings[cfg.awayId]);
     }
+
+    // Ajuste conservador por Liga Argentina: tiende más al empate cuando está parejo
+    try {
+      var compLow = String(cfg.competition || "").toLowerCase();
+      var isArg = compLow.indexOf("arg") >= 0 || compLow.indexOf("profesional") >= 0 || compLow.indexOf("superliga") >= 0;
+      if (isArg && d && d.markets) {
+        var mk = d.markets;
+        var diff12 = Math.abs(mk.homeWin - mk.awayWin);
+        // Solo actuar si muy parejo, con probabilidad de empate razonable
+        if (diff12 < 0.10 && mk.draw >= 0.24) {
+          // Empuje sutil hacia empate (2-3 pp máx). Nunca fuerzo más del 36% de empate
+          var shift = Math.min(0.028, (mk.homeWin + mk.awayWin) * 0.07);
+          if (mk.draw + shift > 0.36) shift = Math.max(0, 0.36 - mk.draw);
+          if (shift > 0.008) {
+            mk.homeWin -= shift / 2;
+            mk.awayWin -= shift / 2;
+            mk.draw += shift;
+            var nsArg = mk.homeWin + mk.draw + mk.awayWin;
+            if (nsArg > 0) {
+              mk.homeWin /= nsArg; mk.draw /= nsArg; mk.awayWin /= nsArg;
+            }
+            if (adjustments.indexOf("Ajuste por Liga Profesional Argentina: ligero sesgo hacia empate.") === -1) {
+              adjustments.push("Ajuste por Liga Profesional Argentina: ligero sesgo hacia empate.");
+            }
+          }
+        }
+      }
+    } catch (e) {}
     var sp = ST.setPieces(hs, as, base);
     var sim = ST.simulate(lh, la, 10000, { redCardProb: 0.06 });
     var markov = ST.markovForm(matches, cfg.homeId, cfg.awayId, { recency: cfg.recency });
