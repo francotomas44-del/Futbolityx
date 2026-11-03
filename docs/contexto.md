@@ -7,9 +7,9 @@ fuente + fecha + enlace**.
 
 ## De dónde salen las noticias
 
-- **Fuente: ESPN** (API pública `site.api.espn.com` / `site.web.api.espn.com`). Es gratis, no
+- **Fuente:** un servicio público de noticias deportivas. Es gratis, no
   pide clave y **habilita CORS**, así que se puede consultar directamente desde el navegador.
-  Se piden en **español** (`region=ar`, `lang=es`), que es como las publica ESPN Deportes.
+  Se piden en **español** (`region=ar`, `lang=es`), que es como los publica el servicio.
 - Se combinan dos consultas:
   1. **Por equipo:** `search/v2?query=<equipo>` → titulares, fecha, enlace y, cuando está, el
      pie de foto como detalle.
@@ -45,5 +45,5 @@ nueva. Así se usa Google sin depender de un intermediario.
 
 - Es una **lectura cualitativa** complementaria, no entra en las probabilidades ni en el motor
   (goles/Elo/Monte Carlo/Markov).
-- La cobertura depende de ESPN: los equipos muy chicos pueden no tener notas recientes.
+- La cobertura depende de la API: los equipos muy chicos pueden no tener notas recientes.
 - El idioma y la disponibilidad pueden variar según la región del usuario.

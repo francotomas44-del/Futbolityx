@@ -8,13 +8,13 @@ vuelve **atractiva y entendible para cualquiera**, sin romper nada de lo que ya 
 | Área | Antes | Ahora |
 |---|---|---|
 | **Portada** | Texto sobre "estadística honesta" | **"Hoy": próximos partidos con pronóstico 1X2** |
-| **Datos nuevos** | Solo partidos jugados | Se detectan los **partidos futuros** de la base (openfootball 2026-27) y se pronostican |
+| **Datos nuevos** | Solo partidos jugados | Se detectan los **partidos futuros** de la base (la base pública 2026-27) y se pronostican |
 | **Base al día** | La base se importaba una sola vez | Las competiciones y partidos nuevos llegan **solos** a las instalaciones existentes (automático al abrir + botón "Buscar datos nuevos" en Datos) |
-| **Nombres de equipo** | Los nombres de ESPN no siempre coincidían con la base ("Kairat Almaty" vs "FK Kairat") | Se resuelven por **nombre canónico**: ningún partido de "Hoy" queda sin pronóstico por el nombre |
-| **Partidos terminados** | Seguían en "Hoy" como si faltaran jugar | Se retiran al pitazo final (se consulta el estado real a ESPN) y, sin dato, a las ≈2 h 05; los análisis guardados no se tocan |
+| **Nombres de equipo** | Los nombres de la API no siempre coincidían con la base ("Kairat Almaty" vs "FK Kairat") | Se resuelven por **nombre canónico**: ningún partido de "Hoy" queda sin pronóstico por el nombre |
+| **Partidos terminados** | Seguían en "Hoy" como si faltaran jugar | Se retiran al pitazo final (se consulta el estado real a la API) y, sin dato, a las ≈2 h 05; los análisis guardados no se tocan |
 | **Partidos en vivo** | Solo el pronóstico previo | Las tarjetas de los partidos **en juego o que empiezan en la próxima hora** muestran **estadísticas en vivo** (posesión, tiros, xG estimado, córners, tarjetas, atajadas), **probabilidades recalculadas** y un **detalle** con minuto a minuto y mercados |
-| **Base ampliada** | ~31 competiciones / ~49.000 partidos | **110 competiciones / 192.202 partidos**: historia previa desde ESPN (`espn-history`, 65.276) + competiciones nuevas de openfootball (`openfootball-extra`, 27.582: MLS, CONCACAF, CAF, Brasil, Colombia, Ecuador, Paraguay, Asia y África) + **CONMEBOL Sudamericana y Libertadores** desde ESPN (2.293 + 3.196) + **primeras divisiones de Chile, Uruguay, Perú, Bolivia y Venezuela** desde ESPN (30.630) + **Copa América, Eliminatorias CONMEBOL, Europa League y Conference League** desde ESPN (`espn-cups`, 3.917) |
-| **Liga Argentina** | No aparecía en "Hoy" (openfootball no tiene la temporada 2026) | **Historial completo 2001 y 2003–2026 desde ESPN** (9.505 partidos, descargado) + temporada en curso en vivo, con la misma tarjeta y pronóstico (se puede desactivar) |
+| **Base ampliada** | ~31 competiciones / ~49.000 partidos | **110 competiciones / 192.202 partidos**: historia previa desde la API (`history`, 65.276) + competiciones nuevas de la base pública (`base-extra`, 27.582: MLS, CONCACAF, CAF, Brasil, Colombia, Ecuador, Paraguay, Asia y África) + **CONMEBOL Sudamericana y Libertadores** desde la API (2.293 + 3.196) + **primeras divisiones de Chile, Uruguay, Perú, Bolivia y Venezuela** desde la API (30.630) + **Copa América, Eliminatorias CONMEBOL, Europa League y Conference League** desde la API (`cups`, 3.917) |
+| **Liga Argentina** | No aparecía en "Hoy" (la base pública no tiene la temporada 2026) | **Historial completo 2001 y 2003–2026 desde la API** (9.505 partidos, descargado) + temporada en curso en vivo, con la misma tarjeta y pronóstico (se puede desactivar) |
 | **Menú** | 10 pestañas técnicas | **Modo simple (6 pestañas)** + **modo avanzado** con un clic |
 | **Lenguaje** | Jerga al frente | Frases claras: "Gana X", "Goles esperados", "Marcador probable" |
 | **Horarios** | Hora local de la sede, sin contexto | **Convertidos a la hora del país del usuario**; se elige el país (por defecto se detecta solo) |
@@ -31,42 +31,42 @@ vuelve **atractiva y entendible para cualquiera**, sin romper nada de lo que ya 
 - La primera vez carga la base histórica (~70 MB, una sola vez).
 - El botón **Modo avanzado** (arriba) muestra las herramientas técnicas (Evaluación, Rendimiento, Informe, Datos).
 
-## Liga Argentina (ESPN)
+## Liga Argentina (la API)
 
-La base de openfootball solo trae 3 temporadas argentinas y no tiene la **2026**.
+La base pública solo trae 3 temporadas argentinas y no tiene la **2026**.
 Para tener el **máximo historial real**, la Liga Profesional Argentina se arma
-desde la **API pública de ESPN** (gratis, sin clave, con CORS):
+desde la **API pública** (gratis, sin clave, con CORS):
 
-- **Historial descargado:** `scripts/build-arg-espn.ps1` baja las temporadas
+- **Historial descargado:** `scripts/build-arg.ps1` baja las temporadas
   **2001 y 2003–2026** (**9.505 partidos**, solo partidos terminados en tiempo
-  regular) y las guarda en `data/arg-espn/<año>.json` (declaradas en
-  `data/manifest.json` con `source: "arg-espn"`). No hace falta internet para verlas.
+  regular) y las guarda en `data/arg/<año>.json` (declaradas en
+  `data/manifest.json` con `source: "arg"`). No hace falta internet para verlas.
 - **En vivo:** al abrir la portada, una sola petición trae la temporada en curso
   (`dates=2026&limit=1000`); la respuesta se guarda en caché unas horas. De ahí se
   usan los partidos **por jugar** (portada) y los **ya terminados** (historial). Los
-  que ya están descargados se detectan por su `id` de ESPN y **no se duplican**.
+  que ya están descargados se detectan por su `id` de la API y **no se duplican**.
 - **Nombres de equipo:** `scripts/arg-team-map.json` (replicado en `js/v2.js`)
-  normaliza cada rótulo de ESPN a un nombre canónico para no partir el historial de
-  un club en dos; el nombre visible se corrige con `DISPLAY_NAME` (ESPN dice
+  normaliza cada rótulo de la API a un nombre canónico para no partir el historial de
+  un club en dos; el nombre visible se corrige con `DISPLAY_NAME` (la API dice
   "Gimnasia (Mendoza)" → se muestra **"Gimnasia y Esgrima de Mendoza"**). Los equipos
   sin datos siguen mostrando **"Sin historial suficiente"**.
-- Se muestra la fuente en pantalla y la parte **en vivo** se puede **desactivar**
+- La parte **en vivo** se puede **desactivar**
   con la casilla "Liga Argentina (en vivo)". Ver [`atribuciones.md`](atribuciones.md).
 
 > **olé.com.ar** se evaluó como base para las ligas argentinas, pero sus datos los
 > sirve *LilaX* (`ole.lilax.io`) por JavaScript y **no son accesibles desde el
 > navegador** (bloqueo CORS; el HTML no trae los datos). No es viable en una app
-> 100 % frontend, por lo que se usa ESPN.
+> 100 % frontend, por lo que se usa la API.
 
 ## Partidos que ya terminaron
 
 La portada **Hoy** muestra solo partidos que todavía no terminaron. Cuando falta poco para el
-cierre, la app consulta el **estado real del partido a ESPN** (una petición por competición y
+cierre, la app consulta el **estado real del partido a la API** (una petición por competición y
 día, como máximo cada 2 minutos) y:
 
 - si el partido **terminó** (`FT`), la tarjeta se retira en el acto;
 - si **sigue en juego** (alargue, penales o demora), se mantiene aunque pase el tiempo;
-- si ESPN no responde, se usa la duración máxima habitual (**≈2 h 05** desde el inicio: 90
+- si la API no responde, se usa la duración máxima habitual (**≈2 h 05** desde el inicio: 90
   minutos, 15 de descanso y el tiempo añadido) y, como tope, **3 h**.
 
 La lista se revisa cada 30 segundos y al volver a la pestaña, así que el partido desaparece
@@ -78,7 +78,7 @@ mientras la página está abierta, sin recargar.
   y los **análisis guardados** de cada usuario siguen en **Mis predicciones** (pendientes o cerrados).
 - La consulta de estado es **anónima y no bloquea la app**: si falla, todo sigue funcionando con la
   regla por tiempo. Solo se hace para los partidos que están por terminar (entre 1 h 40 y 3 h desde
-  el inicio), identificados por el **id de ESPN** o, en partidos de openfootball, por nombre y horario.
+  el inicio), identificados por el **id de la API** o, en partidos de la base pública, por nombre y horario.
 
 ## Análisis en vivo en "Hoy"
 
@@ -99,12 +99,12 @@ muestran un bloque en vivo que se actualiza solo:
 
 **Cada cuánto:** 40 segundos en juego y 2 minutos antes de empezar; se pausa con la pestaña
 oculta o fuera de "Hoy" y se retoma al volver. No requiere clave ni backend: usa la API pública
-de ESPN, la misma del detalle del partido.
+de la API, la misma del detalle del partido.
 
-> **El xG es estimado.** ESPN no publica xG oficial por equipo, así que la app lo calcula sumando
+> **El xG es estimado.** la API no publica xG oficial por equipo, así que la app lo calcula sumando
 > el valor de cada remate según su ubicación, distancia, ángulo, si fue de cabeza, bloqueado o
 > penal. Se muestra siempre como **"xG estimado"**; no es un dato oficial. Para xG oficial haría
-> falta una API con clave paga (Sportmonks, API-Football, football-data.org) y, en una web
+> falta una API con clave paga (Sportmonks, API-Football, otro proveedor) y, en una web
 > estática, un backend que oculte la clave. Detalle técnico en
 > [`analisis-en-vivo.md`](analisis-en-vivo.md).
 
@@ -122,7 +122,7 @@ Dos clubes pueden compartir el nombre que usa una fuente según la temporada. Es
 | 2023 y 2024 (Brasileirão) | `CA Paranaense` | **Athletico Paranaense** | correcto |
 | 2000-2011 (LaLiga) | `Deportivo` | **Deportivo La Coruña** | el equipo de Alavés (Vitoria) |
 
-Se verificó **cada** partido contra el `id` de evento de ESPN (94/94 de Paraná y 398/398 de
+Se verificó **cada** partido contra el `id` de evento de la API (94/94 de Paraná y 398/398 de
 Deportivo), se corrigieron los archivos y su `rev` fuerza la reimportación. En instalaciones
 existentes, `repairPhantoms` retira el partido equivocado solo si en la misma fecha el club
 correcto jugó contra el mismo rival (imposible para dos clubes de la misma liga), así que no
@@ -135,7 +135,7 @@ Los partidos de **Hoy** se muestran con la hora convertida a la zona horaria del
 
 - El selector **🌐** de la barra superior permite elegir el país. Por defecto usa la zona del
   navegador ("Automático").
-- La base openfootball trae la hora **local de la sede**. Para las ligas de un solo país se usa la
+- La base pública trae la hora **local de la sede**. Para las ligas de un solo país se usa la
   zona de ese país (mapa `VENUE_TZ` en `js/v2.js`). Los partidos que ya traen offset explícito
   (p. ej. `"20:00 UTC-4"` del Mundial) se convierten con ese dato exacto.
 - El subtítulo de la portada indica la zona activa (ej. `horarios en Argentina (GMT-03:00)`).
@@ -143,8 +143,8 @@ Los partidos de **Hoy** se muestran con la hora convertida a la zona horaria del
 
 ## Alineaciones y estadísticas en vivo (por partido)
 
-Cada tarjeta de **Hoy** (y cada partido del historial que tenga ficha en ESPN) suma el botón
-**Alineaciones**. Abre un panel con **lo que ESPN publica para ese partido**:
+Cada tarjeta de **Hoy** (y cada partido del historial que tenga ficha en la API) suma el botón
+**Alineaciones**. Abre un panel con **lo que la API publica para ese partido**:
 
 - **Alineaciones**: 11 titulares y suplentes de cada equipo, con dorsal, posición en castellano,
   formación y quién entró/salió. Al tocar un jugador se despliegan **sus estadísticas** (goles,
@@ -155,20 +155,20 @@ Cada tarjeta de **Hoy** (y cada partido del historial que tenga ficha en ESPN) s
 
 Cómo funciona y qué límites tiene:
 
-- Los datos se piden **bajo demanda**, al abrir el partido, a la API pública de ESPN
+- Los datos se piden **bajo demanda**, al abrir el partido, a la API pública
   (`summary?event=<id>`): gratis, sin clave y con CORS abierto. **No** se guardan en el repositorio
   (son datos efímeros que cambian minuto a minuto); se cachean en el navegador **45 s** si el
   partido está en juego, **5 min** si todavía no empezó y **10 min** si terminó. Mientras el panel
   está abierto y el partido se juega, se **refresca solo cada minuto**.
-- **Alineaciones vacías antes del partido:** ESPN las publica cerca del inicio (≈1 h antes). El
+- **Alineaciones vacías antes del partido:** la API las publica cerca del inicio (≈1 h antes). El
   panel lo explica y avisa que aparecerán solas.
-- **Cobertura**: depende de ESPN. Ligas de Europa y América y copas internacionales sí; en el
+- **Cobertura**: depende de la API. Ligas de Europa y América y copas internacionales sí; en el
   historial, las alineaciones existen desde fechas distintas en cada competición (en Argentina
   desde 2005; en algunas ligas europeas no hay para partidos viejos). Si no hay datos, el panel lo
   dice en vez de inventarlos.
-- **No trae** árbitro, rating del jugador ni xG: ESPN no los publica en ese endpoint.
-- Los partidos de las fuentes ESPN se abren directo por su `id`; para los de openfootball (sin id)
-  la app busca el evento del día en el calendario de ESPN y empareja por nombre de equipo.
+- **No trae** árbitro, rating del jugador ni xG: la API no los publica en ese endpoint.
+- Los partidos de la API se abren directo por su `id`; para los de la base pública (sin id)
+  la app busca el evento del día en el calendario de la API y empareja por nombre de equipo.
 
 ## Cómo está hecho (sin dependencias nuevas)
 
@@ -176,7 +176,7 @@ Cómo funciona y qué límites tiene:
   devuelve los partidos **sin resultado** (fixtures futuros). No inventa nada.
 - `js/v2.js`: capa pública. Portada "Hoy", motor de pronóstico (reutiliza `AD.stats`),
   compartir, modo simple/avanzado, marca y registro del service worker.
-- `js/live.js`: detalle del partido — pide el `summary` de ESPN, lo **recorta a ~12 KB**, lo cachea
+- `js/live.js`: detalle del partido — pide el `summary` de la API, lo **recorta a ~12 KB**, lo cachea
   y dibuja alineaciones, minuto a minuto y estadísticas. También agrega el botón **Jugadores** en la
   tabla de partidos del historial.
 - `css/v2.css`: estilos de tarjetas, barras, onboarding, móvil y modo simple/avanzado.
@@ -195,7 +195,7 @@ Ver [`markov.md`](markov.md).
 
 La pestaña **Analizar** suma una sección de **análisis fundamental** llamada **"Contexto"**: las
 últimas noticias del **partido** y de **cada equipo** (mínimo 2 por equipo cuando hay), con
-título, pequeño detalle, fuente, fecha y enlace. Se alimenta de la **API pública de ESPN** en
+título, pequeño detalle, fuente, fecha y enlace. Se alimenta de la **API pública** en
 español (gratis, con CORS) y se cachea. Google News no se puede leer desde el navegador (bloqueo
 CORS), así que cada bloque incluye un botón **"Buscar en Google News →"**. También aparece en el
 informe exportable (sección 5). Ver [`contexto.md`](contexto.md).
@@ -203,13 +203,13 @@ informe exportable (sección 5). Ver [`contexto.md`](contexto.md).
 ## Tarjetas amarillas y rojas (base nueva)
 
 La base histórica sólo guardaba equipos, fecha y resultado. Ahora incorpora **tarjetas (amarillas y
-rojas) y córners por partido y equipo** para las ligas con cobertura de ESPN, tomados del detalle
+rojas) y córners por partido y equipo** para las ligas con cobertura de la API, tomados del detalle
 público de cada partido (banderas `yellowCard`/`redCard` con su equipo, y `wonCorners`).
 
 - Se construye con `scripts/build-cards.ps1`, que reutiliza el mismo caché de `scoreboard` que la
-  historia (`%TEMP%\espn-cache-futbolityx`) y escribe `data/cards/<code>.json` (una entrada compacta
-  por partido: id de ESPN + amarillas/rojas/córners de cada equipo).
-- La app las une por `id` de ESPN en `js/dataset.js` y las integra a cada partido, así que el motor
+  historia (`%TEMP%\feed-cache-futbolityx`) y escribe `data/cards/<code>.json` (una entrada compacta
+  por partido: id de la API + amarillas/rojas/córners de cada equipo).
+- La app las une por `id` de la API en `js/dataset.js` y las integra a cada partido, así que el motor
   (`js/stats.js`) deja de usar valores de referencia.
 - En **Analizar**, las tarjetas se estiman **por separado**: amarillas y rojas de cada equipo,
   combinando lo que recibe con lo que concede el rival. En **Equipos** se ve el promedio por partido
@@ -275,7 +275,7 @@ Cambiá `name`/`claim` y cambia en toda la interfaz (header, título, footer, te
 - **Dominio propio** y reserva de la marca "Futbolityx".
 - **i18n** (español/inglés y más).
 - **Datos "vivos"**: la **Liga Argentina** y el **detalle de cada partido** (alineaciones, minuto a
-  minuto y estadísticas) ya usan datos en vivo de ESPN; para el resto, el pronóstico sale de la
+  minuto y estadísticas) ya usan datos en vivo de la API; para el resto, el pronóstico sale de la
   base histórica empaquetada, así que para reflejar la jornada real haría falta un build
   precomputado (GitHub Actions) o más fuentes en vivo.
 - **Retención**: favoritos, "mi equipo", avisos.

@@ -1,5 +1,5 @@
 /* news.js — Contexto (análisis fundamental): últimas noticias por equipo y del partido.
-   Fuente: API pública de ESPN (gratis, sin clave, con CORS). Se prioriza el español
+   Fuente: API pública de noticias (gratis, sin clave, con CORS). Se prioriza el español
    (region=ar, lang=es). Google News NO se puede consultar desde el navegador (bloqueo
    CORS): por eso se ofrece un enlace de búsqueda en Google News por equipo y por partido.
    Namespace global: window.AD.news */

@@ -3,7 +3,7 @@
    Qué hace
    - Detecta los partidos que están en juego o que empiezan dentro de la
      próxima hora (los primeros 30 de la portada, que son los que se ven).
-   - Consulta la ficha pública de ESPN (`summary?event=<id>`) y arma, para
+   - Consulta la ficha pública del proveedor (`summary?event=<id>`) y arma, para
      cada partido, un análisis con: minuto, marcador, posesión, tiros, tiros
      al arco, xG estimado, remates dentro del área, córners, faltas, tarjetas,
      atajadas, presión de los últimos 10 minutos, rendimiento del arquero,
@@ -15,15 +15,11 @@
      todavía no empezó. Se pausa con la pestaña en segundo plano y se retoma
      al volver.
 
-   Por qué ESPN
-   Es la misma fuente que ya usa la app: gratuita, sin clave y con CORS. No
-   publica xG oficial por equipo, así que el xG se ESTIMA sumando el valor de
-   cada remate según su ubicación (x/y que publica ESPN), el tipo de remate
-   (cabeza/pie) y si fue bloqueado. Es una estimación transparente, no un dato
-   oficial: se muestra siempre como "xG estimado".
-   Los proveedores con xG oficial (Sportmonks, API-Football) requieren una
-   clave paga; en una web estática la clave quedaría visible para cualquiera,
-   por eso no se incluyen. Ver docs/fuentes-de-datos.md.
+   Cómo se calcula
+   La fuente no publica xG oficial por equipo, así que el xG se ESTIMA sumando
+   el valor de cada remate según su ubicación (x/y que publica la fuente), el
+   tipo de remate (cabeza/pie) y si fue bloqueado. Es una estimación
+   transparente, no un dato oficial: se muestra siempre como "xG estimado".
 
    Namespace: window.AD.livehoy */
 (function () {
@@ -40,7 +36,7 @@
   var MAX_ACTIVE = 20;             /* tope de partidos consultados a la vez */
   var LIVE_CAP = 12;               /* partidos ya empezados */
   var PRE_CAP = 8;                 /* partidos que empiezan en la próxima hora */
-  var MAX_PAR = 3;                 /* peticiones simultáneas a ESPN */
+  var MAX_PAR = 3;                 /* peticiones simultáneas a la fuente */
   var RETRY_MAX = 5 * 60000;
   var TICK = 20 * 1000;
 
@@ -71,7 +67,7 @@
       var date = card.date || (card.kickoffIso ? String(card.kickoffIso).slice(0,10) : "");
       var comp = card.competition || card.comp || "";
       var lg = card.league || comp || "";
-      window.AD.liveIngest.ingestFromEspn({
+      window.AD.liveIngest.ingestResult({
         eventId: ev,
         date: date,
         competition: comp,
@@ -247,7 +243,7 @@
     return clamp(xg, 0.004, 0.9);
   }
 
-  /* ---------- lectura de la ficha de ESPN ---------- */
+  /* ---------- lectura de la ficha de la fuente ---------- */
   function statsMap(m) {
     var out = { h: {}, a: {} };
     (m.stats || []).forEach(function (t) {
@@ -350,7 +346,7 @@
       else if (p.x != null && Number(p.x) >= 84) box[side]++;
     });
 
-    /* Si ESPN no publicó jugadas con ubicación, se estima con los tiros. */
+    /* Si la fuente no publicó jugadas con ubicación, se estima con los tiros. */
     var th = stats.h, ta = stats.a;
     if (xg.h + xg.a === 0 && (n0(th.totalShots) + n0(ta.totalShots)) > 0) {
       xg.h = n0(th.shotsOnTarget) * 0.22 + Math.max(0, n0(th.totalShots) - n0(th.shotsOnTarget)) * 0.045;
@@ -528,13 +524,13 @@
   /* ---------- consulta y refresco ---------- */
   function resolveId(it) {
     if (it.id) return Promise.resolve(String(it.id));
-    if (it.espnId) return Promise.resolve(it.espnId);
+    if (it.evId) return Promise.resolve(it.evId);
     var L = window.AD.live;
     if (!L || !L.resolveEvent) return Promise.resolve(null);
     return L.resolveEvent({
       slug: it.slug, date: it.f.date, home: it.f.home, away: it.f.away
     }).then(function (id) {
-      if (id) it.espnId = String(id);
+      if (id) it.evId = String(id);
       return id;
     });
   }
@@ -589,7 +585,7 @@
     resolveId(it).then(function (id) {
       if (!id) throw new Error("Todavía no hay ficha de este partido");
       return window.AD.live.fetchModel(it.slug, id).then(function (m) {
-        it.espnId = String(id);
+        it.evId = String(id);
         var rec = {
           at: Date.now(), model: m, fail: 0, next: 0,
           key: it.fk, slug: it.slug, id: String(id), domId: it.domId, it: it
@@ -1076,7 +1072,7 @@
     var rec = state.byKey[it.fk];
     window.AD.live.open({
       slug: it.slug,
-      eventId: rec && rec.id ? rec.id : (it.espnId || it.id || null),
+      eventId: rec && rec.id ? rec.id : (it.evId || it.id || null),
       date: it.f.date,
       home: it.f.home,
       away: it.f.away,

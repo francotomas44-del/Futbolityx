@@ -2,46 +2,43 @@
    Carga los JSON locales bajo data/ y los convierte al modelo del sistema
    usando AD.store.importBulk. Cada entrada de data/manifest.json trae su
    carpeta de origen (`source`):
-     - openfootball: resto del mundo (data/openfootball/…), descargado por
-       scripts/build-dataset.ps1. Datos libres (dominio público/CC0).
-     - openfootball-extra: competiciones que la base no traía (África, MLS,
-       CONCACAF, Sudamérica, Asia…), mismas fuentes libres
-       (data/openfootball-extra/<slug>.json), por scripts/build-openfootball-extra.ps1.
-     - arg-espn: Liga Profesional Argentina (data/arg-espn/<año>.json),
-       descargada por scripts/build-arg-espn.ps1 desde la API pública de ESPN
-       (2001 y 2003..2026). Cada partido guarda su id de ESPN en `id` para no
-       duplicar lo que luego se refresca en vivo.
-     - espn-season: temporada en curso de las ligas ya presentes (data/espn-season/),
-       por scripts/build-espn-season.ps1.
-     - espn-history: tramo anterior al primer partido de cada liga (data/espn-history/),
-       por scripts/build-espn-history.ps1.
-     - espn-sudamericana: CONMEBOL Sudamericana (data/espn-sudamericana/), de la API
-       pública de ESPN; openfootball no la publica. La baja
-       scripts/build-espn-sudamericana.ps1 (historial 2005..2026). Junto con la
-       Libertadores, es una de las fuentes que **cambia** (suma resultados y cruces
-       a medida que se juega),
-       así que su entrada del manifiesto lleva `rev` (hash del contenido); la app
-       la agrega como query (?v=rev) para refrescar el archivo, y sus partidos por
-       jugar (sin marcador) alimentan la portada "Hoy".
-     - espn-libertadores: CONMEBOL Libertadores (data/espn-libertadores/), de la
-       API pública de ESPN (historial 2005..2026), por
-       scripts/build-espn-libertadores.ps1. Reemplaza a la antigua entrada de
-       openfootball-extra (sa-lib.json), que mezclaba Libertadores y Sudamericana
-       bajo un mismo código; igual que la Sudamericana, lleva `rev` y sus
-       fixtures alimentan "Hoy".
-   - espn-southamerica: primeras divisiones de Chile, Uruguay, Perú, Bolivia y
-      Venezuela (data/espn-southamerica/<código>.json), que la base no traía
-      (sus clubes aparecían SOLO en las copas CONMEBOL). De la API pública de
-      ESPN (2005..hoy), por scripts/build-espn-southamerica.ps1. Lleva `rev` y
-      sus cruces por jugar alimentan la portada "Hoy".
-    - espn-cups: competiciones que la base no traía y que sí son importantes:
-      Copa América, Eliminatorias Mundial CONMEBOL, UEFA Europa League y UEFA
-      Conference League (data/espn-cups/<código>.json), de la API pública de
-      ESPN (Copa América 2001..hoy, Eliminatorias 2003..hoy, Europa League
-      2009..hoy, Conference League 2021..hoy), por scripts/build-espn-cups.ps1.
-      De las copas europeas se guarda la FASE PRINCIPAL (se descartan las rondas
-      previas). Lleva `rev` y sus cruces por jugar alimentan la portada "Hoy".
-    Los solapamientos entre fuentes se deduplican al cargar (ver dedupeRows).
+     - base: competiciones y temporadas del archivo histórico (data/base/…),
+       por scripts/build-dataset.ps1.
+     - base-extra: competiciones adicionales (África, MLS, CONCACAF,
+       Sudamérica, Asia…), en data/base-extra/<slug>.json, por
+       scripts/build-base-extra.ps1.
+     - arg: Liga Profesional Argentina (data/arg/<año>.json), por
+       scripts/build-arg.ps1 (2001 y 2003..2026). Cada partido guarda el id
+       del evento en `id` para no duplicar lo que luego se refresca en vivo.
+     - season: temporada en curso de las ligas ya presentes (data/season/),
+       por scripts/build-season.ps1.
+     - history: tramo anterior al primer partido de cada liga (data/history/),
+       por scripts/build-history.ps1.
+     - sudamericana: CONMEBOL Sudamericana (data/sudamericana/), por
+       scripts/build-sudamericana.ps1 (historial 2005..2026). Junto con la
+       Libertadores, es una de las fuentes que **cambia** (suma resultados y
+       cruces a medida que se juega), así que su entrada del manifiesto lleva
+       `rev` (hash del contenido); la app la agrega como query (?v=rev) para
+       refrescar el archivo, y sus partidos por jugar (sin marcador) alimentan
+       la portada "Hoy".
+     - libertadores: CONMEBOL Libertadores (data/libertadores/), por
+       scripts/build-libertadores.ps1 (historial 2005..2026). Reemplaza a la
+       antigua entrada combinada que mezclaba Libertadores y Sudamericana bajo
+       un mismo código; igual que la Sudamericana, lleva `rev` y sus fixtures
+       alimentan "Hoy".
+     - southamerica: primeras divisiones de Chile, Uruguay, Perú, Bolivia y
+       Venezuela (data/southamerica/<código>.json), que la base no traía (sus
+       clubes aparecían SOLO en las copas CONMEBOL) (2005..hoy), por
+       scripts/build-southamerica.ps1. Lleva `rev` y sus cruces por jugar
+       alimentan la portada "Hoy".
+     - cups: competiciones que la base no traía y que sí son importantes:
+       Copa América, Eliminatorias Mundial CONMEBOL, UEFA Europa League y UEFA
+       Conference League (data/cups/<código>.json) (Copa América 2001..hoy,
+       Eliminatorias 2003..hoy, Europa League 2009..hoy, Conference League
+       2021..hoy), por scripts/build-cups.ps1. De las copas europeas se guarda
+       la FASE PRINCIPAL (se descartan las rondas previas). Lleva `rev` y sus
+       cruces por jugar alimentan la portada "Hoy".
+     Los solapamientos entre fuentes se deduplican al cargar (ver dedupeRows).
    No requiere API key y no envía nada a servidores externos (los archivos son locales).
 
    Namespace: window.AD.dataset */
@@ -53,7 +50,7 @@
   var BASE = "data/";
   var MANIFEST = BASE + "manifest.json";
 
-  /* Nombres legibles por código de competición (códigos de openfootball) */
+  /* Nombres legibles por código de competición (códigos internos) */
   var LEAGUES = {
     "en.1": "Premier League (Inglaterra)",
     "es.1": "LaLiga (España)",
@@ -108,10 +105,10 @@
      refrescar un archivo que sí cambia (p. ej. CONMEBOL Sudamericana, con
      partidos por jugar y resultados recientes). */
   function dataURL(source, entry) {
-    return BASE + (source || "openfootball") + "/" + entry.path + (entry.rev ? ("?v=" + entry.rev) : "");
+    return BASE + (source || "base") + "/" + entry.path + (entry.rev ? ("?v=" + entry.rev) : "");
   }
 
-  /* Convierte el JSON de openfootball en partidos SIN resultado (fixtures futuros).
+  /* Convierte el JSON de la base en partidos SIN resultado (fixtures futuros).
      Son los que todavía no se jugaron: no tienen "score". Se usan para la portada
      "Hoy" (próximos partidos + pronóstico), sin inventar datos. */
   function convertFixtures(payload, comp, code) {
@@ -130,7 +127,7 @@
         code: code || "",
         home: String(m.team1).trim(),
         away: String(m.team2).trim(),
-        /* Las fuentes ESPN traen el id del evento: con eso el detalle del partido
+        /* Las fuentes externas traen el id del evento: con eso el detalle del partido
            (alineaciones y stats) se pide directo, sin buscarlo por nombre. */
         externalId: m.id != null ? String(m.id) : null
       });
@@ -180,15 +177,39 @@
      `localStorage` y sync() completa solo lo que falta. */
   var FILES_KEY = "futbolityx:base:files";
 
+  /* Nombres de fuente de versiones anteriores. Se migran al leer el registro
+     para que una instalación existente no vuelva a importar toda la base. */
+  var SOURCE_RENAMES = {
+    "openfootball": "base",
+    "openfootball-extra": "base-extra",
+    "arg-espn": "arg",
+    "espn-season": "season",
+    "espn-history": "history",
+    "espn-sudamericana": "sudamericana",
+    "espn-libertadores": "libertadores",
+    "espn-southamerica": "southamerica",
+    "espn-cups": "cups"
+  };
+
   function entryKey(e) {
-    return (e.source || "openfootball") + "|" + e.path + "|" + (e.rev || "");
+    return (e.source || "base") + "|" + e.path + "|" + (e.rev || "");
   }
 
   function readImported() {
     try {
       var raw = localStorage.getItem(FILES_KEY);
       var o = raw ? JSON.parse(raw) : null;
-      return (o && typeof o === "object" && !Array.isArray(o)) ? o : {};
+      if (!o || typeof o !== "object" || Array.isArray(o)) return {};
+      var out = {}, changed = false;
+      for (var k in o) {
+        if (!o.hasOwnProperty(k)) continue;
+        var parts = k.split("|");
+        var src = parts[0];
+        if (SOURCE_RENAMES[src]) { src = SOURCE_RENAMES[src]; changed = true; }
+        out[src + "|" + parts[1] + "|" + (parts[2] || "")] = o[k];
+      }
+      if (changed) writeImported(out);
+      return out;
     } catch (e) { return {}; }
   }
 
@@ -196,8 +217,8 @@
     try { localStorage.setItem(FILES_KEY, JSON.stringify(map)); } catch (e) {}
   }
 
-  /* Quita el mismo partido cuando dos fuentes se solapan (p. ej. openfootball y ESPN
-     cubren la misma liga/temporada). Criterio: fecha + local + visitante normalizados.
+  /* Quita el mismo partido cuando dos fuentes se solapan (p. ej. la base y el
+     archivo en vivo cubren la misma liga/temporada). Criterio: fecha + local + visitante normalizados.
      Si hay dos copias, se conserva la que trae `externalId` (más trazable). */
   function dedupeRows(rows) {
     var seen = {}, out = [];
@@ -211,7 +232,7 @@
   }
 
   /* Tarjetas (amarillas/rojas) y córners por partido.
-     data/cards/<code>.json trae, por cada id de ESPN presente en la base, un
+     data/cards/<code>.json trae, por cada id de evento presente en la base, un
      arreglo compacto: [id, amarillasLocal, amarillasVisitante, rojasLocal,
      rojasVisitante, cornersLocal, cornersVisitante]. Se combinan por id externo
      para enriquecer las filas de la base sin duplicar archivos de partidos. */
@@ -295,7 +316,7 @@
       .then(function (res) {
         return loadCards(res.manifest).then(function (cardMap) {
           var cardsApplied = applyCards(res.rows, cardMap);
-          var out = window.AD.store.importBulk(dedupeRows(res.rows.filter(function (r) { return !isSelfMatch(r); })), "openfootball");
+          var out = window.AD.store.importBulk(dedupeRows(res.rows.filter(function (r) { return !isSelfMatch(r); })), "base");
           window.AD.store.repairPhantoms();
           writeImported(res.imported);
           loading = false;
@@ -317,8 +338,8 @@
   /* Próximos partidos (fixtures sin resultado) de la temporada en curso.
      Carga liviana: lee solo los archivos de las temporadas recientes (no las 207).
      Incluye las competiciones que traen partidos por jugar de otra fuente
-     (p. ej. CONMEBOL Sudamericana y Libertadores, de ESPN, en
-     data/espn-sudamericana/ y data/espn-libertadores/).
+     (p. ej. CONMEBOL Sudamericana y Libertadores, en
+     data/sudamericana/ y data/libertadores/).
      No persiste nada: es para la portada "Hoy". */
   var upcomingCache = null;
 
@@ -335,16 +356,16 @@
         if (!Array.isArray(manifest) || !manifest.length) return [];
         var today = new Date().toISOString().slice(0, 10);
 
-        /* Cada trabajo lleva su carpeta de origen: openfootball (temporada en
+        /* Cada trabajo lleva su carpeta de origen: la base (temporada en
            curso) o fuentes que publican sus propios partidos por jugar. */
         var jobs = [];
         manifest.forEach(function (e) {
           if (!e || typeof e.path !== "string") return;
-          var src = e.source || "openfootball";
-          if (src === "espn-sudamericana" || src === "espn-libertadores" || src === "espn-southamerica" || src === "espn-cups") { jobs.push({ folder: src, entry: e }); return; }
-          if (src !== "openfootball") return;
+          var src = e.source || "base";
+          if (src === "sudamericana" || src === "libertadores" || src === "southamerica" || src === "cups") { jobs.push({ folder: src, entry: e }); return; }
+          if (src !== "base") return;
           if (e.path.indexOf("2026-27/") === 0 || e.path.indexOf("2026/") === 0) {
-            jobs.push({ folder: "openfootball", entry: e });
+            jobs.push({ folder: "base", entry: e });
           }
         });
 
@@ -382,7 +403,7 @@
      registro local (FILES_KEY) con el manifiesto y baja solo lo que falta,
      sin borrar nada:
        - los partidos que ya están no se duplican (fecha + equipos canónicos);
-       - si la copia nueva trae un id de ESPN que la vieja no tenía, se lo
+       - si la copia nueva trae un id de evento que la vieja no tenía, se lo
          adopta (así el detalle de jugadores queda disponible también ahí);
        - si la copia nueva trae tarjetas/córners y la vieja no, se completan. */
   var canonCache = {};
@@ -449,7 +470,7 @@
 
       if (k in at) {
         /* Dos copias del mismo partido entre los archivos nuevos: gana la que
-           trae id de ESPN (más trazable y habilita el detalle). */
+           trae id de evento (más trazable y habilita el detalle). */
         var cur = out[at[k]];
         if (!cur.externalId && row.externalId) out[at[k]] = row;
         continue;
@@ -518,13 +539,13 @@
 
         return chain.then(function () {
           var merged = syncMerge(rows, existing);
-          /* Las tarjetas/córners se guardan por id de ESPN: si entran partidos
+          /* Las tarjetas/córners se guardan por id de evento: si entran partidos
              nuevos, se aplican igual que en la carga completa para que dos
              instalaciones no queden con coberturas distintas. */
           var prep = merged.rows.length ? loadCards(manifest) : Promise.resolve(null);
           return prep.then(function (cardMap) {
             if (cardMap) applyCards(merged.rows, cardMap);
-            var out = S.importBulk(merged.rows, "openfootball");
+            var out = S.importBulk(merged.rows, "base");
             S.repairPhantoms();
             if (merged.adopted || merged.filled) S.saveNow();
             writeImported(imported);

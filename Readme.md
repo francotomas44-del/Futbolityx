@@ -181,9 +181,9 @@ El proyecto podrá desarrollarse progresivamente mediante los siguientes módulo
 - **Prediction Engine:** generación de probabilidades y escenarios.
 - **Simulation Engine:** simulación de posibles desarrollos del partido.
 - **Markov Engine:** modelo de secuencia (cadena de Markov) sobre la racha del equipo (victoria/empate/derrota) y su proyección del próximo resultado.
-- **News Engine (Contexto):** análisis fundamental — últimas noticias del partido y de cada equipo desde la API pública de ESPN (en español), con enlace de búsqueda en Google News; se incluye en el informe.
-- **Cards Engine (tarjetas):** base de tarjetas amarillas y rojas (y córners) por partido y equipo, construida desde el detalle público de ESPN (`scripts/build-cards.ps1` → `data/cards/`); el análisis estima amarillas y rojas por separado y la pestaña Equipos muestra el promedio por partido.
-- **Live Engine (alineaciones):** al abrir un partido se piden a ESPN sus alineaciones, estadísticas por jugador, minuto a minuto y estadísticas de equipo (`js/live.js`); se cachean con TTL corto y se refrescan solas mientras el partido está en juego.
+- **News Engine (Contexto):** análisis fundamental — últimas noticias del partido y de cada equipo desde la API pública (en español), con enlace de búsqueda en Google News; se incluye en el informe.
+- **Cards Engine (tarjetas):** base de tarjetas amarillas y rojas (y córners) por partido y equipo, construida desde el detalle público de la API (`scripts/build-cards.ps1` → `data/cards/`); el análisis estima amarillas y rojas por separado y la pestaña Equipos muestra el promedio por partido.
+- **Live Engine (alineaciones):** al abrir un partido se piden a la API sus alineaciones, estadísticas por jugador, minuto a minuto y estadísticas de equipo (`js/live.js`); se cachean con TTL corto y se refrescan solas mientras el partido está en juego.
 - **Data Updater (base al día):** la base histórica se importa una sola vez; al abrir, la app compara el manifiesto con lo ya guardado y descarga **solo lo nuevo** (una competición o temporada agregada después), sin duplicar ni borrar (`AD.dataset.sync`, registro `futbolityx:base:files`). También manual en **Datos → Buscar datos nuevos**.
 - **Confidence Engine:** evaluación de incertidumbre y fiabilidad de las predicciones.
 - **Reporting Engine:** generación de informes comprensibles y estructurados.
@@ -293,9 +293,9 @@ La prioridad será construir un sistema confiable y medible antes de aumentar su
 ## 14. Licencia, datos y avisos legales
 
 - **Código:** licencia **MIT** (ver [`LICENSE`](LICENSE)).
-- **Datos históricos:** la base combina **openfootball** (dedicada al **dominio
+- **Datos históricos:** la base combina **datos públicos** (dedicada al **dominio
   público**: Mundiales, copas, primeras divisiones y competiciones extra de África,
-  MLS, CONCACAF, Sudamérica y Asia) con la API pública de **ESPN** (Liga Profesional
+  MLS, CONCACAF, Sudamérica y Asia) con **la API pública** (Liga Profesional
   Argentina 2001 y 2003–2026, historia previa y temporada en curso de otras 21
   divisiones). Atribución y detalle de todas las fuentes en
   [`docs/atribuciones.md`](docs/atribuciones.md).

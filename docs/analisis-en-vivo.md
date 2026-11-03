@@ -5,7 +5,7 @@ Documento técnico del bloque que aparece en las tarjetas de la portada **Hoy** 
 (`window.AD.livehoy`), con apoyo de `js/live.js` y `js/v2.js`.
 
 > La app es 100 % frontend. Todo lo de este documento se hace desde el navegador, sin claves y
-> sin backend, con la API pública de ESPN (CORS). El xG es **estimado** por la app, no oficial.
+> sin backend, con la API pública (CORS). El xG es **estimado** por la app, no oficial.
 
 ---
 
@@ -14,7 +14,7 @@ Documento técnico del bloque que aparece en las tarjetas de la portada **Hoy** 
 `livehoy.start(items)` recibe las tarjetas que acaba de renderizar `v2.js`. Un partido es
 candidato (`isCandidate`) si:
 
-- tiene `slug` de ESPN e identificador o se puede resolver por fecha/equipos;
+- tiene `slug` de la API e identificador o se puede resolver por fecha/equipos;
 - empezó hace menos de **3 h** (mismo tope que la portada);
 - o empieza dentro de los próximos **60 min**.
 
@@ -32,10 +32,10 @@ Así los partidos de la próxima hora no quedan afuera cuando hay una jornada ca
 
 ## 2. Consulta y refresco
 
-- Ficha: `site.api.espn.com/apis/site/v2/sports/soccer/<slug>/summary?event=<id>`.
+- Ficha: `<api>/apis/site/v2/sports/soccer/<slug>/summary?event=<id>`.
 - **40 s** si el partido está en juego.
 - **2 min** si todavía no empezó.
-- **60 s** si la hora de inicio ya pasó y ESPN aún lo da como `pre` (demora).
+- **60 s** si la hora de inicio ya pasó y la API aún lo da como `pre` (demora).
 - Si el partido terminó (`post`): no se vuelve a pedir; la tarjeta se retira.
 - **Concurrencia máxima: 3**. El resto espera en una cola.
 - **Backoff** ante errores: 15 s, 30 s, 60 s, 120 s y 5 min como tope.
@@ -44,7 +44,7 @@ Así los partidos de la próxima hora no quedan afuera cuando hay una jornada ca
 - Se cachea el modelo en memoria (`state.byKey`) para no repetir la petición al abrir el detalle.
   `AD.live.fetchModel` además cachea en `localStorage` con TTL corto.
 
-La ficha se resuelve por `id` de ESPN si la tarjeta lo trae; si no, `AD.live.resolveEvent`
+La ficha se resuelve por `id` de la API si la tarjeta lo trae; si no, `AD.live.resolveEvent`
 busca el evento del día por competición, fecha y nombres (y guarda el `id` para la próxima).
 
 ## 3. Datos que se extraen
@@ -61,7 +61,7 @@ De `boxscore.teams[].statistics` (28 métricas de equipo) se usan:
 
 De `commentary[].play` se guardan solo las jugadas útiles (`PLAY_KEEP` en `js/live.js`):
 
-| Tipo ESPN | Uso |
+| Tipo la API | Uso |
 |---|---|
 | `goal` | gol de juego abierto: cuenta como remate y suma xG |
 | `own-goal` | se conserva como evento, **no** suma xG |
@@ -74,14 +74,14 @@ Cada jugada guarda, si existe, `x`/`y` (posición), `x2`/`y2`, minuto (`c`), lad
 como goles ni xG del partido.
 
 De `rosters` se obtiene el arquero (titular si está) y sus atajadas. Los goles recibidos se toman
-del **marcador rival**, porque `goalsConceded`/`shotsFaced` de ESPN no son confiables.
+del **marcador rival**, porque `goalsConceded`/`shotsFaced` de la API no son confiables.
 De `keyEvents` salen los eventos del minuto a minuto (goles, tarjetas, cambios, VAR).
 El historial entre los dos equipos se calcula con la **base local** (`AD.store.state.matches`),
-no con ESPN: últimos 6 cruces, orientados al local actual.
+no con la API: últimos 6 cruces, orientados al local actual.
 
 ## 4. xG estimado
 
-ESPN no da xG por equipo. Para cada remate se estima:
+la API no da xG por equipo. Para cada remate se estima:
 
 ```
 dx = (100 - x) * 1.05            // cancha 105 m
@@ -183,7 +183,7 @@ La interfaz no muestra el nombre del proveedor: el pie de la tarjeta y la cabece
 indican **“Datos actualizados”** cuando el modelo está disponible, y **“Datos aún no disponibles”**
 si la consulta falla o todavía no hay ficha. Mientras se consulta, el bloque dice
 **“Actualizando datos…”**.
-Cuando ESPN confirma el final, `livehoy` llama a `AD.v2.matchEnded(fk)`: la tarjeta se retira y la lista se rellena
+Cuando la API confirma el final, `livehoy` llama a `AD.v2.matchEnded(fk)`: la tarjeta se retira y la lista se rellena
 con el siguiente partido. Los análisis guardados del usuario no se tocan.
 
 El botón **Detalle** abre `AD.live.open(..., { tab: "analysis" })`; `js/live.js` agrega la pestaña
@@ -195,12 +195,12 @@ Estilos en `css/v2.css` (`.fxl*`, `.lh-*`), con estadísticas en 2 columnas en p
 
 ## 8. Privacidad, límites y mantenimiento
 
-- Las peticiones son anónimas y directas a ESPN; no se envía nada del usuario.
+- Las peticiones son anónimas y directas a la API; no se envía nada del usuario.
 - No hay claves en el código ni en el repositorio.
 - Si la API pública no responde, la tarjeta muestra "Datos aún no disponibles" y reintenta; el
   pronóstico previo y el resto de la app siguen funcionando.
 - El xG es una estimación por ubicación: no reemplaza un proveedor oficial. Para xG oficial haría
-  falta una API con clave (Sportmonks, API-Football, football-data.org) y, en una web estática,
+  falta una API con clave (Sportmonks, API-Football, otro proveedor) y, en una web estática,
   un backend/proxy que la oculte.
 - Los datos son efímeros: no se guardan en la base histórica ni en el manifiesto.
 - Al cambiar `js/livehoy.js`, `js/live.js`, `js/v2.js` o `css/v2.css` hay que subir la versión en
@@ -212,11 +212,11 @@ Estilos en `css/v2.css` (`.fxl*`, `.lh-*`), con estadísticas en 2 columnas en p
 - Refresco automático a los 40 s (se verificó que `at` cambia y el minuto avanza).
 - Pausa real con pestaña oculta: 86 s sin ninguna consulta; al volver, refresco en 5 s.
 - Retiro por `matchEnded` y por tiempo; la lista se rellena sola.
-- Modo previo inyectado con un partido real de ESPN: cuenta regresiva, alineaciones, historial.
+- Modo previo inyectado con un partido real de la API: cuenta regresiva, alineaciones, historial.
 - Penal revisado: `penalty---scored`, x≈88,5, xG 0,78; roja a los 3' reflejada.
 - Goles de juego abierto (`goal`) incluidos en el xG (Monaco 3-0: 1,6 vs 2,0).
 - Estados de disponibilidad: “Datos actualizados” en tarjeta previa, detalle y modal;
-  “Datos aún no disponibles” con una ficha inexistente (HTTP 404); sin menciones de ESPN
+  “Datos aún no disponibles” con una ficha inexistente (HTTP 404); sin menciones de la API
   en el bloque en vivo.
 - Sin desbordes horizontales; tarjeta en vivo ≈546 px de alto en escritorio (2 columnas de
   estadísticas), contra 651 px con una sola columna.
@@ -227,7 +227,7 @@ Estilos en `css/v2.css` (`.fxl*`, `.lh-*`), con estadísticas en 2 columnas en p
 | Archivo | Rol |
 |---|---|
 | `js/livehoy.js` | detección, cola, polling, modelo, xG, lectura, render de tarjeta y detalle |
-| `js/live.js` | ficha ESPN, `fetchModel`, `resolveEvent`, jugadas, pestaña de análisis |
+| `js/live.js` | ficha la API, `fetchModel`, `resolveEvent`, jugadas, pestaña de análisis |
 | `js/v2.js` | tarjetas de "Hoy", `data-*`, `livehoy.start`, `matchEnded` |
 | `css/v2.css` | estilos `.fxl*` y `.lh-*` |
 | `index.html` | versiones `?v=` de los scripts y del CSS |

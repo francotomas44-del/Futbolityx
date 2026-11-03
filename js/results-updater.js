@@ -1,4 +1,4 @@
-/* results-updater.js — Sincroniza resultados finalizados desde ESPN al historial local */
+/* results-updater.js — Sincroniza resultados finalizados al historial local */
 (function(){
   "use strict";
   window.AD = window.AD || {};
@@ -39,7 +39,7 @@
   function pad(n){ return n < 10 ? "0"+n : ""+n; }
   function ymd(d){ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
 
-  function getESPNUrl(league, date){
+  function feedUrl(league, date){
     return "https://site.api.espn.com/apis/site/v2/sports/soccer/"+league+"/scoreboard?dates="+ymd(date);
   }
 
@@ -56,7 +56,7 @@
 
   async function fetchDay(league, date){
     try{
-      var res = await fetch(getESPNUrl(league, date), {cache:"no-store"});
+      var res = await fetch(feedUrl(league, date), {cache:"no-store"});
       if(!res.ok) return [];
       var json = await res.json();
       var ev = json.events || [];
@@ -176,7 +176,7 @@
               homeGoals: m.homeGoals,
               awayGoals: m.awayGoals,
               competition: h.league || a.league || "",
-              source: "espn-live",
+              source: "live",
               externalId: m.externalId
             });
             if(res) added++;
@@ -189,7 +189,7 @@
               homeGoals: m.homeGoals,
               awayGoals: m.awayGoals,
               competition: h.league || a.league || "",
-              source: "espn-live",
+              source: "live",
               externalId: m.externalId
             });
             added++;

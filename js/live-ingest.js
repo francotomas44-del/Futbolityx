@@ -1,4 +1,4 @@
-/* live-ingest.js — Auto-ingesta de partidos finalizados desde ESPN
+/* live-ingest.js — Auto-ingesta de partidos finalizados desde la fuente en vivo
    ---------------------------------------------------------------
    Cuando un partido pasa a FINALIZADO en la portada "Hoy" (livehoy),
    lo añadimos automáticamente a la base local (S.state.matches) para
@@ -6,7 +6,7 @@
    a la evaluación y a futuros análisis.
 
    Clave para evitar duplicados:
-   - Por externalId (id del evento ESPN) si existe
+   - Por externalId (id del evento) si existe
    - Si no, por fecha + equipos normalizados
 
    Namespace: window.AD.liveIngest */
@@ -204,7 +204,7 @@
     }
   }
 
-  function ingestFromEspn(info) {
+  function ingestResult(info) {
     if (!info) return false;
     // intentar extraer fecha
     var date = info.date || info.gameDate || "";
@@ -223,7 +223,7 @@
 
   window.AD.liveIngest = {
     ingest: ingest,
-    ingestFromEspn: ingestFromEspn,
+    ingestResult: ingestResult,
     _read: readIngested
   };
 

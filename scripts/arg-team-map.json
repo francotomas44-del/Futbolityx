@@ -1,5 +1,5 @@
 {
-  "_comment": "Mapa de nombres de equipo de ESPN (arg.1) al nombre canonico que usa la app. Solo se listan los que cambian; el resto se deja igual. Los nombres canonicos coinciden con los de la base openfootball cuando el club existe ahi, para que el historial no se parta en dos equipos.",
+  "_comment": "Mapa de nombres de equipo de la fuente (arg.1) al nombre canonico que usa la app. Solo se listan los que cambian; el resto se deja igual. Los nombres canonicos coinciden con los de la base cuando el club existe ahi, para que el historial no se parta en dos equipos.",
   "canon": {
     "Arsenal Sarandi": "Arsenal de Sarandí",
     "Belgrano (Córdoba)": "Belgrano de Córdoba",

@@ -62,16 +62,16 @@
        dos nombres.
      - Los 2 siguientes son clubes sudamericanos partidos entre su liga nueva y las
        copas CONMEBOL (cada fuente los nombra distinto). Los demás casos de esas
-       ligas se corrigen en el origen, con scripts/espn-southamerica-team-map.json.
+       ligas se corrigen en el origen, con scripts/southamerica-team-map.json.
      - Los 6 siguientes son alemanes y los 5 siguientes austríacos: el mismo club
        escrito distinto según la fuente (año de fundación, país, renombres).
-     - Los 23 siguientes son clubes que openfootball fue renombrando temporada a
+     - Los 23 siguientes son clubes que la base fue renombrando temporada a
        temporada (sobre todo desde 2020-21, cuando pasó a usar el nombre "largo",
        con ciudad o sufijo legal): el historial del mismo club quedaba partido en
        dos. Verificado por fuentes/competiciones (temporadas complementarias).
      - Los 13 últimos separan el mismo club por sigla, año de fundación o país.
-     Las copas nuevas (espn-cups) se corrigen en el origen con
-     scripts/espn-cups-team-map.json (17 alias, dos de ellos falsos positivos del
+     Las copas nuevas (cups) se corrigen en el origen con
+     scripts/cups-team-map.json (17 alias, dos de ellos falsos positivos del
      resolutor difuso) y las selecciones con el mapa de país del propio generador. */
   var TEAM_ALIAS = {
     "flamengo rj": "flamengo", "cr flamengo": "flamengo",
@@ -93,12 +93,12 @@
     "sport recife pe": "sport recife", "sc recife": "sport recife",
     "bahia ba": "bahia", "ec bahia": "bahia",
     "red bull bragantino": "bragantino", "rb bragantino": "bragantino",
-    // Perú: ESPN "Melgar" (2014-) y las copas "FBC Melgar (PER)" (2005-2013).
+    // Perú: la fuente "Melgar" (2014-) y las copas "FBC Melgar (PER)" (2005-2013).
     "melgar": "FBC Melgar (PER)",
-    // Venezuela: ESPN "CD Lara" (2009-2013) y "Deportivo Lara" (2014-).
+    // Venezuela: la fuente "CD Lara" (2009-2013) y "Deportivo Lara" (2014-).
     "cd lara": "Deportivo Lara",
     // Alemanes: unas fuentes agregan el año de fundación ("Bayer 04") y otras no;
-    // y las de ESPN pueden sumarle el país ("(GER)").
+    // y las de la fuente pueden sumarle el país ("(GER)").
     "bayer 04 leverkusen": "Bayer Leverkusen",
     "bayer 04 leverkusen (ger)": "Bayer Leverkusen",
     "borussia monchengladbach": "Bor. Mönchengladbach",
@@ -111,7 +111,7 @@
     "sc magna wiener neustadt": "1. Wiener Neustädter SC",
     "fc trenkwalder admira": "FC Admira Wacker",
     "fc red bull salzburg (aut)": "RB Salzburg",
-    // openfootball, nombre corto -> nombre "largo" (temporadas complementarias).
+    // base, nombre corto -> nombre "largo" (temporadas complementarias).
     "afc ajax": "Ajax Amsterdam",
     "bologna fc 1909": "Bologna FC",
     "central espanol futbol club": "Central Español",
@@ -240,7 +240,7 @@
     var merged = Object.keys(map).length;
     if (!merged) {
       // Sin variantes que fusionar, pero puede haber partidos repetidos entre
-      // fuentes (p. ej. openfootball y ESPN cubren la misma liga/temporada).
+      // fuentes (p. ej. la base y el archivo en vivo cubren la misma liga/temporada).
       var removedDup = 0;
       if (opts.dedupe) {
         var seenDup = {}, beforeDup = state.matches.length;
@@ -360,13 +360,50 @@
         if (!t.external) t.external = {};
         if (t.formedYear === undefined) t.formedYear = null;
       });
-      // Descarta partidos con marcador inválido (p. ej. el -1 que ESPN devuelve
+      /* Renombra fuentes e ids de evento de versiones anteriores. Es solo una
+         pasada sobre datos ya guardados: no se vuelve a importar nada. */
+      var SOURCE_RENAMES = {
+        "openfootball": "base",
+        "openfootball-extra": "base-extra",
+        "arg-espn": "arg",
+        "espn-season": "season",
+        "espn-history": "history",
+        "espn-sudamericana": "sudamericana",
+        "espn-libertadores": "libertadores",
+        "espn-southamerica": "southamerica",
+        "espn-cups": "cups",
+        "espn-arg": "arg",
+        "espn-live": "live"
+      };
+      var renamed = 0;
+      function renameExternal(obj) {
+        if (!obj || typeof obj !== "object") return;
+        Object.keys(obj).forEach(function (k) {
+          var nk = SOURCE_RENAMES[k];
+          if (nk && !obj.hasOwnProperty(nk)) {
+            obj[nk] = obj[k];
+            delete obj[k];
+            renamed++;
+          }
+        });
+      }
+      state.teams.forEach(function (t) { renameExternal(t.external); });
+      state.referees.forEach(function (r) { renameExternal(r.external); });
+      state.matches.forEach(function (m) {
+        var ns = SOURCE_RENAMES[m.source];
+        if (ns) { m.source = ns; renamed++; }
+        if (m.externalId != null) {
+          var id = String(m.externalId);
+          if (/^\D+:\d+$/.test(id)) { m.externalId = id.replace(/^\D+:/, ""); renamed++; }
+        }
+      });
+      // Descarta partidos con marcador inválido (p. ej. el -1 que devuelve la fuente
       // cuando no tiene el resultado). Sanea instalaciones ya guardadas.
       var matchCount = state.matches.length;
       state.matches = state.matches.filter(function (m) {
         return !(Number(m.homeGoals) < 0 || Number(m.awayGoals) < 0);
       });
-      if (state.matches.length !== matchCount) saveNow();
+      if (renamed || state.matches.length !== matchCount) saveNow();
       return state;
     });
   }
@@ -426,7 +463,7 @@
   function getTeamByName(name) { return find(state.teams, function (t) { return norm(t.name) === norm(name); }); }
 
   /* Índice por nombre canónico: permite resolver los nombres que traen los
-     fixtures de ESPN ("Kairat Almaty") al equipo de la base ("FK Kairat"). */
+     fixtures externos ("Kairat Almaty") al equipo de la base ("FK Kairat"). */
   var canonIndex = null;
   function canonicalIndex() {
     if (canonIndex) return canonIndex;
@@ -650,7 +687,7 @@
       var d = descriptors[i];
       if (!d.homeName || !d.awayName) { skipped++; continue; }
       if (d.homeGoals == null || d.awayGoals == null) { skipped++; continue; }
-      // Un marcador negativo (p. ej. el -1 que usa ESPN para "sin resultado") no es válido.
+      // Un marcador negativo (p. ej. el -1 que usa la fuente para "sin resultado") no es válido.
       if (Number(d.homeGoals) < 0 || Number(d.awayGoals) < 0) { skipped++; continue; }
 
       var homeExt = d.homeExternal != null ? { source: d.source, id: d.homeExternal } : null;
@@ -709,7 +746,7 @@
       var r = rows[i];
       if (!r || !r.home || !r.away) continue;
       if (r.homeGoals == null || r.awayGoals == null) continue;
-      // Un marcador negativo (p. ej. el -1 que usa ESPN para "sin resultado") no es válido.
+      // Un marcador negativo (p. ej. el -1 que usa la fuente para "sin resultado") no es válido.
       if (Number(r.homeGoals) < 0 || Number(r.awayGoals) < 0) continue;
       var hk = norm(r.home), ak = norm(r.away);
       if (!hk || !ak || hk === ak) continue;

@@ -48,7 +48,7 @@
   function pct1(x) { return String(Math.round(100 * (x || 0))); }
   function pad2(n) { return (n < 10 ? "0" : "") + n; }
   /* ===== Zonas horarias ========================================
-     La base openfootball indica la hora LOCAL del partido. Para las
+     La base histórica indica la hora LOCAL del partido. Para las
      ligas cuyos equipos están en un solo país usamos la zona horaria de
      ese país (VENUE_TZ) para pasar la hora local a un instante UTC.
      Los partidos que ya traen offset explícito (ej. "20:00 UTC-4") se
@@ -306,15 +306,14 @@
     }
   }
 
-  /* ===== Liga Argentina en vivo (fuente: ESPN) =================
-     La base histórica de la Argentina se arma desde la API pública de ESPN
-     (scripts/build-arg-espn.ps1, temporadas 2001 y 2003..2026). Aquí traemos
+  /* ===== Liga Argentina en vivo ================================
+     La base histórica de la Argentina se arma desde la fuente de datos
+     (scripts/build-arg.ps1, temporadas 2001 y 2003..2026). Aquí traemos
      en vivo lo de la temporada en curso (próximos partidos para la portada
      "Hoy" y resultados ya jugados), así la portada queda al día aunque el
      paquete local sea de una fecha anterior. Si no hay internet, se usa lo
-     último guardado y la portada sigue mostrando el resto (datos locales).
-     Fuente citada en pantalla. */
-  var AR_LEAGUE = "arg.1"; /* slug de ESPN */
+     último guardado y la portada sigue mostrando el resto (datos locales). */
+  var AR_LEAGUE = "arg.1"; /* identificador de la fuente */
   var AR_CODE = "ar.1";    /* código interno (el que usan las demás capas) */
   /* Archivo de la temporada en curso (≈5 MB): partidos futuros + historial.
      Se pide en segundo plano y queda cacheado; el tablero del día (≈50 KB) es
@@ -326,11 +325,11 @@
   var AR_LIVE_TTL = 6 * 60 * 60 * 1000; /* temporada: 6 horas */
   var AR_BOARD_TTL = 60 * 1000;         /* tablero del día: 1 minuto */
 
-  /* Nombres de equipo de ESPN -> nombre canónico que usa la base, para que el
+  /* Nombres de equipo de la fuente -> nombre canónico que usa la base, para que el
      historial de un club no quede partido en dos equipos. Es el mismo mapa que
-     scripts/arg-team-map.json (usado al generar data/arg-espn/*.json). Clave en
+     scripts/arg-team-map.json (usado al generar data/arg/*.json). Clave en
      minúsculas. */
-  var ESPN_ALIAS = {
+  var TEAM_ALIAS = {
     "arsenal sarandi": "Arsenal de Sarandí",
     "belgrano (córdoba)": "Belgrano de Córdoba",
     "central córdoba (santiago del estero)": "Central Córdoba SdE",
@@ -348,11 +347,11 @@
   };
   function resolveTeamName(name) {
     var k = String(name == null ? "" : name).trim().toLowerCase();
-    return ESPN_ALIAS[k] || name;
+    return TEAM_ALIAS[k] || name;
   }
 
-  /* Nombre a mostrar en pantalla (ESPN -> nombre completo del club, cuando
-     ESPN usa una forma abreviada). No afecta la búsqueda en la base. */
+  /* Nombre a mostrar en pantalla (nombre completo del club cuando la fuente
+     usa una forma abreviada). No afecta la búsqueda en la base. */
   var DISPLAY_NAME = {
     "gimnasia (mendoza)": "Gimnasia y Esgrima de Mendoza"
   };
@@ -362,8 +361,8 @@
     return DISPLAY_NAME[k] || String(name);
   }
 
-  /* Torneo argentino a partir del slug de temporada de ESPN (event.season.slug).
-     Mismo criterio que scripts/build-arg-espn.ps1, para que lo bajado en vivo
+  /* Torneo argentino a partir del identificador de temporada (event.season.slug).
+     Mismo criterio que scripts/build-arg.ps1, para que lo bajado en vivo
      quede en la misma competición que el historial (Apertura/Clausura/Inicial/
      Final/Superliga/Copa Diego Armando Maradona/Liga Profesional/...). */
   function seasonTail(t) {
@@ -395,7 +394,7 @@
     return "Liga Profesional (Argentina)";
   }
 
-  /* Convierte los eventos de ESPN en partidos para la portada "Hoy".
+  /* Convierte los eventos de la fuente en partidos para la portada "Hoy".
      Incluye los que todavía no empezaron (pre) y los que están en juego (in),
      con marcador y minuto; los finalizados (post) se usan solo para retirar la
      tarjeta y para importar el resultado. */
@@ -414,7 +413,7 @@
       if (!m) continue;
       var date = m[1] + "-" + m[2] + "-" + m[3];
       /* Los de días anteriores solo interesan si siguen en juego
-         (un partido de madrugada que ESPN agrupa en otro día). */
+         (un partido de madrugada que la fuente agrupa en otro día). */
       if (state === "post" && date < today) continue;
       if (state !== "in" && state !== "post" && date < today) continue;
       var home = "", away = "", hg = null, ag = null;
@@ -428,7 +427,7 @@
       if (!home || !away) continue;
       out.push({
         date: date,
-        time: m[4] + ":" + m[5] + " UTC+0", /* ESPN entrega la hora en UTC */
+        time: m[4] + ":" + m[5] + " UTC+0", /* la fuente entrega la hora en UTC */
         competition: arCompName(ev),
         code: AR_CODE,
         home: String(home),
@@ -440,15 +439,15 @@
         clock: String((ev.status && ev.status.displayClock) || ""),
         period: Number(ev.status && ev.status.period) || 0,
         detail: String((ev.status && ev.status.detail) || ""),
-        externalId: ev.id != null ? ("espn:" + ev.id) : null
+        externalId: ev.id != null ? String(ev.id) : null
       });
     }
     return out;
   }
 
-  /* Partidos ya jugados de la liga argentina (misma fuente ESPN). Se usan para
+  /* Partidos ya jugados de la liga argentina (misma fuente). Se usan para
      dar historial real a TODOS los equipos actuales, incluidos los que no
-     están en la base openfootball (p. ej. Gimnasia y Esgrima de Mendoza).
+     están en la base histórica (p. ej. Gimnasia y Esgrima de Mendoza).
      Mismos nombres de competición que la base, para que el motor los agrupe. */
   function parseArResults(payload) {
     var evs = payload && payload.events;
@@ -479,30 +478,30 @@
         away: String(away),
         homeGoals: hg,
         awayGoals: ag,
-        externalId: ev.id != null ? "espn:" + ev.id : null
+        externalId: ev.id != null ? String(ev.id) : null
       });
     }
     return out;
   }
 
   /* Los resultados se importan de forma incremental: cada tablero puede traer
-     un partido que acaba de terminar. Se evita duplicar por id de ESPN y, si
+     un partido que acaba de terminar. Se evita duplicar por id de evento y, si
      los equipos existen en la base, también por fecha + equipos: la ingesta en
-     vivo guarda el id sin el prefijo "espn:", así que comparar el texto exacto
+     vivo guarda solo los dígitos del id, así que comparar el texto exacto no
      no alcanza. */
-  function espnIdKey(x) { return String(x == null ? "" : x).replace(/^espn:/, ""); }
+  function extKey(x) { return String(x == null ? "" : x).replace(/^\D+/, ""); }
 
   function importArResultRows(rows) {
     if (!rows || !rows.length) return 0;
     var seenExt = {}, i;
     var ms = S.state.matches;
     for (i = 0; i < ms.length; i++) {
-      if (ms[i].externalId != null) seenExt[espnIdKey(ms[i].externalId)] = true;
+      if (ms[i].externalId != null) seenExt[extKey(ms[i].externalId)] = true;
     }
     /* Primero descarta por id (barato y suficiente el 99% de las veces). */
     var pending = rows.filter(function (r) {
-      if (r.externalId && seenExt[espnIdKey(r.externalId)]) return false;
-      if (r.externalId) seenExt[espnIdKey(r.externalId)] = true;
+      if (r.externalId && seenExt[extKey(r.externalId)]) return false;
+      if (r.externalId) seenExt[extKey(r.externalId)] = true;
       return true;
     });
     if (!pending.length) return 0;
@@ -524,7 +523,7 @@
       return true;
     });
     if (!fresh.length) return 0;
-    var res = S.importBulk(fresh, "espn-arg");
+    var res = S.importBulk(fresh, "arg");
     ctx = null; /* cambió la base: se reconstruye el contexto de pronóstico */
     if (res && res.added) {
       try { document.dispatchEvent(new CustomEvent("ad:data-changed")); } catch (e) {}
@@ -533,7 +532,7 @@
   }
   function importArResults(payload) { return importArResultRows(parseArResults(payload)); }
 
-  /* Ningún partido comparte identidad si no es el mismo evento de ESPN. */
+  /* Ningún partido comparte identidad si no es el mismo evento de la fuente. */
   function arKey(f) {
     return f.externalId ? String(f.externalId) : (f.date + "|" + f.home + "|" + f.away);
   }
@@ -671,7 +670,7 @@
     return live.concat(next);
   }
 
-  /* Próximos partidos = locales (openfootball) + Liga Argentina (ESPN).
+  /* Próximos partidos = locales (base histórica) + Liga Argentina (fuente en vivo).
      Primero el tablero del día (rápido y con el estado en vivo); el archivo de
      la temporada se actualiza en segundo plano para los partidos futuros. */
   function upcomingWithLive(localFx, force) {
@@ -752,15 +751,15 @@
 
   /* ===== Partidos en vivo y partidos que ya terminaron ======== */
   /* "Hoy" muestra los partidos que todavía no terminaron. El estado real se
-     consulta a ESPN (una petición por competición y día, cada 2 minutos) desde
+     consulta a la fuente (una petición por competición y día, cada 2 minutos) desde
      poco antes del inicio: así el partido se marca EN VIVO con su marcador y,
      cuando llega el pitazo final, la tarjeta se retira en el acto. Sin dato de
-     ESPN se usa la duración máxima habitual (≈2 h 05). Los análisis guardados
+     la fuente se usa la duración máxima habitual (≈2 h 05). Los análisis guardados
      no se tocan: siguen en "Mis predicciones" y en el historial. */
   var MATCH_LEN_MS = 125 * 60000;  /* ≈2 h 05: 90' + 15' de descanso + añadido */
   var MATCH_HARD_MS = 180 * 60000; /* tope: 3 h (alargue + penales + demoras) */
-  var ESPN_PRE_MS = 5 * 60000;     /* se consulta desde 5 min antes del inicio */
-  var ESPN_BOARD_TTL = 120000;
+  var FEED_PRE_MS = 5 * 60000;     /* se consulta desde 5 min antes del inicio */
+  var BOARD_TTL = 120000;
 
   var liveState = {};   /* partido -> { state, ts, hg, ag, clock, period } */
   var boardCache = {};  /* "liga|AAAAMMDD" -> { ts, events } */
@@ -775,7 +774,7 @@
     var slug = window.AD.live && window.AD.live.slugForCode ? window.AD.live.slugForCode(f.code) : null;
     var k = kickoff(f);
     if (!slug || !k || !k.ms) return "";
-    /* ESPN agrupa por día de Nueva York; los partidos de madrugada (hora UTC)
+    /* La fuente agrupa por día de Nueva York; los partidos de madrugada (hora UTC)
        pueden caer en el día anterior. Se guarda también el día UTC. */
     var day = kind === "utc"
       ? new Date(k.ms).toISOString().slice(0, 10)
@@ -796,7 +795,7 @@
     if (now - k.ms >= MATCH_HARD_MS) return true;
     if (f && f.state === "in") return false; /* fuente en vivo: sigue en juego */
     var st = stateFor(f, now);
-    if (st === "post") return true;   /* pitazo final confirmado por ESPN */
+    if (st === "post") return true;   /* pitazo final confirmado por la fuente */
     if (st === "in" || st === "pre") return false; /* sigue en juego o demorado */
     return now - k.ms >= MATCH_LEN_MS; /* sin dato: regla por tiempo */
   }
@@ -821,7 +820,7 @@
     return n;
   }
 
-  /* ---- estado real en ESPN (solo para la ventana de cierre) ---- */
+  /* ---- estado real en la fuente (solo para la ventana de cierre) ---- */
   function foldName(s) {
     return String(s == null ? "" : s)
       .replace(/\([^)]*\)/g, " ")
@@ -881,13 +880,13 @@
   }
 
   function findEvent(f, events) {
-    /* Las fuentes ESPN traen el id del evento: es la vía exacta. */
-    var m = /^espn:(\d+)$/.exec(String(f.externalId == null ? "" : f.externalId));
+    /* Las fuentes externas traen el id del evento: es la vía exacta. */
+    var m = /^(?:[a-z]+:)?(\d+)$/i.exec(String(f.externalId == null ? "" : f.externalId));
     if (m) {
       for (var i = 0; i < events.length; i++) if (events[i].id === m[1]) return events[i];
       return null;
     }
-    /* openfootball: nombre parecido y mismo horario (±10 min). */
+    /* Sin id: nombre parecido y mismo horario (±10 min). */
     var k = kickoff(f);
     if (!k || !k.ms) return null;
     var best = null, bestScore = 0;
@@ -905,11 +904,11 @@
       var k = kickoff(f);
       if (!k || !k.ms) return;
       var el = now - k.ms;
-      if (el < -ESPN_PRE_MS || el >= MATCH_HARD_MS) return;
+      if (el < -FEED_PRE_MS || el >= MATCH_HARD_MS) return;
       if (boardKey(f, "et") !== key && boardKey(f, "utc") !== key) return;
       var ev = findEvent(f, events);
       if (!ev) {
-        /* Partido de madrugada: ESPN pudo agruparlo en el día siguiente. */
+        /* Partido de madrugada: la fuente pudo agruparlo en el día siguiente. */
         if (f.externalId && new Date(k.ms).getUTCHours() < 4) fallback[boardKey(f, "utc")] = true;
         return;
       }
@@ -931,7 +930,7 @@
 
   function fetchBoard(key, now) {
     var c = boardCache[key];
-    if (c && (now - c.ts) < ESPN_BOARD_TTL) return;
+    if (c && (now - c.ts) < BOARD_TTL) return;
     if (boardFetch[key]) return;
     var parts = key.split("|");
     var url = "https://site.api.espn.com/apis/site/v2/sports/soccer/" + parts[0] +
@@ -957,7 +956,7 @@
       var el = now - k.ms;
       /* Desde poco antes del inicio (para detectar el arranque y marcarlo en
          vivo) hasta el tope de duración del partido. */
-      if (el < -ESPN_PRE_MS || el >= MATCH_HARD_MS) continue;
+      if (el < -FEED_PRE_MS || el >= MATCH_HARD_MS) continue;
       var key = boardKey(f, "et");
       if (!key || seen[key]) continue;
       seen[key] = true;
@@ -1134,7 +1133,7 @@
       var p = null;
       if (ht && at) { try { p = predict(ht.id, at.id, f.competition); } catch (e) { p = null; } }
       var slug = (window.AD.live && window.AD.live.slugForCode) ? window.AD.live.slugForCode(f.code) : null;
-      var em = /^espn:(\d+)$/.exec(String(f.externalId == null ? "" : f.externalId));
+      var em = /^(?:[a-z]+:)?(\d+)$/i.exec(String(f.externalId == null ? "" : f.externalId));
       var act = !!(slug && d.ms && window.AD.livehoy &&
         window.AD.livehoy.isCandidate({ slug: slug, ms: d.ms }, now));
       return {
@@ -1164,7 +1163,7 @@
       "</div>");
     if (liveCount) parts.push('<p class="hoy-src">' + liveCount +
       (liveCount === 1 ? " partido en vivo" : " partidos en vivo") +
-      " · marcadores actualizados desde ESPN</p>");
+      " · marcadores al día</p>");
 
     var lastDay = null;
     items.forEach(function (it, i) {
@@ -1296,7 +1295,7 @@
     else if (action === "live" && window.AD.live) {
       window.AD.live.open({
         slug: window.AD.live.slugForCode(it.f.code),
-        eventId: it.f.externalId ? String(it.f.externalId).replace(/^espn:/, "") : null,
+        eventId: it.f.externalId ? String(it.f.externalId).replace(/^\D+/, "") : null,
         date: it.f.date,
         home: it.f.home,
         away: it.f.away,
@@ -1538,7 +1537,7 @@
     registerSW();
   }
 
-  /* Un partido que ESPN da por terminado: se retira de la portada en el acto
+  /* Un partido que la fuente da por terminado: se retira de la portada en el acto
      (sin esperar a la ventana de cierre por tiempo). */
   function matchEnded(key) {
     if (!key) return;

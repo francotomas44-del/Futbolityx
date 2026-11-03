@@ -1,6 +1,6 @@
 param(
   [string]$Root = (Split-Path -Parent $PSScriptRoot),
-  [string]$CacheDir = (Join-Path $env:TEMP "espn-cache-futbolityx"),
+  [string]$CacheDir = (Join-Path $env:TEMP "feed-cache-futbolityx"),
   [int]$FromYear = 2000,
   [int]$ToYear = 2026,
   [string[]]$OnlyCodes = @(),
@@ -9,45 +9,45 @@ param(
 
 # TARJETAS (amarillas/rojas) y CORNERS por partido.
 #
-# La base histórica sólo guarda equipos, fecha y resultado. ESPN publica, en el
+# La base histórica sólo guarda equipos, fecha y resultado. la fuente publica, en el
 # "scoreboard" de cada liga/temporada (el mismo archivo que ya se cachea para
 # construir la historia), el detalle de cada partido:
 #   - competitions[0].details[]: jugadas con banderas `yellowCard` / `redCard`
 #     y el equipo (`team.id`) que las recibió.
 #   - competitions[0].competitors[].statistics[]: `wonCorners` por equipo.
 #
-# Este script recorre las ligas de espn-leagues.json y todas las temporadas,
+# Este script recorre las ligas de leagues.json y todas las temporadas,
 # cuenta amarillas/rojas por equipo desde `details` y guarda córners, y escribe
 # data/cards/<code>.json con una entrada compacta por partido presente en la base:
 #
-#   ["espn:<id>", amarillasLocal, amarillasVisitante, rojasLocal, rojasVisitante,
+#   ["<id>", amarillasLocal, amarillasVisitante, rojasLocal, rojasVisitante,
 #    cornersLocal, cornersVisitante]
 #
-# Sólo se incluyen partidos cuyo id ya existe en la base (data/espn-*), para no
+# Sólo se incluyen partidos cuyo id ya existe en la base (data/*), para no
 # inflar el tamaño. Los valores nulos se escriben como null.
 #
 # Uso:  powershell -ExecutionPolicy Bypass -File scripts\build-cards.ps1
-# Requiere haber corrido antes los scripts de ESPN (comparte el mismo caché).
+# Requiere haber corrido antes los scripts de la fuente (comparte el mismo caché).
 
 $ErrorActionPreference = "Stop"
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 $ProgressPreference = "SilentlyContinue"
 
-. (Join-Path $PSScriptRoot "espn-common.ps1")
+. (Join-Path $PSScriptRoot "feed-common.ps1")
 
 $outDir = Join-Path $Root "data\cards"
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 
 $manPath = Join-Path $Root "data\manifest.json"
 $manifest = Get-Content $manPath -Raw -Encoding UTF8 | ConvertFrom-Json
-$leagues = Get-Content (Join-Path $PSScriptRoot "espn-leagues.json") -Raw -Encoding UTF8 | ConvertFrom-Json
-# Liga Profesional Argentina: se construye aparte (arg-espn), pero sus partidos
-# también tienen id de ESPN, así que se suman al índice de tarjetas.
+$leagues = Get-Content (Join-Path $PSScriptRoot "leagues.json") -Raw -Encoding UTF8 | ConvertFrom-Json
+# Liga Profesional Argentina: se construye aparte (arg), pero sus partidos
+# también tienen id de la fuente, así que se suman al índice de tarjetas.
 $leagues = @($leagues) + @([pscustomobject]@{ code = "ar.1"; slug = "arg.1"; name = "Liga Profesional (Argentina)" })
 $utf8 = New-Object System.Text.UTF8Encoding($false)
 $inv = [System.Globalization.CultureInfo]::InvariantCulture
 
-# --- ids de ESPN presentes en la base -----------------------------------------
+# --- ids de evento presentes en la base -----------------------------------------
 $baseIds = New-Object 'System.Collections.Generic.HashSet[string]'
 if (-not $NoBaseFilter) {
   Write-Host "Indexando ids de la base..."
@@ -59,11 +59,11 @@ if (-not $NoBaseFilter) {
     if ($j -and $j.matches) {
       foreach ($m in $j.matches) {
         $id = [string]$m.id
-        if ($id -and $id.StartsWith("espn:")) { [void]$baseIds.Add($id) }
+        if ($id -and $id -match '^\d+$') { [void]$baseIds.Add($id) }
       }
     }
   }
-  Write-Host ("Ids de ESPN en la base: {0}" -f $baseIds.Count)
+  Write-Host ("Ids de evento en la base: {0}" -f $baseIds.Count)
 } else {
   Write-Host "Sin filtro de base (se guardan todos los partidos con datos)."
 }
@@ -73,7 +73,7 @@ function Fmt-Num($v) {
   return ([int]$v).ToString($inv)
 }
 
-# Cuenta tarjetas por equipo usando el id de equipo de ESPN.
+# Cuenta tarjetas por equipo usando el id de equipo de la fuente.
 function Get-CardCounts($details, [string]$homeId, [string]$awayId) {
   $hy = 0; $ay = 0; $hr = 0; $ar = 0
   if (-not $details) { return @($hy, $ay, $hr, $ar) }
@@ -114,7 +114,7 @@ foreach ($lg in $leagues) {
   $sb = New-Object System.Text.StringBuilder
   $n = 0
   foreach ($yr in ($FromYear..$ToYear)) {
-    $ev = Get-EspnEvents $slug $yr $CacheDir
+    $ev = Get-FeedEvents $slug $yr $CacheDir
     if ($null -eq $ev) { continue }
     foreach ($e in $ev) {
       $st = ""
@@ -123,7 +123,7 @@ foreach ($lg in $leagues) {
       if (-not $e.competitions -or $e.competitions.Count -eq 0) { continue }
       $cp = $e.competitions[0]
       if (-not $cp.competitors) { continue }
-      $id = "espn:" + $e.id
+      $id = [string]$e.id
       if (-not $NoBaseFilter -and -not $baseIds.Contains($id)) { continue }
       $homeId = ""; $awayId = ""; $hc = $null; $ac = $null
       foreach ($c in @($cp.competitors)) {

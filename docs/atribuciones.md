@@ -16,15 +16,15 @@ respetuoso de las condiciones de cada fuente.
 - **Fuente:** `https://github.com/openfootball` (repositorios `football.json`,
   `worldcup`, `euro` y las ligas por país).
   Descarga reproducida por `scripts/build-dataset.ps1`. Las competiciones adicionales se
-  descargan con `scripts/build-openfootball-extra.ps1` (misma fuente y licencia), según la
-  lista de `scripts/openfootball-extra.json`.
+  descargan con `scripts/build-base-extra.ps1` (misma fuente y licencia), según la
+  lista de `scripts/base-extra.json`.
 - **Contenido:** resultados de Copas del Mundo (1930–2026), Eurocopas,
   UEFA Champions League, copas nacionales y primeras divisiones de varias ligas
   (temporadas 2010-11 a 2026-27). Las **competiciones nuevas** incluyen MLS (EE. UU.),
   CONCACAF Champions Cup, CAF Champions League, Copa do Brasil, y ligas de Brasil,
   Colombia, Ecuador, Paraguay, Costa Rica, Kazajistán, Israel, Arabia Saudita y varios
   países de África (Nigeria, Ghana, Kenia, Malaui, Ruanda, Senegal, Tanzania, Uganda,
-  Zambia, Zimbabue y Sudáfrica). Fuente `openfootball-extra` en el manifiesto.
+  Zambia, Zimbabue y Sudáfrica). Fuente `base-extra` en el manifiesto.
 - **Licencia:** dominio público. Cita textual del repositorio
   `openfootball/football.json`:
   > *"The football.json schema, data and scripts are dedicated to the public
@@ -42,8 +42,8 @@ alguno.
 La base histórica de openfootball solo trae **3 temporadas** argentinas
 (2018-19, 2019-20 y 2025). Para tener el máximo historial real, la Liga
 Profesional Argentina se arma desde la API pública de **ESPN** y se guarda
-**descargada** en la propia app (`data/arg-espn/<año>.json`), reproducida por
-`scripts/build-arg-espn.ps1`.
+**descargada** en la propia app (`data/arg/<año>.json`), reproducida por
+`scripts/build-arg.ps1`.
 
 - **Fuente:** `https://site.api.espn.com/apis/site/v2/sports/soccer/arg.1/scoreboard`
 - **Historial incluido:** temporadas **2001 y 2003–2026** (ESPN no tiene 2002 ni
@@ -59,7 +59,7 @@ Profesional Argentina se arma desde la API pública de **ESPN** y se guarda
   de un club no queda partido en dos equipos. Se descartan partidos de equipos
   ajenos a la liga que ESPN mezcla por error (p. ej. clubes brasileños en 2013).
 - **Condiciones:** datos y términos de **ESPN**. Se usan de forma **nominativa**
-  (nombres, fechas, horarios y resultados) y se **muestra la fuente** en pantalla.
+  (nombres, fechas, horarios y resultados); el crédito se mantiene en este documento interno.
   Si ESPN no responde, la app sigue funcionando con el historial ya descargado.
 - **Cómo desactivar lo "en vivo":** casilla "Liga Argentina (en vivo)" en la portada
   (el historial ya descargado queda como dato local).
@@ -67,7 +67,7 @@ Profesional Argentina se arma desde la API pública de **ESPN** y se guarda
 ### ESPN "al día" para las demás ligas
 
 Para que la forma reciente de **todos** los equipos de la base quede actualizada,
-`scripts/build-espn-season.ps1` descarga de la misma API pública de ESPN la
+`scripts/build-season.ps1` descarga de la misma API pública de ESPN la
 **temporada en curso** (y el tramo que openfootball todavía no publicó) de las
 primeras divisiones/competiciones que la base ya tiene:
 
@@ -78,17 +78,17 @@ primeras divisiones/competiciones que la base ya tiene:
   de esa liga, y solo **terminados en tiempo regular** (`STATUS_FULL_TIME`). Los
   nombres de ESPN se mapean al **nombre exacto** que ya usa la base; si un equipo
   no se reconoce, su partido se **descarta** (para no partir un club en dos).
-  Se guardan en `data/espn-season/<código>.json` (fuente `espn-season`).
+  Se guardan en `data/season/<código>.json` (fuente `season`).
 - **Sin cobertura de ESPN (hoy):** Hungría, Argelia, Egipto y Marruecos (ESPN no
   tiene esas ligas) y Chequia (la liga existe pero ESPN devuelve 0 partidos).
   Suiza se completó con historia hasta 2025. Estas ligas quedan con lo que aporta
   openfootball, sin inventar datos.
-- **Condiciones:** las mismas de ESPN (uso **nominativo**, se muestra la fuente en
-  pantalla).
+- **Condiciones:** las mismas de ESPN (uso **nominativo**); el crédito se mantiene en
+  este documento interno.
 
 ### ESPN "historia previa" para las demás ligas
 
-Para ampliar hacia atrás el historial, `scripts/build-espn-history.ps1` descarga de la
+Para ampliar hacia atrás el historial, `scripts/build-history.ps1` descarga de la
 misma API pública de ESPN el tramo **anterior al primer partido** que ya tiene la base en
 cada liga:
 
@@ -99,11 +99,11 @@ cada liga:
   tiempo regular** (`STATUS_FULL_TIME`); los nombres de ESPN se mapean al nombre exacto
   de la base y los equipos no reconocidos se descartan (o se agregan como nuevos, según
   el umbral de similitud), para no partir un club en dos. Se guardan en
-  `data/espn-history/<código>.json` (fuente `espn-history`). Total: **65.276 partidos**.
+  `data/history/<código>.json` (fuente `history`). Total: **65.276 partidos**.
 - **Sin cobertura de ESPN:** Hungría, Argelia, Egipto, Marruecos y Chequia; Argentina no
   tiene historia previa a 2001.
-- **Condiciones:** las mismas de ESPN (uso **nominativo**, se muestra la fuente en
-  pantalla).
+- **Condiciones:** las mismas de ESPN (uso **nominativo**); el crédito se mantiene en
+  este documento interno.
 > Nota: **olé.com.ar** se evaluó como fuente para las ligas argentinas, pero sus
 > datos los sirve su proveedor *LilaX* (`ole.lilax.io`) mediante JavaScript y
 > **no son accesibles desde el navegador** (bloqueo CORS y sin datos en el HTML);
@@ -122,8 +122,8 @@ cada liga:
   Nunca se sube al repositorio ni al manifiesto de datos.
 - **Escudos:** el panel muestra las **iniciales** del equipo, no los escudos que devuelve la API.
   Se mantiene la regla de §1: la app no muestra crestas ni logos oficiales.
-- **Condiciones:** las mismas de ESPN (uso **nominativo**, fuente visible en el panel:
-  «ESPN · actualizado HH:MM»).
+- **Condiciones:** las mismas de ESPN (uso **nominativo**); el crédito se mantiene en
+  este documento interno (la interfaz no muestra el nombre del proveedor).
 - **Límite honesto:** ESPN no publica árbitro, rating del jugador ni xG en ese endpoint, y la
   cobertura de alineaciones históricas varía por competición. Cuando no hay datos, el panel lo
   dice.

@@ -1,7 +1,7 @@
 /* live.js — alineaciones y estadísticas por partido, en vivo.
-   Fuente: API pública de ESPN (`summary?event=<id>`), la misma que ya usa la
-   base histórica. Es gratis, no requiere clave y permite CORS, así que se
-   consulta directamente desde el navegador.
+   Fuente: ficha pública del proveedor de datos (`summary?event=<id>`), la
+   misma que ya usa la base histórica. Permite CORS, así que se consulta
+   directamente desde el navegador.
 
    Qué trae (verificado): 11 titulares + suplentes por equipo con dorsal,
    posición, si entró/salió y 14 estadísticas por jugador; minuto a minuto
@@ -29,8 +29,8 @@
   var TTL = { in: 45 * 1000, pre: 5 * 60 * 1000, post: 10 * 60 * 1000 };
   var REFRESH = { in: 60 * 1000, pre: 5 * 60 * 1000, post: 0 };
 
-  /* Código interno de competición (openfootball) -> slug de ESPN.
-     Solo estos códigos tienen partidos en ESPN; el resto no muestra el botón. */
+  /* Código interno de competición -> identificador de la fuente.
+     Solo estos códigos tienen ficha en la fuente; el resto no muestra el botón. */
   var SLUGS = {
     "en.1": "eng.1", "es.1": "esp.1", "de.1": "ger.1", "it.1": "ita.1",
     "fr.1": "fra.1", "nl.1": "ned.1", "pt.1": "por.1", "at.1": "aut.1",
@@ -50,9 +50,9 @@
 
   /* Fuentes de la base que siempre pertenecen a una competición concreta. */
   var SOURCE_CODE = {
-    "arg-espn": "ar.1",
-    "espn-sudamericana": "conmebol.sudamericana",
-    "espn-libertadores": "conmebol.libertadores"
+    "arg": "ar.1",
+    "sudamericana": "conmebol.sudamericana",
+    "libertadores": "conmebol.libertadores"
   };
 
   /* ---------- vocabulario de estadísticas ---------- */
@@ -68,7 +68,7 @@
     ["yc", "Amarillas"], ["rc", "Rojas"], ["og", "Autogoles"]
   ];
 
-  /* Estadísticas de equipo: de ESPN a castellano y en un orden estable. */
+  /* Estadísticas de equipo: de la fuente a castellano y en un orden estable. */
   var TEAM_STAT = {
     possessionPct: "Posesión",
     totalShots: "Tiros",
@@ -121,7 +121,7 @@
   }
 
   function idFromExternal(x) {
-    var m = /^espn:(\d+)$/.exec(String(x == null ? "" : x));
+    var m = /^(?:[a-z]+:)?(\d+)$/i.exec(String(x == null ? "" : x));
     return m ? m[1] : null;
   }
 
@@ -175,7 +175,7 @@
     return (Date.now() - m.ts) < ttl;
   }
 
-  /* ---------- resolución del evento de ESPN ---------- */
+  /* ---------- resolución del evento en la fuente ---------- */
   var sbCache = {};
   var idCache = {};
 
@@ -192,8 +192,8 @@
       .catch(function () { sbCache[k] = []; return []; });
   }
 
-  /* Normalización de nombres de equipo para emparejar la base con ESPN.
-     La base usa nombres largos ("FC Bayern München") y ESPN a veces los
+  /* Normalización de nombres de equipo para emparejar la base con la fuente.
+     La base usa nombres largos ("FC Bayern München") y la fuente a veces los
      traduce o abrevia ("Bayern Munich", "Athletico-PR"). */
   var GENERIC = {
     fc: 1, cf: 1, sc: 1, ac: 1, acf: 1, afc: 1, ss: 1, ssc: 1, us: 1, as: 1,
@@ -853,7 +853,7 @@
     return out;
   }
 
-  /* Posición de ESPN (inglés) a una etiqueta corta en castellano. */
+  /* Posición (inglés) a una etiqueta corta en castellano. */
   function posLabel(p) {
     var en = String(p.posN || "").toLowerCase();
     var ab = String(p.pos || "").toUpperCase();
@@ -1091,7 +1091,7 @@
     }
     if (!m) return null;
     var id = idFromExternal(m.externalId);
-    if (!id) return null; /* solo partidos que existen en ESPN */
+    if (!id) return null; /* solo partidos con ficha en la fuente */
     var code = codeForMatch(m);
     var slug = code ? slugForCode(code) : null;
     if (!slug) return null;
@@ -1106,7 +1106,7 @@
     };
   }
 
-  /* ¿El partido guardado tiene ficha en ESPN? (se usa al pintar la tabla) */
+  /* ¿El partido guardado tiene ficha en la fuente? (se usa al pintar la tabla) */
   function canShowMatch(m) {
     if (!m || !idFromExternal(m.externalId)) return false;
     var code = codeForMatch(m);

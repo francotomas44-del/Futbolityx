@@ -1,14 +1,14 @@
 # scripts/build-dataset.ps1
-# Descarga la base historica de openfootball (datos libres y de dominio publico:
-# https://github.com/openfootball) a data/openfootball y genera data/manifest.json.
+# Descarga la base historica publica (datos libres y de dominio publico:
+# https://github.com/openfootball) a data/base y genera data/manifest.json.
 #
-# Fuentes (openfootball, licencia de dominio publico / CC0):
+# Fuentes (la base, licencia de dominio publico / CC0):
 #   - football.json   -> divisiones top (.1), copas nacionales (.cup) y UEFA Champions League
 #   - worldcup.json   -> todas las Copas del Mundo (1930..2026)
 #   - euro.json       -> Eurocopa UEFA
 #
-# NOTA: la Liga Profesional Argentina (ar.1) NO se baja de openfootball (solo
-# tenia 3 temporadas); se descarga de ESPN con scripts/build-arg-espn.ps1.
+# NOTA: la Liga Profesional Argentina (ar.1) NO se baja de la base (solo
+# tenia 3 temporadas); se descarga de la fuente con scripts/build-arg.ps1.
 #
 # Uso:
 #   powershell -ExecutionPolicy Bypass -File scripts\build-dataset.ps1
@@ -23,7 +23,7 @@ $ErrorActionPreference = "Stop"
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 $ProgressPreference = "SilentlyContinue"
 
-$outDir = Join-Path $Root "data\openfootball"
+$outDir = Join-Path $Root "data\base"
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 
 $rawBase = "https://raw.githubusercontent.com/"
@@ -45,7 +45,7 @@ foreach ($f in $fb) {
   $file = $parts[1]
   if (($file -match '^[a-z]{2,3}\.(1|cup)\.json$') -or ($file -eq "uefa.cl.json")) {
     $code = $file -replace '\.json$', ''
-    if ($code -eq "ar.1") { continue } # Argentina: se baja de ESPN en scripts/build-arg-espn.ps1
+    if ($code -eq "ar.1") { continue } # Argentina: se baja de la fuente en scripts/build-arg.ps1
     $selected.Add([pscustomobject]@{ path = $f.path; code = $code; url = ($rawBase + "openfootball/football.json/master/" + $f.path) })
   }
 }
@@ -90,7 +90,7 @@ $manifest = @()
 foreach ($it in $selected) {
   $dest = Join-Path $outDir ($it.path -replace '/', '\')
   if (Test-Path $dest) {
-    $manifest += [pscustomobject]@{ path = $it.path; code = $it.code; source = "openfootball" }
+    $manifest += [pscustomobject]@{ path = $it.path; code = $it.code; source = "base" }
   }
 }
 $manifestPath = Join-Path $Root "data\manifest.json"

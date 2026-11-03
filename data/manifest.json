@@ -1,1692 +1,1692 @@
 [
     {
-        "path":  "2010-11/at.1.json",
-        "code":  "at.1",
-        "source":  "openfootball"
+        "path": "2010-11/at.1.json",
+        "code": "at.1",
+        "source": "base"
     },
     {
-        "path":  "2010-11/de.1.json",
-        "code":  "de.1",
-        "source":  "openfootball"
+        "path": "2010-11/de.1.json",
+        "code": "de.1",
+        "source": "base"
     },
     {
-        "path":  "2010-11/en.1.json",
-        "code":  "en.1",
-        "source":  "openfootball"
+        "path": "2010-11/en.1.json",
+        "code": "en.1",
+        "source": "base"
     },
     {
-        "path":  "2011-12/at.1.json",
-        "code":  "at.1",
-        "source":  "openfootball"
+        "path": "2011-12/at.1.json",
+        "code": "at.1",
+        "source": "base"
     },
     {
-        "path":  "2011-12/de.1.json",
-        "code":  "de.1",
-        "source":  "openfootball"
+        "path": "2011-12/de.1.json",
+        "code": "de.1",
+        "source": "base"
     },
     {
-        "path":  "2011-12/en.1.json",
-        "code":  "en.1",
-        "source":  "openfootball"
+        "path": "2011-12/en.1.json",
+        "code": "en.1",
+        "source": "base"
     },
     {
-        "path":  "2011-12/uefa.cl.json",
-        "code":  "uefa.cl",
-        "source":  "openfootball"
+        "path": "2011-12/uefa.cl.json",
+        "code": "uefa.cl",
+        "source": "base"
     },
     {
-        "path":  "2012-13/at.1.json",
-        "code":  "at.1",
-        "source":  "openfootball"
+        "path": "2012-13/at.1.json",
+        "code": "at.1",
+        "source": "base"
     },
     {
-        "path":  "2012-13/de.1.json",
-        "code":  "de.1",
-        "source":  "openfootball"
+        "path": "2012-13/de.1.json",
+        "code": "de.1",
+        "source": "base"
     },
     {
-        "path":  "2012-13/en.1.json",
-        "code":  "en.1",
-        "source":  "openfootball"
+        "path": "2012-13/en.1.json",
+        "code": "en.1",
+        "source": "base"
     },
     {
-        "path":  "2012-13/es.1.json",
-        "code":  "es.1",
-        "source":  "openfootball"
+        "path": "2012-13/es.1.json",
+        "code": "es.1",
+        "source": "base"
     },
     {
-        "path":  "2012-13/uefa.cl.json",
-        "code":  "uefa.cl",
-        "source":  "openfootball"
+        "path": "2012-13/uefa.cl.json",
+        "code": "uefa.cl",
+        "source": "base"
     },
     {
-        "path":  "2013-14/at.1.json",
-        "code":  "at.1",
-        "source":  "openfootball"
+        "path": "2013-14/at.1.json",
+        "code": "at.1",
+        "source": "base"
     },
     {
-        "path":  "2013-14/de.1.json",
-        "code":  "de.1",
-        "source":  "openfootball"
+        "path": "2013-14/de.1.json",
+        "code": "de.1",
+        "source": "base"
     },
     {
-        "path":  "2013-14/en.1.json",
-        "code":  "en.1",
-        "source":  "openfootball"
+        "path": "2013-14/en.1.json",
+        "code": "en.1",
+        "source": "base"
     },
     {
-        "path":  "2013-14/es.1.json",
-        "code":  "es.1",
-        "source":  "openfootball"
+        "path": "2013-14/es.1.json",
+        "code": "es.1",
+        "source": "base"
     },
     {
-        "path":  "2013-14/it.1.json",
-        "code":  "it.1",
-        "source":  "openfootball"
+        "path": "2013-14/it.1.json",
+        "code": "it.1",
+        "source": "base"
     },
     {
-        "path":  "2013-14/uefa.cl.json",
-        "code":  "uefa.cl",
-        "source":  "openfootball"
+        "path": "2013-14/uefa.cl.json",
+        "code": "uefa.cl",
+        "source": "base"
     },
     {
-        "path":  "2014-15/at.1.json",
-        "code":  "at.1",
-        "source":  "openfootball"
+        "path": "2014-15/at.1.json",
+        "code": "at.1",
+        "source": "base"
     },
     {
-        "path":  "2014-15/ch.1.json",
-        "code":  "ch.1",
-        "source":  "openfootball"
+        "path": "2014-15/ch.1.json",
+        "code": "ch.1",
+        "source": "base"
     },
     {
-        "path":  "2014-15/de.1.json",
-        "code":  "de.1",
-        "source":  "openfootball"
+        "path": "2014-15/de.1.json",
+        "code": "de.1",
+        "source": "base"
     },
     {
-        "path":  "2014-15/en.1.json",
-        "code":  "en.1",
-        "source":  "openfootball"
+        "path": "2014-15/en.1.json",
+        "code": "en.1",
+        "source": "base"
     },
     {
-        "path":  "2014-15/es.1.json",
-        "code":  "es.1",
-        "source":  "openfootball"
+        "path": "2014-15/es.1.json",
+        "code": "es.1",
+        "source": "base"
     },
     {
-        "path":  "2014-15/fr.1.json",
-        "code":  "fr.1",
-        "source":  "openfootball"
+        "path": "2014-15/fr.1.json",
+        "code": "fr.1",
+        "source": "base"
     },
     {
-        "path":  "2014-15/it.1.json",
-        "code":  "it.1",
-        "source":  "openfootball"
+        "path": "2014-15/it.1.json",
+        "code": "it.1",
+        "source": "base"
     },
     {
-        "path":  "2014-15/uefa.cl.json",
-        "code":  "uefa.cl",
-        "source":  "openfootball"
+        "path": "2014-15/uefa.cl.json",
+        "code": "uefa.cl",
+        "source": "base"
     },
     {
-        "path":  "2015-16/at.1.json",
-        "code":  "at.1",
-        "source":  "openfootball"
+        "path": "2015-16/at.1.json",
+        "code": "at.1",
+        "source": "base"
     },
     {
-        "path":  "2015-16/de.1.json",
-        "code":  "de.1",
-        "source":  "openfootball"
+        "path": "2015-16/de.1.json",
+        "code": "de.1",
+        "source": "base"
     },
     {
-        "path":  "2015-16/en.1.json",
-        "code":  "en.1",
-        "source":  "openfootball"
+        "path": "2015-16/en.1.json",
+        "code": "en.1",
+        "source": "base"
     },
     {
-        "path":  "2015-16/es.1.json",
-        "code":  "es.1",
-        "source":  "openfootball"
+        "path": "2015-16/es.1.json",
+        "code": "es.1",
+        "source": "base"
     },
     {
-        "path":  "2015-16/fr.1.json",
-        "code":  "fr.1",
-        "source":  "openfootball"
+        "path": "2015-16/fr.1.json",
+        "code": "fr.1",
+        "source": "base"
     },
     {
-        "path":  "2015-16/it.1.json",
-        "code":  "it.1",
-        "source":  "openfootball"
+        "path": "2015-16/it.1.json",
+        "code": "it.1",
+        "source": "base"
     },
     {
-        "path":  "2015-16/uefa.cl.json",
-        "code":  "uefa.cl",
-        "source":  "openfootball"
+        "path": "2015-16/uefa.cl.json",
+        "code": "uefa.cl",
+        "source": "base"
     },
     {
-        "path":  "2016-17/at.1.json",
-        "code":  "at.1",
-        "source":  "openfootball"
+        "path": "2016-17/at.1.json",
+        "code": "at.1",
+        "source": "base"
     },
     {
-        "path":  "2016-17/de.1.json",
-        "code":  "de.1",
-        "source":  "openfootball"
+        "path": "2016-17/de.1.json",
+        "code": "de.1",
+        "source": "base"
     },
     {
-        "path":  "2016-17/en.1.json",
-        "code":  "en.1",
-        "source":  "openfootball"
+        "path": "2016-17/en.1.json",
+        "code": "en.1",
+        "source": "base"
     },
     {
-        "path":  "2016-17/es.1.json",
-        "code":  "es.1",
-        "source":  "openfootball"
+        "path": "2016-17/es.1.json",
+        "code": "es.1",
+        "source": "base"
     },
     {
-        "path":  "2016-17/fr.1.json",
-        "code":  "fr.1",
-        "source":  "openfootball"
+        "path": "2016-17/fr.1.json",
+        "code": "fr.1",
+        "source": "base"
     },
     {
-        "path":  "2016-17/it.1.json",
-        "code":  "it.1",
-        "source":  "openfootball"
+        "path": "2016-17/it.1.json",
+        "code": "it.1",
+        "source": "base"
     },
     {
-        "path":  "2016-17/uefa.cl.json",
-        "code":  "uefa.cl",
-        "source":  "openfootball"
+        "path": "2016-17/uefa.cl.json",
+        "code": "uefa.cl",
+        "source": "base"
     },
     {
-        "path":  "2017-18/at.1.json",
-        "code":  "at.1",
-        "source":  "openfootball"
+        "path": "2017-18/at.1.json",
+        "code": "at.1",
+        "source": "base"
     },
     {
-        "path":  "2017-18/de.1.json",
-        "code":  "de.1",
-        "source":  "openfootball"
+        "path": "2017-18/de.1.json",
+        "code": "de.1",
+        "source": "base"
     },
     {
-        "path":  "2017-18/en.1.json",
-        "code":  "en.1",
-        "source":  "openfootball"
+        "path": "2017-18/en.1.json",
+        "code": "en.1",
+        "source": "base"
     },
     {
-        "path":  "2017-18/es.1.json",
-        "code":  "es.1",
-        "source":  "openfootball"
+        "path": "2017-18/es.1.json",
+        "code": "es.1",
+        "source": "base"
     },
     {
-        "path":  "2017-18/fr.1.json",
-        "code":  "fr.1",
-        "source":  "openfootball"
+        "path": "2017-18/fr.1.json",
+        "code": "fr.1",
+        "source": "base"
     },
     {
-        "path":  "2017-18/it.1.json",
-        "code":  "it.1",
-        "source":  "openfootball"
+        "path": "2017-18/it.1.json",
+        "code": "it.1",
+        "source": "base"
     },
     {
-        "path":  "2017-18/uefa.cl.json",
-        "code":  "uefa.cl",
-        "source":  "openfootball"
+        "path": "2017-18/uefa.cl.json",
+        "code": "uefa.cl",
+        "source": "base"
     },
     {
-        "path":  "2018-19/at.1.json",
-        "code":  "at.1",
-        "source":  "openfootball"
+        "path": "2018-19/at.1.json",
+        "code": "at.1",
+        "source": "base"
     },
     {
-        "path":  "2018-19/at.cup.json",
-        "code":  "at.cup",
-        "source":  "openfootball"
+        "path": "2018-19/at.cup.json",
+        "code": "at.cup",
+        "source": "base"
     },
     {
-        "path":  "2018-19/au.1.json",
-        "code":  "au.1",
-        "source":  "openfootball"
+        "path": "2018-19/au.1.json",
+        "code": "au.1",
+        "source": "base"
     },
     {
-        "path":  "2018-19/be.1.json",
-        "code":  "be.1",
-        "source":  "openfootball"
+        "path": "2018-19/be.1.json",
+        "code": "be.1",
+        "source": "base"
     },
     {
-        "path":  "2018-19/ch.1.json",
-        "code":  "ch.1",
-        "source":  "openfootball"
+        "path": "2018-19/ch.1.json",
+        "code": "ch.1",
+        "source": "base"
     },
     {
-        "path":  "2018-19/cz.1.json",
-        "code":  "cz.1",
-        "source":  "openfootball"
+        "path": "2018-19/cz.1.json",
+        "code": "cz.1",
+        "source": "base"
     },
     {
-        "path":  "2018-19/de.1.json",
-        "code":  "de.1",
-        "source":  "openfootball"
+        "path": "2018-19/de.1.json",
+        "code": "de.1",
+        "source": "base"
     },
     {
-        "path":  "2018-19/de.cup.json",
-        "code":  "de.cup",
-        "source":  "openfootball"
+        "path": "2018-19/de.cup.json",
+        "code": "de.cup",
+        "source": "base"
     },
     {
-        "path":  "2018-19/en.1.json",
-        "code":  "en.1",
-        "source":  "openfootball"
+        "path": "2018-19/en.1.json",
+        "code": "en.1",
+        "source": "base"
     },
     {
-        "path":  "2018-19/es.1.json",
-        "code":  "es.1",
-        "source":  "openfootball"
+        "path": "2018-19/es.1.json",
+        "code": "es.1",
+        "source": "base"
     },
     {
-        "path":  "2018-19/fr.1.json",
-        "code":  "fr.1",
-        "source":  "openfootball"
+        "path": "2018-19/fr.1.json",
+        "code": "fr.1",
+        "source": "base"
     },
     {
-        "path":  "2018-19/gr.1.json",
-        "code":  "gr.1",
-        "source":  "openfootball"
+        "path": "2018-19/gr.1.json",
+        "code": "gr.1",
+        "source": "base"
     },
     {
-        "path":  "2018-19/hu.1.json",
-        "code":  "hu.1",
-        "source":  "openfootball"
+        "path": "2018-19/hu.1.json",
+        "code": "hu.1",
+        "source": "base"
     },
     {
-        "path":  "2018-19/it.1.json",
-        "code":  "it.1",
-        "source":  "openfootball"
+        "path": "2018-19/it.1.json",
+        "code": "it.1",
+        "source": "base"
     },
     {
-        "path":  "2018-19/mx.1.json",
-        "code":  "mx.1",
-        "source":  "openfootball"
+        "path": "2018-19/mx.1.json",
+        "code": "mx.1",
+        "source": "base"
     },
     {
-        "path":  "2018-19/nl.1.json",
-        "code":  "nl.1",
-        "source":  "openfootball"
+        "path": "2018-19/nl.1.json",
+        "code": "nl.1",
+        "source": "base"
     },
     {
-        "path":  "2018-19/pt.1.json",
-        "code":  "pt.1",
-        "source":  "openfootball"
+        "path": "2018-19/pt.1.json",
+        "code": "pt.1",
+        "source": "base"
     },
     {
-        "path":  "2018-19/ru.1.json",
-        "code":  "ru.1",
-        "source":  "openfootball"
+        "path": "2018-19/ru.1.json",
+        "code": "ru.1",
+        "source": "base"
     },
     {
-        "path":  "2018-19/sco.1.json",
-        "code":  "sco.1",
-        "source":  "openfootball"
+        "path": "2018-19/sco.1.json",
+        "code": "sco.1",
+        "source": "base"
     },
     {
-        "path":  "2018-19/tr.1.json",
-        "code":  "tr.1",
-        "source":  "openfootball"
+        "path": "2018-19/tr.1.json",
+        "code": "tr.1",
+        "source": "base"
     },
     {
-        "path":  "2018-19/uefa.cl.json",
-        "code":  "uefa.cl",
-        "source":  "openfootball"
+        "path": "2018-19/uefa.cl.json",
+        "code": "uefa.cl",
+        "source": "base"
     },
     {
-        "path":  "2019-20/at.1.json",
-        "code":  "at.1",
-        "source":  "openfootball"
+        "path": "2019-20/at.1.json",
+        "code": "at.1",
+        "source": "base"
     },
     {
-        "path":  "2019-20/at.cup.json",
-        "code":  "at.cup",
-        "source":  "openfootball"
+        "path": "2019-20/at.cup.json",
+        "code": "at.cup",
+        "source": "base"
     },
     {
-        "path":  "2019-20/be.1.json",
-        "code":  "be.1",
-        "source":  "openfootball"
+        "path": "2019-20/be.1.json",
+        "code": "be.1",
+        "source": "base"
     },
     {
-        "path":  "2019-20/ch.1.json",
-        "code":  "ch.1",
-        "source":  "openfootball"
+        "path": "2019-20/ch.1.json",
+        "code": "ch.1",
+        "source": "base"
     },
     {
-        "path":  "2019-20/de.1.json",
-        "code":  "de.1",
-        "source":  "openfootball"
+        "path": "2019-20/de.1.json",
+        "code": "de.1",
+        "source": "base"
     },
     {
-        "path":  "2019-20/de.cup.json",
-        "code":  "de.cup",
-        "source":  "openfootball"
+        "path": "2019-20/de.cup.json",
+        "code": "de.cup",
+        "source": "base"
     },
     {
-        "path":  "2019-20/en.1.json",
-        "code":  "en.1",
-        "source":  "openfootball"
+        "path": "2019-20/en.1.json",
+        "code": "en.1",
+        "source": "base"
     },
     {
-        "path":  "2019-20/es.1.json",
-        "code":  "es.1",
-        "source":  "openfootball"
+        "path": "2019-20/es.1.json",
+        "code": "es.1",
+        "source": "base"
     },
     {
-        "path":  "2019-20/fr.1.json",
-        "code":  "fr.1",
-        "source":  "openfootball"
+        "path": "2019-20/fr.1.json",
+        "code": "fr.1",
+        "source": "base"
     },
     {
-        "path":  "2019-20/gr.1.json",
-        "code":  "gr.1",
-        "source":  "openfootball"
+        "path": "2019-20/gr.1.json",
+        "code": "gr.1",
+        "source": "base"
     },
     {
-        "path":  "2019-20/it.1.json",
-        "code":  "it.1",
-        "source":  "openfootball"
+        "path": "2019-20/it.1.json",
+        "code": "it.1",
+        "source": "base"
     },
     {
-        "path":  "2019-20/mx.1.json",
-        "code":  "mx.1",
-        "source":  "openfootball"
+        "path": "2019-20/mx.1.json",
+        "code": "mx.1",
+        "source": "base"
     },
     {
-        "path":  "2019-20/nl.1.json",
-        "code":  "nl.1",
-        "source":  "openfootball"
+        "path": "2019-20/nl.1.json",
+        "code": "nl.1",
+        "source": "base"
     },
     {
-        "path":  "2019-20/pt.1.json",
-        "code":  "pt.1",
-        "source":  "openfootball"
+        "path": "2019-20/pt.1.json",
+        "code": "pt.1",
+        "source": "base"
     },
     {
-        "path":  "2019-20/ru.1.json",
-        "code":  "ru.1",
-        "source":  "openfootball"
+        "path": "2019-20/ru.1.json",
+        "code": "ru.1",
+        "source": "base"
     },
     {
-        "path":  "2019-20/sco.1.json",
-        "code":  "sco.1",
-        "source":  "openfootball"
+        "path": "2019-20/sco.1.json",
+        "code": "sco.1",
+        "source": "base"
     },
     {
-        "path":  "2019-20/tr.1.json",
-        "code":  "tr.1",
-        "source":  "openfootball"
+        "path": "2019-20/tr.1.json",
+        "code": "tr.1",
+        "source": "base"
     },
     {
-        "path":  "2019-20/uefa.cl.json",
-        "code":  "uefa.cl",
-        "source":  "openfootball"
+        "path": "2019-20/uefa.cl.json",
+        "code": "uefa.cl",
+        "source": "base"
     },
     {
-        "path":  "2019/br.1.json",
-        "code":  "br.1",
-        "source":  "openfootball"
+        "path": "2019/br.1.json",
+        "code": "br.1",
+        "source": "base"
     },
     {
-        "path":  "2019/cn.1.json",
-        "code":  "cn.1",
-        "source":  "openfootball"
+        "path": "2019/cn.1.json",
+        "code": "cn.1",
+        "source": "base"
     },
     {
-        "path":  "2019/jp.1.json",
-        "code":  "jp.1",
-        "source":  "openfootball"
+        "path": "2019/jp.1.json",
+        "code": "jp.1",
+        "source": "base"
     },
     {
-        "path":  "2020-21/at.1.json",
-        "code":  "at.1",
-        "source":  "openfootball"
+        "path": "2020-21/at.1.json",
+        "code": "at.1",
+        "source": "base"
     },
     {
-        "path":  "2020-21/at.cup.json",
-        "code":  "at.cup",
-        "source":  "openfootball"
+        "path": "2020-21/at.cup.json",
+        "code": "at.cup",
+        "source": "base"
     },
     {
-        "path":  "2020-21/be.1.json",
-        "code":  "be.1",
-        "source":  "openfootball"
+        "path": "2020-21/be.1.json",
+        "code": "be.1",
+        "source": "base"
     },
     {
-        "path":  "2020-21/ch.1.json",
-        "code":  "ch.1",
-        "source":  "openfootball"
+        "path": "2020-21/ch.1.json",
+        "code": "ch.1",
+        "source": "base"
     },
     {
-        "path":  "2020-21/cz.1.json",
-        "code":  "cz.1",
-        "source":  "openfootball"
+        "path": "2020-21/cz.1.json",
+        "code": "cz.1",
+        "source": "base"
     },
     {
-        "path":  "2020-21/de.1.json",
-        "code":  "de.1",
-        "source":  "openfootball"
+        "path": "2020-21/de.1.json",
+        "code": "de.1",
+        "source": "base"
     },
     {
-        "path":  "2020-21/de.cup.json",
-        "code":  "de.cup",
-        "source":  "openfootball"
+        "path": "2020-21/de.cup.json",
+        "code": "de.cup",
+        "source": "base"
     },
     {
-        "path":  "2020-21/en.1.json",
-        "code":  "en.1",
-        "source":  "openfootball"
+        "path": "2020-21/en.1.json",
+        "code": "en.1",
+        "source": "base"
     },
     {
-        "path":  "2020-21/es.1.json",
-        "code":  "es.1",
-        "source":  "openfootball"
+        "path": "2020-21/es.1.json",
+        "code": "es.1",
+        "source": "base"
     },
     {
-        "path":  "2020-21/fr.1.json",
-        "code":  "fr.1",
-        "source":  "openfootball"
+        "path": "2020-21/fr.1.json",
+        "code": "fr.1",
+        "source": "base"
     },
     {
-        "path":  "2020-21/gr.1.json",
-        "code":  "gr.1",
-        "source":  "openfootball"
+        "path": "2020-21/gr.1.json",
+        "code": "gr.1",
+        "source": "base"
     },
     {
-        "path":  "2020-21/hu.1.json",
-        "code":  "hu.1",
-        "source":  "openfootball"
+        "path": "2020-21/hu.1.json",
+        "code": "hu.1",
+        "source": "base"
     },
     {
-        "path":  "2020-21/it.1.json",
-        "code":  "it.1",
-        "source":  "openfootball"
+        "path": "2020-21/it.1.json",
+        "code": "it.1",
+        "source": "base"
     },
     {
-        "path":  "2020-21/mx.1.json",
-        "code":  "mx.1",
-        "source":  "openfootball"
+        "path": "2020-21/mx.1.json",
+        "code": "mx.1",
+        "source": "base"
     },
     {
-        "path":  "2020-21/nl.1.json",
-        "code":  "nl.1",
-        "source":  "openfootball"
+        "path": "2020-21/nl.1.json",
+        "code": "nl.1",
+        "source": "base"
     },
     {
-        "path":  "2020-21/pt.1.json",
-        "code":  "pt.1",
-        "source":  "openfootball"
+        "path": "2020-21/pt.1.json",
+        "code": "pt.1",
+        "source": "base"
     },
     {
-        "path":  "2020-21/ru.1.json",
-        "code":  "ru.1",
-        "source":  "openfootball"
+        "path": "2020-21/ru.1.json",
+        "code": "ru.1",
+        "source": "base"
     },
     {
-        "path":  "2020-21/sco.1.json",
-        "code":  "sco.1",
-        "source":  "openfootball"
+        "path": "2020-21/sco.1.json",
+        "code": "sco.1",
+        "source": "base"
     },
     {
-        "path":  "2020-21/tr.1.json",
-        "code":  "tr.1",
-        "source":  "openfootball"
+        "path": "2020-21/tr.1.json",
+        "code": "tr.1",
+        "source": "base"
     },
     {
-        "path":  "2020/br.1.json",
-        "code":  "br.1",
-        "source":  "openfootball"
+        "path": "2020/br.1.json",
+        "code": "br.1",
+        "source": "base"
     },
     {
-        "path":  "2020/cn.1.json",
-        "code":  "cn.1",
-        "source":  "openfootball"
+        "path": "2020/cn.1.json",
+        "code": "cn.1",
+        "source": "base"
     },
     {
-        "path":  "2020/jp.1.json",
-        "code":  "jp.1",
-        "source":  "openfootball"
+        "path": "2020/jp.1.json",
+        "code": "jp.1",
+        "source": "base"
     },
     {
-        "path":  "2021-22/at.1.json",
-        "code":  "at.1",
-        "source":  "openfootball"
+        "path": "2021-22/at.1.json",
+        "code": "at.1",
+        "source": "base"
     },
     {
-        "path":  "2021-22/de.1.json",
-        "code":  "de.1",
-        "source":  "openfootball"
+        "path": "2021-22/de.1.json",
+        "code": "de.1",
+        "source": "base"
     },
     {
-        "path":  "2021-22/en.1.json",
-        "code":  "en.1",
-        "source":  "openfootball"
+        "path": "2021-22/en.1.json",
+        "code": "en.1",
+        "source": "base"
     },
     {
-        "path":  "2021-22/es.1.json",
-        "code":  "es.1",
-        "source":  "openfootball"
+        "path": "2021-22/es.1.json",
+        "code": "es.1",
+        "source": "base"
     },
     {
-        "path":  "2021-22/fr.1.json",
-        "code":  "fr.1",
-        "source":  "openfootball"
+        "path": "2021-22/fr.1.json",
+        "code": "fr.1",
+        "source": "base"
     },
     {
-        "path":  "2021-22/it.1.json",
-        "code":  "it.1",
-        "source":  "openfootball"
+        "path": "2021-22/it.1.json",
+        "code": "it.1",
+        "source": "base"
     },
     {
-        "path":  "2021-22/nl.1.json",
-        "code":  "nl.1",
-        "source":  "openfootball"
+        "path": "2021-22/nl.1.json",
+        "code": "nl.1",
+        "source": "base"
     },
     {
-        "path":  "2021-22/pt.1.json",
-        "code":  "pt.1",
-        "source":  "openfootball"
+        "path": "2021-22/pt.1.json",
+        "code": "pt.1",
+        "source": "base"
     },
     {
-        "path":  "2022-23/at.1.json",
-        "code":  "at.1",
-        "source":  "openfootball"
+        "path": "2022-23/at.1.json",
+        "code": "at.1",
+        "source": "base"
     },
     {
-        "path":  "2022-23/de.1.json",
-        "code":  "de.1",
-        "source":  "openfootball"
+        "path": "2022-23/de.1.json",
+        "code": "de.1",
+        "source": "base"
     },
     {
-        "path":  "2022-23/en.1.json",
-        "code":  "en.1",
-        "source":  "openfootball"
+        "path": "2022-23/en.1.json",
+        "code": "en.1",
+        "source": "base"
     },
     {
-        "path":  "2022-23/es.1.json",
-        "code":  "es.1",
-        "source":  "openfootball"
+        "path": "2022-23/es.1.json",
+        "code": "es.1",
+        "source": "base"
     },
     {
-        "path":  "2022-23/fr.1.json",
-        "code":  "fr.1",
-        "source":  "openfootball"
+        "path": "2022-23/fr.1.json",
+        "code": "fr.1",
+        "source": "base"
     },
     {
-        "path":  "2022-23/it.1.json",
-        "code":  "it.1",
-        "source":  "openfootball"
+        "path": "2022-23/it.1.json",
+        "code": "it.1",
+        "source": "base"
     },
     {
-        "path":  "2022-23/nl.1.json",
-        "code":  "nl.1",
-        "source":  "openfootball"
+        "path": "2022-23/nl.1.json",
+        "code": "nl.1",
+        "source": "base"
     },
     {
-        "path":  "2022-23/pt.1.json",
-        "code":  "pt.1",
-        "source":  "openfootball"
+        "path": "2022-23/pt.1.json",
+        "code": "pt.1",
+        "source": "base"
     },
     {
-        "path":  "2023-24/at.1.json",
-        "code":  "at.1",
-        "source":  "openfootball"
+        "path": "2023-24/at.1.json",
+        "code": "at.1",
+        "source": "base"
     },
     {
-        "path":  "2023-24/de.1.json",
-        "code":  "de.1",
-        "source":  "openfootball"
+        "path": "2023-24/de.1.json",
+        "code": "de.1",
+        "source": "base"
     },
     {
-        "path":  "2023-24/en.1.json",
-        "code":  "en.1",
-        "source":  "openfootball"
+        "path": "2023-24/en.1.json",
+        "code": "en.1",
+        "source": "base"
     },
     {
-        "path":  "2023-24/es.1.json",
-        "code":  "es.1",
-        "source":  "openfootball"
+        "path": "2023-24/es.1.json",
+        "code": "es.1",
+        "source": "base"
     },
     {
-        "path":  "2023-24/fr.1.json",
-        "code":  "fr.1",
-        "source":  "openfootball"
+        "path": "2023-24/fr.1.json",
+        "code": "fr.1",
+        "source": "base"
     },
     {
-        "path":  "2023-24/it.1.json",
-        "code":  "it.1",
-        "source":  "openfootball"
+        "path": "2023-24/it.1.json",
+        "code": "it.1",
+        "source": "base"
     },
     {
-        "path":  "2023-24/nl.1.json",
-        "code":  "nl.1",
-        "source":  "openfootball"
+        "path": "2023-24/nl.1.json",
+        "code": "nl.1",
+        "source": "base"
     },
     {
-        "path":  "2023-24/pt.1.json",
-        "code":  "pt.1",
-        "source":  "openfootball"
+        "path": "2023-24/pt.1.json",
+        "code": "pt.1",
+        "source": "base"
     },
     {
-        "path":  "2024-25/at.1.json",
-        "code":  "at.1",
-        "source":  "openfootball"
+        "path": "2024-25/at.1.json",
+        "code": "at.1",
+        "source": "base"
     },
     {
-        "path":  "2024-25/au.1.json",
-        "code":  "au.1",
-        "source":  "openfootball"
+        "path": "2024-25/au.1.json",
+        "code": "au.1",
+        "source": "base"
     },
     {
-        "path":  "2024-25/be.1.json",
-        "code":  "be.1",
-        "source":  "openfootball"
+        "path": "2024-25/be.1.json",
+        "code": "be.1",
+        "source": "base"
     },
     {
-        "path":  "2024-25/de.1.json",
-        "code":  "de.1",
-        "source":  "openfootball"
+        "path": "2024-25/de.1.json",
+        "code": "de.1",
+        "source": "base"
     },
     {
-        "path":  "2024-25/dz.1.json",
-        "code":  "dz.1",
-        "source":  "openfootball"
+        "path": "2024-25/dz.1.json",
+        "code": "dz.1",
+        "source": "base"
     },
     {
-        "path":  "2024-25/eg.1.json",
-        "code":  "eg.1",
-        "source":  "openfootball"
+        "path": "2024-25/eg.1.json",
+        "code": "eg.1",
+        "source": "base"
     },
     {
-        "path":  "2024-25/en.1.json",
-        "code":  "en.1",
-        "source":  "openfootball"
+        "path": "2024-25/en.1.json",
+        "code": "en.1",
+        "source": "base"
     },
     {
-        "path":  "2024-25/es.1.json",
-        "code":  "es.1",
-        "source":  "openfootball"
+        "path": "2024-25/es.1.json",
+        "code": "es.1",
+        "source": "base"
     },
     {
-        "path":  "2024-25/fr.1.json",
-        "code":  "fr.1",
-        "source":  "openfootball"
+        "path": "2024-25/fr.1.json",
+        "code": "fr.1",
+        "source": "base"
     },
     {
-        "path":  "2024-25/gr.1.json",
-        "code":  "gr.1",
-        "source":  "openfootball"
+        "path": "2024-25/gr.1.json",
+        "code": "gr.1",
+        "source": "base"
     },
     {
-        "path":  "2024-25/it.1.json",
-        "code":  "it.1",
-        "source":  "openfootball"
+        "path": "2024-25/it.1.json",
+        "code": "it.1",
+        "source": "base"
     },
     {
-        "path":  "2024-25/ma.1.json",
-        "code":  "ma.1",
-        "source":  "openfootball"
+        "path": "2024-25/ma.1.json",
+        "code": "ma.1",
+        "source": "base"
     },
     {
-        "path":  "2024-25/mx.1.json",
-        "code":  "mx.1",
-        "source":  "openfootball"
+        "path": "2024-25/mx.1.json",
+        "code": "mx.1",
+        "source": "base"
     },
     {
-        "path":  "2024-25/nl.1.json",
-        "code":  "nl.1",
-        "source":  "openfootball"
+        "path": "2024-25/nl.1.json",
+        "code": "nl.1",
+        "source": "base"
     },
     {
-        "path":  "2024-25/pt.1.json",
-        "code":  "pt.1",
-        "source":  "openfootball"
+        "path": "2024-25/pt.1.json",
+        "code": "pt.1",
+        "source": "base"
     },
     {
-        "path":  "2024-25/sco.1.json",
-        "code":  "sco.1",
-        "source":  "openfootball"
+        "path": "2024-25/sco.1.json",
+        "code": "sco.1",
+        "source": "base"
     },
     {
-        "path":  "2024-25/tr.1.json",
-        "code":  "tr.1",
-        "source":  "openfootball"
+        "path": "2024-25/tr.1.json",
+        "code": "tr.1",
+        "source": "base"
     },
     {
-        "path":  "2024-25/uefa.cl.json",
-        "code":  "uefa.cl",
-        "source":  "openfootball"
+        "path": "2024-25/uefa.cl.json",
+        "code": "uefa.cl",
+        "source": "base"
     },
     {
-        "path":  "2025-26/at.1.json",
-        "code":  "at.1",
-        "source":  "openfootball"
+        "path": "2025-26/at.1.json",
+        "code": "at.1",
+        "source": "base"
     },
     {
-        "path":  "2025-26/be.1.json",
-        "code":  "be.1",
-        "source":  "openfootball"
+        "path": "2025-26/be.1.json",
+        "code": "be.1",
+        "source": "base"
     },
     {
-        "path":  "2025-26/de.1.json",
-        "code":  "de.1",
-        "source":  "openfootball"
+        "path": "2025-26/de.1.json",
+        "code": "de.1",
+        "source": "base"
     },
     {
-        "path":  "2025-26/en.1.json",
-        "code":  "en.1",
-        "source":  "openfootball"
+        "path": "2025-26/en.1.json",
+        "code": "en.1",
+        "source": "base"
     },
     {
-        "path":  "2025-26/es.1.json",
-        "code":  "es.1",
-        "source":  "openfootball"
+        "path": "2025-26/es.1.json",
+        "code": "es.1",
+        "source": "base"
     },
     {
-        "path":  "2025-26/fr.1.json",
-        "code":  "fr.1",
-        "source":  "openfootball"
+        "path": "2025-26/fr.1.json",
+        "code": "fr.1",
+        "source": "base"
     },
     {
-        "path":  "2025-26/gr.1.json",
-        "code":  "gr.1",
-        "source":  "openfootball"
+        "path": "2025-26/gr.1.json",
+        "code": "gr.1",
+        "source": "base"
     },
     {
-        "path":  "2025-26/it.1.json",
-        "code":  "it.1",
-        "source":  "openfootball"
+        "path": "2025-26/it.1.json",
+        "code": "it.1",
+        "source": "base"
     },
     {
-        "path":  "2025-26/nl.1.json",
-        "code":  "nl.1",
-        "source":  "openfootball"
+        "path": "2025-26/nl.1.json",
+        "code": "nl.1",
+        "source": "base"
     },
     {
-        "path":  "2025-26/pt.1.json",
-        "code":  "pt.1",
-        "source":  "openfootball"
+        "path": "2025-26/pt.1.json",
+        "code": "pt.1",
+        "source": "base"
     },
     {
-        "path":  "2025-26/sco.1.json",
-        "code":  "sco.1",
-        "source":  "openfootball"
+        "path": "2025-26/sco.1.json",
+        "code": "sco.1",
+        "source": "base"
     },
     {
-        "path":  "2025-26/tr.1.json",
-        "code":  "tr.1",
-        "source":  "openfootball"
+        "path": "2025-26/tr.1.json",
+        "code": "tr.1",
+        "source": "base"
     },
     {
-        "path":  "2025/br.1.json",
-        "code":  "br.1",
-        "source":  "openfootball"
+        "path": "2025/br.1.json",
+        "code": "br.1",
+        "source": "base"
     },
     {
-        "path":  "2025/cn.1.json",
-        "code":  "cn.1",
-        "source":  "openfootball"
+        "path": "2025/cn.1.json",
+        "code": "cn.1",
+        "source": "base"
     },
     {
-        "path":  "2025/co.1.json",
-        "code":  "co.1",
-        "source":  "openfootball"
+        "path": "2025/co.1.json",
+        "code": "co.1",
+        "source": "base"
     },
     {
-        "path":  "2025/jp.1.json",
-        "code":  "jp.1",
-        "source":  "openfootball"
+        "path": "2025/jp.1.json",
+        "code": "jp.1",
+        "source": "base"
     },
     {
-        "path":  "2026-27/de.1.json",
-        "code":  "de.1",
-        "source":  "openfootball"
+        "path": "2026-27/de.1.json",
+        "code": "de.1",
+        "source": "base"
     },
     {
-        "path":  "2026-27/en.1.json",
-        "code":  "en.1",
-        "source":  "openfootball"
+        "path": "2026-27/en.1.json",
+        "code": "en.1",
+        "source": "base"
     },
     {
-        "path":  "2026-27/es.1.json",
-        "code":  "es.1",
-        "source":  "openfootball"
+        "path": "2026-27/es.1.json",
+        "code": "es.1",
+        "source": "base"
     },
     {
-        "path":  "2026-27/fr.1.json",
-        "code":  "fr.1",
-        "source":  "openfootball"
+        "path": "2026-27/fr.1.json",
+        "code": "fr.1",
+        "source": "base"
     },
     {
-        "path":  "2026-27/it.1.json",
-        "code":  "it.1",
-        "source":  "openfootball"
+        "path": "2026-27/it.1.json",
+        "code": "it.1",
+        "source": "base"
     },
     {
-        "path":  "2026-27/nl.1.json",
-        "code":  "nl.1",
-        "source":  "openfootball"
+        "path": "2026-27/nl.1.json",
+        "code": "nl.1",
+        "source": "base"
     },
     {
-        "path":  "2026-27/pt.1.json",
-        "code":  "pt.1",
-        "source":  "openfootball"
+        "path": "2026-27/pt.1.json",
+        "code": "pt.1",
+        "source": "base"
     },
     {
-        "path":  "2026/br.1.json",
-        "code":  "br.1",
-        "source":  "openfootball"
+        "path": "2026/br.1.json",
+        "code": "br.1",
+        "source": "base"
     },
     {
-        "path":  "worldcup/1930/worldcup.json",
-        "code":  "worldcup",
-        "source":  "openfootball"
+        "path": "worldcup/1930/worldcup.json",
+        "code": "worldcup",
+        "source": "base"
     },
     {
-        "path":  "worldcup/1934/worldcup.json",
-        "code":  "worldcup",
-        "source":  "openfootball"
+        "path": "worldcup/1934/worldcup.json",
+        "code": "worldcup",
+        "source": "base"
     },
     {
-        "path":  "worldcup/1938/worldcup.json",
-        "code":  "worldcup",
-        "source":  "openfootball"
+        "path": "worldcup/1938/worldcup.json",
+        "code": "worldcup",
+        "source": "base"
     },
     {
-        "path":  "worldcup/1950/worldcup.json",
-        "code":  "worldcup",
-        "source":  "openfootball"
+        "path": "worldcup/1950/worldcup.json",
+        "code": "worldcup",
+        "source": "base"
     },
     {
-        "path":  "worldcup/1954/worldcup.json",
-        "code":  "worldcup",
-        "source":  "openfootball"
+        "path": "worldcup/1954/worldcup.json",
+        "code": "worldcup",
+        "source": "base"
     },
     {
-        "path":  "worldcup/1958/worldcup.json",
-        "code":  "worldcup",
-        "source":  "openfootball"
+        "path": "worldcup/1958/worldcup.json",
+        "code": "worldcup",
+        "source": "base"
     },
     {
-        "path":  "worldcup/1962/worldcup.json",
-        "code":  "worldcup",
-        "source":  "openfootball"
+        "path": "worldcup/1962/worldcup.json",
+        "code": "worldcup",
+        "source": "base"
     },
     {
-        "path":  "worldcup/1966/worldcup.json",
-        "code":  "worldcup",
-        "source":  "openfootball"
+        "path": "worldcup/1966/worldcup.json",
+        "code": "worldcup",
+        "source": "base"
     },
     {
-        "path":  "worldcup/1970/worldcup.json",
-        "code":  "worldcup",
-        "source":  "openfootball"
+        "path": "worldcup/1970/worldcup.json",
+        "code": "worldcup",
+        "source": "base"
     },
     {
-        "path":  "worldcup/1974/worldcup.json",
-        "code":  "worldcup",
-        "source":  "openfootball"
+        "path": "worldcup/1974/worldcup.json",
+        "code": "worldcup",
+        "source": "base"
     },
     {
-        "path":  "worldcup/1978/worldcup.json",
-        "code":  "worldcup",
-        "source":  "openfootball"
+        "path": "worldcup/1978/worldcup.json",
+        "code": "worldcup",
+        "source": "base"
     },
     {
-        "path":  "worldcup/1982/worldcup.json",
-        "code":  "worldcup",
-        "source":  "openfootball"
+        "path": "worldcup/1982/worldcup.json",
+        "code": "worldcup",
+        "source": "base"
     },
     {
-        "path":  "worldcup/1986/worldcup.json",
-        "code":  "worldcup",
-        "source":  "openfootball"
+        "path": "worldcup/1986/worldcup.json",
+        "code": "worldcup",
+        "source": "base"
     },
     {
-        "path":  "worldcup/1990/worldcup.json",
-        "code":  "worldcup",
-        "source":  "openfootball"
+        "path": "worldcup/1990/worldcup.json",
+        "code": "worldcup",
+        "source": "base"
     },
     {
-        "path":  "worldcup/1994/worldcup.json",
-        "code":  "worldcup",
-        "source":  "openfootball"
+        "path": "worldcup/1994/worldcup.json",
+        "code": "worldcup",
+        "source": "base"
     },
     {
-        "path":  "worldcup/1998/worldcup.json",
-        "code":  "worldcup",
-        "source":  "openfootball"
+        "path": "worldcup/1998/worldcup.json",
+        "code": "worldcup",
+        "source": "base"
     },
     {
-        "path":  "worldcup/2002/worldcup.json",
-        "code":  "worldcup",
-        "source":  "openfootball"
+        "path": "worldcup/2002/worldcup.json",
+        "code": "worldcup",
+        "source": "base"
     },
     {
-        "path":  "worldcup/2006/worldcup.json",
-        "code":  "worldcup",
-        "source":  "openfootball"
+        "path": "worldcup/2006/worldcup.json",
+        "code": "worldcup",
+        "source": "base"
     },
     {
-        "path":  "worldcup/2010/worldcup.json",
-        "code":  "worldcup",
-        "source":  "openfootball"
+        "path": "worldcup/2010/worldcup.json",
+        "code": "worldcup",
+        "source": "base"
     },
     {
-        "path":  "worldcup/2014/worldcup.json",
-        "code":  "worldcup",
-        "source":  "openfootball"
+        "path": "worldcup/2014/worldcup.json",
+        "code": "worldcup",
+        "source": "base"
     },
     {
-        "path":  "worldcup/2018/worldcup.json",
-        "code":  "worldcup",
-        "source":  "openfootball"
+        "path": "worldcup/2018/worldcup.json",
+        "code": "worldcup",
+        "source": "base"
     },
     {
-        "path":  "worldcup/2022/worldcup.json",
-        "code":  "worldcup",
-        "source":  "openfootball"
+        "path": "worldcup/2022/worldcup.json",
+        "code": "worldcup",
+        "source": "base"
     },
     {
-        "path":  "worldcup/2026/worldcup.json",
-        "code":  "worldcup",
-        "source":  "openfootball"
+        "path": "worldcup/2026/worldcup.json",
+        "code": "worldcup",
+        "source": "base"
     },
     {
-        "path":  "euro/2020/euro.json",
-        "code":  "euro",
-        "source":  "openfootball"
+        "path": "euro/2020/euro.json",
+        "code": "euro",
+        "source": "base"
     },
     {
-        "path":  "euro/2024/euro.json",
-        "code":  "euro",
-        "source":  "openfootball"
+        "path": "euro/2024/euro.json",
+        "code": "euro",
+        "source": "base"
     },
     {
-        "path":  "euro/2028/euro.json",
-        "code":  "euro",
-        "source":  "openfootball"
+        "path": "euro/2028/euro.json",
+        "code": "euro",
+        "source": "base"
     },
     {
-        "path":  "2001.json",
-        "code":  "ar.1",
-        "source":  "arg-espn"
+        "path": "2001.json",
+        "code": "ar.1",
+        "source": "arg"
     },
     {
-        "path":  "2003.json",
-        "code":  "ar.1",
-        "source":  "arg-espn"
+        "path": "2003.json",
+        "code": "ar.1",
+        "source": "arg"
     },
     {
-        "path":  "2004.json",
-        "code":  "ar.1",
-        "source":  "arg-espn"
+        "path": "2004.json",
+        "code": "ar.1",
+        "source": "arg"
     },
     {
-        "path":  "2005.json",
-        "code":  "ar.1",
-        "source":  "arg-espn"
+        "path": "2005.json",
+        "code": "ar.1",
+        "source": "arg"
     },
     {
-        "path":  "2006.json",
-        "code":  "ar.1",
-        "source":  "arg-espn"
+        "path": "2006.json",
+        "code": "ar.1",
+        "source": "arg"
     },
     {
-        "path":  "2007.json",
-        "code":  "ar.1",
-        "source":  "arg-espn"
+        "path": "2007.json",
+        "code": "ar.1",
+        "source": "arg"
     },
     {
-        "path":  "2008.json",
-        "code":  "ar.1",
-        "source":  "arg-espn"
+        "path": "2008.json",
+        "code": "ar.1",
+        "source": "arg"
     },
     {
-        "path":  "2009.json",
-        "code":  "ar.1",
-        "source":  "arg-espn"
+        "path": "2009.json",
+        "code": "ar.1",
+        "source": "arg"
     },
     {
-        "path":  "2010.json",
-        "code":  "ar.1",
-        "source":  "arg-espn"
+        "path": "2010.json",
+        "code": "ar.1",
+        "source": "arg"
     },
     {
-        "path":  "2011.json",
-        "code":  "ar.1",
-        "source":  "arg-espn"
+        "path": "2011.json",
+        "code": "ar.1",
+        "source": "arg"
     },
     {
-        "path":  "2012.json",
-        "code":  "ar.1",
-        "source":  "arg-espn"
+        "path": "2012.json",
+        "code": "ar.1",
+        "source": "arg"
     },
     {
-        "path":  "2013.json",
-        "code":  "ar.1",
-        "source":  "arg-espn"
+        "path": "2013.json",
+        "code": "ar.1",
+        "source": "arg"
     },
     {
-        "path":  "2014.json",
-        "code":  "ar.1",
-        "source":  "arg-espn"
+        "path": "2014.json",
+        "code": "ar.1",
+        "source": "arg"
     },
     {
-        "path":  "2015.json",
-        "code":  "ar.1",
-        "source":  "arg-espn"
+        "path": "2015.json",
+        "code": "ar.1",
+        "source": "arg"
     },
     {
-        "path":  "2016.json",
-        "code":  "ar.1",
-        "source":  "arg-espn"
+        "path": "2016.json",
+        "code": "ar.1",
+        "source": "arg"
     },
     {
-        "path":  "2017.json",
-        "code":  "ar.1",
-        "source":  "arg-espn"
+        "path": "2017.json",
+        "code": "ar.1",
+        "source": "arg"
     },
     {
-        "path":  "2018.json",
-        "code":  "ar.1",
-        "source":  "arg-espn"
+        "path": "2018.json",
+        "code": "ar.1",
+        "source": "arg"
     },
     {
-        "path":  "2019.json",
-        "code":  "ar.1",
-        "source":  "arg-espn"
+        "path": "2019.json",
+        "code": "ar.1",
+        "source": "arg"
     },
     {
-        "path":  "2020.json",
-        "code":  "ar.1",
-        "source":  "arg-espn"
+        "path": "2020.json",
+        "code": "ar.1",
+        "source": "arg"
     },
     {
-        "path":  "2021.json",
-        "code":  "ar.1",
-        "source":  "arg-espn"
+        "path": "2021.json",
+        "code": "ar.1",
+        "source": "arg"
     },
     {
-        "path":  "2022.json",
-        "code":  "ar.1",
-        "source":  "arg-espn"
+        "path": "2022.json",
+        "code": "ar.1",
+        "source": "arg"
     },
     {
-        "path":  "2023.json",
-        "code":  "ar.1",
-        "source":  "arg-espn"
+        "path": "2023.json",
+        "code": "ar.1",
+        "source": "arg"
     },
     {
-        "path":  "2024.json",
-        "code":  "ar.1",
-        "source":  "arg-espn"
+        "path": "2024.json",
+        "code": "ar.1",
+        "source": "arg"
     },
     {
-        "path":  "2025.json",
-        "code":  "ar.1",
-        "source":  "arg-espn"
+        "path": "2025.json",
+        "code": "ar.1",
+        "source": "arg"
     },
     {
-        "path":  "2026.json",
-        "code":  "ar.1",
-        "source":  "arg-espn"
+        "path": "2026.json",
+        "code": "ar.1",
+        "source": "arg"
     },
     {
-        "path":  "en.1.json",
-        "code":  "en.1",
-        "source":  "espn-season"
+        "path": "en.1.json",
+        "code": "en.1",
+        "source": "season"
     },
     {
-        "path":  "es.1.json",
-        "code":  "es.1",
-        "source":  "espn-season"
+        "path": "es.1.json",
+        "code": "es.1",
+        "source": "season"
     },
     {
-        "path":  "de.1.json",
-        "code":  "de.1",
-        "source":  "espn-season"
+        "path": "de.1.json",
+        "code": "de.1",
+        "source": "season"
     },
     {
-        "path":  "it.1.json",
-        "code":  "it.1",
-        "source":  "espn-season"
+        "path": "it.1.json",
+        "code": "it.1",
+        "source": "season"
     },
     {
-        "path":  "fr.1.json",
-        "code":  "fr.1",
-        "source":  "espn-season"
+        "path": "fr.1.json",
+        "code": "fr.1",
+        "source": "season"
     },
     {
-        "path":  "nl.1.json",
-        "code":  "nl.1",
-        "source":  "espn-season"
+        "path": "nl.1.json",
+        "code": "nl.1",
+        "source": "season"
     },
     {
-        "path":  "pt.1.json",
-        "code":  "pt.1",
-        "source":  "espn-season"
+        "path": "pt.1.json",
+        "code": "pt.1",
+        "source": "season"
     },
     {
-        "path":  "at.1.json",
-        "code":  "at.1",
-        "source":  "espn-season"
+        "path": "at.1.json",
+        "code": "at.1",
+        "source": "season"
     },
     {
-        "path":  "be.1.json",
-        "code":  "be.1",
-        "source":  "espn-season"
+        "path": "be.1.json",
+        "code": "be.1",
+        "source": "season"
     },
     {
-        "path":  "ch.1.json",
-        "code":  "ch.1",
-        "source":  "espn-season"
+        "path": "ch.1.json",
+        "code": "ch.1",
+        "source": "season"
     },
     {
-        "path":  "gr.1.json",
-        "code":  "gr.1",
-        "source":  "espn-season"
+        "path": "gr.1.json",
+        "code": "gr.1",
+        "source": "season"
     },
     {
-        "path":  "tr.1.json",
-        "code":  "tr.1",
-        "source":  "espn-season"
+        "path": "tr.1.json",
+        "code": "tr.1",
+        "source": "season"
     },
     {
-        "path":  "sco.1.json",
-        "code":  "sco.1",
-        "source":  "espn-season"
+        "path": "sco.1.json",
+        "code": "sco.1",
+        "source": "season"
     },
     {
-        "path":  "ru.1.json",
-        "code":  "ru.1",
-        "source":  "espn-season"
+        "path": "ru.1.json",
+        "code": "ru.1",
+        "source": "season"
     },
     {
-        "path":  "mx.1.json",
-        "code":  "mx.1",
-        "source":  "espn-season"
+        "path": "mx.1.json",
+        "code": "mx.1",
+        "source": "season"
     },
     {
-        "path":  "br.1.json",
-        "code":  "br.1",
-        "source":  "espn-season"
+        "path": "br.1.json",
+        "code": "br.1",
+        "source": "season"
     },
     {
-        "path":  "cn.1.json",
-        "code":  "cn.1",
-        "source":  "espn-season"
+        "path": "cn.1.json",
+        "code": "cn.1",
+        "source": "season"
     },
     {
-        "path":  "jp.1.json",
-        "code":  "jp.1",
-        "source":  "espn-season"
+        "path": "jp.1.json",
+        "code": "jp.1",
+        "source": "season"
     },
     {
-        "path":  "au.1.json",
-        "code":  "au.1",
-        "source":  "espn-season"
+        "path": "au.1.json",
+        "code": "au.1",
+        "source": "season"
     },
     {
-        "path":  "co.1.json",
-        "code":  "co.1",
-        "source":  "espn-season"
+        "path": "co.1.json",
+        "code": "co.1",
+        "source": "season"
     },
     {
-        "path":  "uefa.cl.json",
-        "code":  "uefa.cl",
-        "source":  "espn-season"
+        "path": "uefa.cl.json",
+        "code": "uefa.cl",
+        "source": "season"
     },
     {
-        "path":  "en.1.json",
-        "code":  "en.1",
-        "source":  "espn-history"
+        "path": "en.1.json",
+        "code": "en.1",
+        "source": "history"
     },
     {
-        "path":  "es.1.json",
-        "code":  "es.1",
-        "source":  "espn-history",
-        "rev":  "ed824c202688"
+        "path": "es.1.json",
+        "code": "es.1",
+        "source": "history",
+        "rev": "ed824c202688"
     },
     {
-        "path":  "de.1.json",
-        "code":  "de.1",
-        "source":  "espn-history"
+        "path": "de.1.json",
+        "code": "de.1",
+        "source": "history"
     },
     {
-        "path":  "it.1.json",
-        "code":  "it.1",
-        "source":  "espn-history"
+        "path": "it.1.json",
+        "code": "it.1",
+        "source": "history"
     },
     {
-        "path":  "fr.1.json",
-        "code":  "fr.1",
-        "source":  "espn-history"
+        "path": "fr.1.json",
+        "code": "fr.1",
+        "source": "history"
     },
     {
-        "path":  "nl.1.json",
-        "code":  "nl.1",
-        "source":  "espn-history"
+        "path": "nl.1.json",
+        "code": "nl.1",
+        "source": "history"
     },
     {
-        "path":  "pt.1.json",
-        "code":  "pt.1",
-        "source":  "espn-history"
+        "path": "pt.1.json",
+        "code": "pt.1",
+        "source": "history"
     },
     {
-        "path":  "at.1.json",
-        "code":  "at.1",
-        "source":  "espn-history"
+        "path": "at.1.json",
+        "code": "at.1",
+        "source": "history"
     },
     {
-        "path":  "be.1.json",
-        "code":  "be.1",
-        "source":  "espn-history"
+        "path": "be.1.json",
+        "code": "be.1",
+        "source": "history"
     },
     {
-        "path":  "ch.1.json",
-        "code":  "ch.1",
-        "source":  "espn-history"
+        "path": "ch.1.json",
+        "code": "ch.1",
+        "source": "history"
     },
     {
-        "path":  "gr.1.json",
-        "code":  "gr.1",
-        "source":  "espn-history"
+        "path": "gr.1.json",
+        "code": "gr.1",
+        "source": "history"
     },
     {
-        "path":  "tr.1.json",
-        "code":  "tr.1",
-        "source":  "espn-history"
+        "path": "tr.1.json",
+        "code": "tr.1",
+        "source": "history"
     },
     {
-        "path":  "sco.1.json",
-        "code":  "sco.1",
-        "source":  "espn-history"
+        "path": "sco.1.json",
+        "code": "sco.1",
+        "source": "history"
     },
     {
-        "path":  "ru.1.json",
-        "code":  "ru.1",
-        "source":  "espn-history"
+        "path": "ru.1.json",
+        "code": "ru.1",
+        "source": "history"
     },
     {
-        "path":  "mx.1.json",
-        "code":  "mx.1",
-        "source":  "espn-history"
+        "path": "mx.1.json",
+        "code": "mx.1",
+        "source": "history"
     },
     {
-        "path":  "br.1.json",
-        "code":  "br.1",
-        "source":  "espn-history",
-        "rev":  "001113bfa45d"
+        "path": "br.1.json",
+        "code": "br.1",
+        "source": "history",
+        "rev": "001113bfa45d"
     },
     {
-        "path":  "cn.1.json",
-        "code":  "cn.1",
-        "source":  "espn-history"
+        "path": "cn.1.json",
+        "code": "cn.1",
+        "source": "history"
     },
     {
-        "path":  "jp.1.json",
-        "code":  "jp.1",
-        "source":  "espn-history"
+        "path": "jp.1.json",
+        "code": "jp.1",
+        "source": "history"
     },
     {
-        "path":  "au.1.json",
-        "code":  "au.1",
-        "source":  "espn-history"
+        "path": "au.1.json",
+        "code": "au.1",
+        "source": "history"
     },
     {
-        "path":  "co.1.json",
-        "code":  "co.1",
-        "source":  "espn-history"
+        "path": "co.1.json",
+        "code": "co.1",
+        "source": "history"
     },
     {
-        "path":  "uefa.cl.json",
-        "code":  "uefa.cl",
-        "source":  "espn-history"
+        "path": "uefa.cl.json",
+        "code": "uefa.cl",
+        "source": "history"
     },
     {
-        "path":  "af-cafcl.json",
-        "code":  "Champions League (CAF)",
-        "source":  "openfootball-extra"
+        "path": "af-cafcl.json",
+        "code": "Champions League (CAF)",
+        "source": "base-extra"
     },
     {
-        "path":  "af-dz.json",
-        "code":  "Ligue 1 (Argelia)",
-        "source":  "openfootball-extra"
+        "path": "af-dz.json",
+        "code": "Ligue 1 (Argelia)",
+        "source": "base-extra"
     },
     {
-        "path":  "af-eg.json",
-        "code":  "Premier League (Egipto)",
-        "source":  "openfootball-extra"
+        "path": "af-eg.json",
+        "code": "Premier League (Egipto)",
+        "source": "base-extra"
     },
     {
-        "path":  "af-gh.json",
-        "code":  "Premier League (Ghana)",
-        "source":  "openfootball-extra"
+        "path": "af-gh.json",
+        "code": "Premier League (Ghana)",
+        "source": "base-extra"
     },
     {
-        "path":  "af-ke.json",
-        "code":  "Premier League (Kenia)",
-        "source":  "openfootball-extra"
+        "path": "af-ke.json",
+        "code": "Premier League (Kenia)",
+        "source": "base-extra"
     },
     {
-        "path":  "af-ma.json",
-        "code":  "Botola (Marruecos)",
-        "source":  "openfootball-extra"
+        "path": "af-ma.json",
+        "code": "Botola (Marruecos)",
+        "source": "base-extra"
     },
     {
-        "path":  "af-mw.json",
-        "code":  "Super League (Malaui)",
-        "source":  "openfootball-extra"
+        "path": "af-mw.json",
+        "code": "Super League (Malaui)",
+        "source": "base-extra"
     },
     {
-        "path":  "af-ng.json",
-        "code":  "Premier League (Nigeria)",
-        "source":  "openfootball-extra"
+        "path": "af-ng.json",
+        "code": "Premier League (Nigeria)",
+        "source": "base-extra"
     },
     {
-        "path":  "af-ng2.json",
-        "code":  "National League (Nigeria)",
-        "source":  "openfootball-extra"
+        "path": "af-ng2.json",
+        "code": "National League (Nigeria)",
+        "source": "base-extra"
     },
     {
-        "path":  "af-rw.json",
-        "code":  "Premier League (Ruanda)",
-        "source":  "openfootball-extra"
+        "path": "af-rw.json",
+        "code": "Premier League (Ruanda)",
+        "source": "base-extra"
     },
     {
-        "path":  "af-sn.json",
-        "code":  "Ligue 1 (Senegal)",
-        "source":  "openfootball-extra"
+        "path": "af-sn.json",
+        "code": "Ligue 1 (Senegal)",
+        "source": "base-extra"
     },
     {
-        "path":  "af-tz.json",
-        "code":  "Premier League (Tanzania)",
-        "source":  "openfootball-extra"
+        "path": "af-tz.json",
+        "code": "Premier League (Tanzania)",
+        "source": "base-extra"
     },
     {
-        "path":  "af-ug.json",
-        "code":  "Premier League (Uganda)",
-        "source":  "openfootball-extra"
+        "path": "af-ug.json",
+        "code": "Premier League (Uganda)",
+        "source": "base-extra"
     },
     {
-        "path":  "af-za.json",
-        "code":  "Premier Division (Sudáfrica)",
-        "source":  "openfootball-extra"
+        "path": "af-za.json",
+        "code": "Premier Division (Sudáfrica)",
+        "source": "base-extra"
     },
     {
-        "path":  "af-zm.json",
-        "code":  "Super League (Zambia)",
-        "source":  "openfootball-extra"
+        "path": "af-zm.json",
+        "code": "Super League (Zambia)",
+        "source": "base-extra"
     },
     {
-        "path":  "af-zw.json",
-        "code":  "Premier Soccer League (Zimbabue)",
-        "source":  "openfootball-extra"
+        "path": "af-zw.json",
+        "code": "Premier Soccer League (Zimbabue)",
+        "source": "base-extra"
     },
     {
-        "path":  "as-kz.json",
-        "code":  "Premier League (Kazajistán)",
-        "source":  "openfootball-extra"
+        "path": "as-kz.json",
+        "code": "Premier League (Kazajistán)",
+        "source": "base-extra"
     },
     {
-        "path":  "at-hist.json",
-        "code":  "Bundesliga (Austria) histórica",
-        "source":  "openfootball-extra"
+        "path": "at-hist.json",
+        "code": "Bundesliga (Austria) histórica",
+        "source": "base-extra"
     },
     {
-        "path":  "ca-cr.json",
-        "code":  "Primera División (Costa Rica)",
-        "source":  "openfootball-extra"
+        "path": "ca-cr.json",
+        "code": "Primera División (Costa Rica)",
+        "source": "base-extra"
     },
     {
-        "path":  "de-hist.json",
-        "code":  "Bundesliga (Alemania) histórica",
-        "source":  "openfootball-extra"
+        "path": "de-hist.json",
+        "code": "Bundesliga (Alemania) histórica",
+        "source": "base-extra"
     },
     {
-        "path":  "eng-facup.json",
-        "code":  "FA Cup (Inglaterra)",
-        "source":  "openfootball-extra"
+        "path": "eng-facup.json",
+        "code": "FA Cup (Inglaterra)",
+        "source": "base-extra"
     },
     {
-        "path":  "eng-top.json",
-        "code":  "Premier League (Inglaterra)",
-        "source":  "openfootball-extra"
+        "path": "eng-top.json",
+        "code": "Premier League (Inglaterra)",
+        "source": "base-extra"
     },
     {
-        "path":  "me-il.json",
-        "code":  "Ligat ha\u0027Al (Israel)",
-        "source":  "openfootball-extra"
+        "path": "me-il.json",
+        "code": "Ligat ha'Al (Israel)",
+        "source": "base-extra"
     },
     {
-        "path":  "me-sa.json",
-        "code":  "Saudi Pro League (Arabia Saudita)",
-        "source":  "openfootball-extra"
+        "path": "me-sa.json",
+        "code": "Saudi Pro League (Arabia Saudita)",
+        "source": "base-extra"
     },
     {
-        "path":  "na-concacaf.json",
-        "code":  "Champions Cup (CONCACAF)",
-        "source":  "openfootball-extra"
+        "path": "na-concacaf.json",
+        "code": "Champions Cup (CONCACAF)",
+        "source": "base-extra"
     },
     {
-        "path":  "na-mls.json",
-        "code":  "Major League Soccer (EE. UU.)",
-        "source":  "openfootball-extra"
+        "path": "na-mls.json",
+        "code": "Major League Soccer (EE. UU.)",
+        "source": "base-extra"
     },
     {
-        "path":  "sa-br1.json",
-        "code":  "Brasileirão (Brasil)",
-        "source":  "openfootball-extra",
-        "rev":  "93999bfc4757"
+        "path": "sa-br1.json",
+        "code": "Brasileirão (Brasil)",
+        "source": "base-extra",
+        "rev": "93999bfc4757"
     },
     {
-        "path":  "sa-br2.json",
-        "code":  "Brasileirão Série B (Brasil)",
-        "source":  "openfootball-extra",
-        "rev":  "3a4e79380a74"
+        "path": "sa-br2.json",
+        "code": "Brasileirão Série B (Brasil)",
+        "source": "base-extra",
+        "rev": "3a4e79380a74"
     },
     {
-        "path":  "sa-brcup.json",
-        "code":  "Copa do Brasil",
-        "source":  "openfootball-extra"
+        "path": "sa-brcup.json",
+        "code": "Copa do Brasil",
+        "source": "base-extra"
     },
     {
-        "path":  "sa-co.json",
-        "code":  "Primera A (Colombia)",
-        "source":  "openfootball-extra"
+        "path": "sa-co.json",
+        "code": "Primera A (Colombia)",
+        "source": "base-extra"
     },
     {
-        "path":  "sa-ec.json",
-        "code":  "LigaPro (Ecuador)",
-        "source":  "openfootball-extra"
+        "path": "sa-ec.json",
+        "code": "LigaPro (Ecuador)",
+        "source": "base-extra"
     },
     {
-        "path":  "sa-py.json",
-        "code":  "Primera División (Paraguay)",
-        "source":  "openfootball-extra"
+        "path": "sa-py.json",
+        "code": "Primera División (Paraguay)",
+        "source": "base-extra"
     },
     {
-        "path":  "en.1.json",
-        "code":  "en.1",
-        "source":  "cards"
+        "path": "en.1.json",
+        "code": "en.1",
+        "source": "cards"
     },
     {
-        "path":  "es.1.json",
-        "code":  "es.1",
-        "source":  "cards"
+        "path": "es.1.json",
+        "code": "es.1",
+        "source": "cards"
     },
     {
-        "path":  "de.1.json",
-        "code":  "de.1",
-        "source":  "cards"
+        "path": "de.1.json",
+        "code": "de.1",
+        "source": "cards"
     },
     {
-        "path":  "it.1.json",
-        "code":  "it.1",
-        "source":  "cards"
+        "path": "it.1.json",
+        "code": "it.1",
+        "source": "cards"
     },
     {
-        "path":  "fr.1.json",
-        "code":  "fr.1",
-        "source":  "cards"
+        "path": "fr.1.json",
+        "code": "fr.1",
+        "source": "cards"
     },
     {
-        "path":  "nl.1.json",
-        "code":  "nl.1",
-        "source":  "cards"
+        "path": "nl.1.json",
+        "code": "nl.1",
+        "source": "cards"
     },
     {
-        "path":  "pt.1.json",
-        "code":  "pt.1",
-        "source":  "cards"
+        "path": "pt.1.json",
+        "code": "pt.1",
+        "source": "cards"
     },
     {
-        "path":  "at.1.json",
-        "code":  "at.1",
-        "source":  "cards"
+        "path": "at.1.json",
+        "code": "at.1",
+        "source": "cards"
     },
     {
-        "path":  "be.1.json",
-        "code":  "be.1",
-        "source":  "cards"
+        "path": "be.1.json",
+        "code": "be.1",
+        "source": "cards"
     },
     {
-        "path":  "ch.1.json",
-        "code":  "ch.1",
-        "source":  "cards"
+        "path": "ch.1.json",
+        "code": "ch.1",
+        "source": "cards"
     },
     {
-        "path":  "gr.1.json",
-        "code":  "gr.1",
-        "source":  "cards"
+        "path": "gr.1.json",
+        "code": "gr.1",
+        "source": "cards"
     },
     {
-        "path":  "tr.1.json",
-        "code":  "tr.1",
-        "source":  "cards"
+        "path": "tr.1.json",
+        "code": "tr.1",
+        "source": "cards"
     },
     {
-        "path":  "sco.1.json",
-        "code":  "sco.1",
-        "source":  "cards"
+        "path": "sco.1.json",
+        "code": "sco.1",
+        "source": "cards"
     },
     {
-        "path":  "ru.1.json",
-        "code":  "ru.1",
-        "source":  "cards"
+        "path": "ru.1.json",
+        "code": "ru.1",
+        "source": "cards"
     },
     {
-        "path":  "mx.1.json",
-        "code":  "mx.1",
-        "source":  "cards"
+        "path": "mx.1.json",
+        "code": "mx.1",
+        "source": "cards"
     },
     {
-        "path":  "br.1.json",
-        "code":  "br.1",
-        "source":  "cards"
+        "path": "br.1.json",
+        "code": "br.1",
+        "source": "cards"
     },
     {
-        "path":  "cn.1.json",
-        "code":  "cn.1",
-        "source":  "cards"
+        "path": "cn.1.json",
+        "code": "cn.1",
+        "source": "cards"
     },
     {
-        "path":  "jp.1.json",
-        "code":  "jp.1",
-        "source":  "cards"
+        "path": "jp.1.json",
+        "code": "jp.1",
+        "source": "cards"
     },
     {
-        "path":  "au.1.json",
-        "code":  "au.1",
-        "source":  "cards"
+        "path": "au.1.json",
+        "code": "au.1",
+        "source": "cards"
     },
     {
-        "path":  "co.1.json",
-        "code":  "co.1",
-        "source":  "cards"
+        "path": "co.1.json",
+        "code": "co.1",
+        "source": "cards"
     },
     {
-        "path":  "uefa.cl.json",
-        "code":  "uefa.cl",
-        "source":  "cards"
+        "path": "uefa.cl.json",
+        "code": "uefa.cl",
+        "source": "cards"
     },
     {
-        "path":  "ar.1.json",
-        "code":  "ar.1",
-        "source":  "cards"
+        "path": "ar.1.json",
+        "code": "ar.1",
+        "source": "cards"
     },
     {
-        "path":  "conmebol.sudamericana.json",
-        "code":  "conmebol.sudamericana",
-        "source":  "espn-sudamericana",
-        "rev":  "171a3004e088"
+        "path": "conmebol.sudamericana.json",
+        "code": "conmebol.sudamericana",
+        "source": "sudamericana",
+        "rev": "171a3004e088"
     },
     {
-        "path":  "conmebol.libertadores.json",
-        "code":  "conmebol.libertadores",
-        "source":  "espn-libertadores",
-        "rev":  "e134c4e3af42"
+        "path": "conmebol.libertadores.json",
+        "code": "conmebol.libertadores",
+        "source": "libertadores",
+        "rev": "e134c4e3af42"
     },
     {
-        "path":  "uru.1.json",
-        "code":  "uru.1",
-        "source":  "espn-southamerica",
-        "rev":  "bf5b1f695235"
+        "path": "uru.1.json",
+        "code": "uru.1",
+        "source": "southamerica",
+        "rev": "bf5b1f695235"
     },
     {
-        "path":  "bol.1.json",
-        "code":  "bol.1",
-        "source":  "espn-southamerica",
-        "rev":  "210fb5d36025"
+        "path": "bol.1.json",
+        "code": "bol.1",
+        "source": "southamerica",
+        "rev": "210fb5d36025"
     },
     {
-        "path":  "chi.1.json",
-        "code":  "chi.1",
-        "source":  "espn-southamerica",
-        "rev":  "3a83555af649"
+        "path": "chi.1.json",
+        "code": "chi.1",
+        "source": "southamerica",
+        "rev": "3a83555af649"
     },
     {
-        "path":  "per.1.json",
-        "code":  "per.1",
-        "source":  "espn-southamerica",
-        "rev":  "086c17e37b6a"
+        "path": "per.1.json",
+        "code": "per.1",
+        "source": "southamerica",
+        "rev": "086c17e37b6a"
     },
     {
-        "path":  "ven.1.json",
-        "code":  "ven.1",
-        "source":  "espn-southamerica",
-        "rev":  "a0acb50ac1a4"
+        "path": "ven.1.json",
+        "code": "ven.1",
+        "source": "southamerica",
+        "rev": "a0acb50ac1a4"
     },
     {
-        "path":  "conmebol.america.json",
-        "code":  "conmebol.america",
-        "source":  "espn-cups",
-        "rev":  "b72c719a21e4"
+        "path": "conmebol.america.json",
+        "code": "conmebol.america",
+        "source": "cups",
+        "rev": "b72c719a21e4"
     },
     {
-        "path":  "fifa.worldq.conmebol.json",
-        "code":  "fifa.worldq.conmebol",
-        "source":  "espn-cups",
-        "rev":  "82751252cee4"
+        "path": "fifa.worldq.conmebol.json",
+        "code": "fifa.worldq.conmebol",
+        "source": "cups",
+        "rev": "82751252cee4"
     },
     {
-        "path":  "uefa.europa.json",
-        "code":  "uefa.europa",
-        "source":  "espn-cups",
-        "rev":  "118bef106e6c"
+        "path": "uefa.europa.json",
+        "code": "uefa.europa",
+        "source": "cups",
+        "rev": "118bef106e6c"
     },
     {
-        "path":  "uefa.europa.conf.json",
-        "code":  "uefa.europa.conf",
-        "source":  "espn-cups",
-        "rev":  "d54ae474ccc4"
+        "path": "uefa.europa.conf.json",
+        "code": "uefa.europa.conf",
+        "source": "cups",
+        "rev": "d54ae474ccc4"
     }
 ]

@@ -114,7 +114,7 @@ local/empate/visita = 0,441/0,250/0,309 frente a 0,444/0,250/0,306 reales) y "em
 los aciertos (β=1 → 51,03 %; cualquier β>1 lo baja). Es decir: predecir pocos empates es correcto, y para
 acertar más había que mejorar las probabilidades, no la regla de decisión.
 
-## Resultados de referencia (dataset incluido, openfootball)
+## Resultados de referencia (dataset incluido, la base pública)
 
 Corrida completa (todas las competiciones, historial mínimo 5, sin ponderación por recencia):
 
@@ -190,7 +190,7 @@ lista para activarse si se prefiere priorizar calibración sobre aciertos exacto
   de confianza la frecuencia real de acierto sigue algo por debajo de la probabilidad anunciada.
 - En torneos de sede neutral (p. ej. Mundiales) el modelo sigue aplicando ventaja de localía al equipo
   nominalmente "local", por lo que **sobreestima las victorias locales**.
-- Los datos de openfootball no distinguen sede neutral, y las variantes de nombre de equipo entre
+- Los datos de la base pública no distinguen sede neutral, y las variantes de nombre de equipo entre
   competiciones no se unifican; ambas cosas afectan a los números (los dos experimentos se midieron y no
   se adoptaron, ver la sección anterior).
 - El desempeño agregado no garantiza ningún partido individual.
