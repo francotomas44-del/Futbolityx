@@ -938,6 +938,8 @@ body.simple [data-adv] { display: none !important; }
   flex-wrap: wrap;
 }
 .onboard-note { font-size: 0.82rem; margin-top: 1.1rem; max-width: 46ch; margin-left: auto; margin-right: auto; }
+.onboard-legal { font-size: 0.78rem; margin-top: 0.9rem; max-width: 52ch; margin-left: auto; margin-right: auto; line-height: 1.5; }
+.onboard-legal a { color: var(--accent); }
 .onboard-orb {
   position: absolute;
   width: 420px; height: 420px;

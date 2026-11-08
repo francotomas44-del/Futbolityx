@@ -304,9 +304,14 @@ La prioridad será construir un sistema confiable y medible antes de aumentar su
 - **Sin apuestas:** no es un servicio de apuestas, no procesa pagos ni muestra
   cuotas, y no ofrece consejos de apuestas. Si se usa con fines de apuestas, es
   responsabilidad del usuario (debe ser legal en su país y ser mayor de 18 años).
-- **Privacidad:** no recolecta datos personales; todo se guarda en el navegador.
+- **Privacidad:** no recolecta datos personales en servidores propios; todo se
+  guarda en el navegador.
 - **Marcas:** los nombres de equipos y competiciones se usan de forma nominativa;
   no se usan escudos ni logos oficiales ni se implica afiliación alguna.
+- **Documentos legales:** el conjunto completo (términos, privacidad, cookies,
+  descargo, aviso legal, juego responsable, propiedad intelectual y filosofía) está
+  en [`docs/legal/`](docs/legal/README.md) y en [`legal.html`](legal.html) dentro de
+  la app.
 
-> El aviso completo también está dentro de la app, en la pestaña **Acerca de → Aviso legal y privacidad**.
+> El aviso completo también está dentro de la app, en la pestaña **Acerca de → Aviso legal y privacidad**, y en la página **Información legal** ([`legal.html`](legal.html)).
 

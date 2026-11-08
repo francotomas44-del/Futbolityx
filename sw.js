@@ -2,12 +2,24 @@
    Cachea el "shell" de la app para que abra rápido y funcione sin conexión.
    Los archivos de datos (data/) son inmutables: se cachean de forma agresiva. */
 
-var CACHE = "futbolityx-v50";
+var CACHE = "futbolityx-v53";
 var CORE = [
   "./",
   "index.html",
+  "legal.html",
   "css/styles.css",
   "css/v2.css",
+  "css/legal.css",
+  "js/legal.js",
+  "docs/legal/README.md",
+  "docs/legal/terminos-y-condiciones.md",
+  "docs/legal/politica-de-privacidad.md",
+  "docs/legal/politica-de-cookies.md",
+  "docs/legal/descargo-de-responsabilidad.md",
+  "docs/legal/aviso-legal.md",
+  "docs/legal/juego-responsable.md",
+  "docs/legal/propiedad-intelectual.md",
+  "docs/legal/filosofia.md",
   "img/logo.png",
   "img/icon-192.png",
   "img/icon-512.png",

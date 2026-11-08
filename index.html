@@ -15,7 +15,7 @@
   <link rel="apple-touch-icon" href="img/icon-192.png" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="stylesheet" href="css/styles.css?v=14" />
-  <link rel="stylesheet" href="css/v2.css?v=12" />
+  <link rel="stylesheet" href="css/v2.css?v=13" />
 </head>
 <body>
   <header class="topbar">
@@ -399,12 +399,24 @@
         <p>Futbolityx es una herramienta <strong>informativa y estadística</strong>. Genera <strong>estimaciones probabilísticas</strong>, no hechos ni garantías. Un modelo bien calibrado puede fallar en partidos individuales. No prometemos predicciones infalibles.</p>
         <h3 data-tip="La app no es un servicio de apuestas ni da consejos; el uso es responsabilidad de cada persona.">Sin asesoramiento de apuestas</h3>
         <p>Esta app <strong>no es un servicio de apuestas</strong>: no procesa pagos ni apuestas, no publica ni recomienda cuotas, y no ofrece consejos de apuestas. La sección <strong>Cuotas y valor</strong> sólo calcula indicadores estadísticos (EV, cuota justa, Kelly) a partir de los números que vos ingresás: son <strong>estimaciones</strong>, no recomendaciones. Si decidís usar la información con fines de apuestas, es tu entera responsabilidad: debe ser <strong>legal en tu país</strong> y debés ser <strong>mayor de 18 años</strong>. Apostar conlleva riesgo de pérdida y puede generar adicción; si lo necesitás, buscá ayuda profesional.</p>
-        <h3 data-tip="No se recolectan ni transmiten datos: todo se guarda sólo en tu navegador.">Privacidad</h3>
-        <p>No recolectamos ni transmitimos datos personales. Toda la información (equipos, partidos y predicciones) se guarda <strong>únicamente en tu navegador</strong> (IndexedDB, con respaldo en localStorage). No hay cuentas, cookies de seguimiento ni analítica. La copia de seguridad (JSON) se genera y queda en tu propio dispositivo.</p>
+        <h3 data-tip="No se recolectan datos en servidores propios: todo se guarda en tu navegador.">Privacidad</h3>
+        <p>No recolectamos ni almacenamos datos personales en servidores propios. Toda la información (equipos, partidos y predicciones) se guarda <strong>únicamente en tu navegador</strong> (IndexedDB, con respaldo en localStorage). No hay cuentas, cookies de seguimiento ni analítica. Las consultas de datos en vivo van directo a una fuente pública, que recibe tu IP según su propia política. La copia de seguridad (JSON) se genera y queda en tu propio dispositivo.</p>
         <h3 data-tip="De dónde salen los datos y su uso nominativo.">Datos y fuentes</h3>
         <p>La base histórica proviene de <strong>archivos públicos</strong> de resultados y estadísticas. El detalle de <strong>tarjetas y córners</strong> por partido proviene de una <strong>fuente pública de estadísticas</strong>. Los nombres de equipos, ligas y competiciones se usan de forma <strong>nominativa</strong> (son hechos) y no implican afiliación ni respaldo. Esta app <strong>no</strong> usa escudos ni logos oficiales. Ver <code>docs/atribuciones.md</code>.</p>
         <h3 data-tip="Código bajo licencia MIT; los datos de terceros conservan su licencia.">Licencia</h3>
         <p>El código de Futbolityx se distribuye bajo licencia <strong>MIT</strong> (ver <code>LICENSE</code>). Los datos de terceros conservan su licencia original.</p>
+        <h3 data-tip="Términos, privacidad, cookies, descargo, aviso legal, juego responsable y propiedad intelectual.">Documentos legales completos</h3>
+        <p>Este panel es un resumen. El texto completo y vigente está en <a href="legal.html"><strong>Información legal</strong></a>:</p>
+        <ul>
+          <li><a href="legal.html#doc-terminos">Términos y Condiciones de Uso</a></li>
+          <li><a href="legal.html#doc-privacidad">Política de Privacidad</a></li>
+          <li><a href="legal.html#doc-cookies">Política de Cookies</a></li>
+          <li><a href="legal.html#doc-descargo">Descargo de Responsabilidad</a></li>
+          <li><a href="legal.html#doc-aviso">Aviso Legal</a></li>
+          <li><a href="legal.html#doc-juego">Juego Responsable (+18)</a></li>
+          <li><a href="legal.html#doc-propiedad">Propiedad Intelectual</a></li>
+          <li><a href="legal.html#doc-filosofia">Filosofía</a></li>
+        </ul>
         <p class="muted">Este aviso es orientativo y no constituye asesoramiento legal.</p>
       </div>
     </section>
@@ -422,11 +434,22 @@
     <p><strong>Futbolityx</strong> · herramienta local de análisis probabilístico. Las predicciones son estimaciones, no hechos confirmados.</p>
     <p class="footer-legal">
       Herramienta informativa y estadística; <strong>no constituye consejo de apuestas</strong> ni garantiza resultados.
-      Datos históricos: <strong>base pública de resultados</strong>. No recolectamos datos personales: todo queda en tu navegador.
+      Datos históricos: <strong>base pública de resultados</strong>. No recolectamos datos personales en servidores propios: todo queda en tu navegador.
     </p>
     <p class="footer-links">
-      <button class="link-btn" type="button" data-goto="acerca">Aviso legal y privacidad</button>
+      <a href="legal.html">Información legal</a>
       <span class="footer-sep">&middot;</span>
+      <a href="legal.html#doc-terminos">Términos</a>
+      <span class="footer-sep">&middot;</span>
+      <a href="legal.html#doc-privacidad">Privacidad</a>
+      <span class="footer-sep">&middot;</span>
+      <a href="legal.html#doc-cookies">Cookies</a>
+      <span class="footer-sep">&middot;</span>
+      <a href="legal.html#doc-juego">Juego responsable</a>
+      <span class="footer-sep">&middot;</span>
+      <button class="link-btn" type="button" data-goto="acerca">Acerca de</button>
+    </p>
+    <p class="footer-links">
       <span class="footer-age">Uso responsable &middot; +18 si se aplica a apuestas</span>
     </p>
   </footer>
@@ -440,7 +463,7 @@
   <script src="js/news.js?v=3"></script>
   <script src="js/tips.js?v=2"></script>
   <script src="js/app.js?v=19"></script>
-  <script src="js/v2.js?v=28"></script>
+  <script src="js/v2.js?v=29"></script>
   <script src="js/live.js?v=10"></script>
   <script src="js/livehoy.js?v=5"></script>
   <script src="js/live-ingest.js?v=2"></script>

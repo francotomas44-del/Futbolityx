@@ -1049,6 +1049,10 @@
         "</div>" +
         '<p class="muted onboard-note">La primera vez descarga la base histórica (~70 MB, una sola vez). ' +
         "Después queda guardada en este navegador y abre al instante.</p>" +
+        '<p class="muted onboard-legal">Al usar Futbolityx aceptás los ' +
+        '<a href="legal.html#doc-terminos">Términos y Condiciones</a> y la ' +
+        '<a href="legal.html#doc-privacidad">Política de Privacidad</a>. Es una herramienta ' +
+        "informativa: no es un servicio de apuestas ni garantiza resultados.</p>" +
         '<p class="muted" id="base-status"></p>' +
       "</section>";
 

@@ -128,6 +128,17 @@ cada liga:
   cobertura de alineaciones históricas varía por competición. Cuando no hay datos, el panel lo
   dice.
 
+### Noticias y contexto (ESPN)
+
+- **Fuente:** `https://site.web.api.espn.com/apis/search/v2`, consultada al abrir el
+  panel de contexto de un partido o equipo. Se piden las últimas noticias en español.
+- **Qué se muestra:** título, detalle, fuente periodística, fecha y enlace. Es contexto
+  cualitativo: **no** modifica las probabilidades del modelo.
+- **Caché:** local, con vigencia corta; no se redistribuye ni se guarda en el repositorio.
+- **Condiciones:** las mismas de ESPN (uso **nominativo**); la interfaz no muestra el
+  nombre del proveedor. El botón “Buscar en Google News” solo abre una búsqueda externa
+  cuando el usuario hace clic.
+
 ## 3. Fuentes opcionales (importación manual)
 
 Futbolityx **no** llama automáticamente al resto de estas fuentes ni incluye sus
