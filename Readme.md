@@ -315,3 +315,23 @@ La prioridad será construir un sistema confiable y medible antes de aumentar su
 
 > El aviso completo también está dentro de la app, en la pestaña **Acerca de → Aviso legal y privacidad**, y en la página **Información legal** ([`legal.html`](legal.html)).
 
+## 15. Backend y API
+
+La app sigue funcionando de forma 100% local. En paralelo se está armando un
+backend propio en [`server/`](server/README.md) para mover las funciones
+importantes y preparar cuentas y suscripciones:
+
+- `POST /v1/analyze`: mismo motor de análisis, ejecutado en el servidor.
+- `GET /v1/live/scoreboard` y `GET /v1/live/summary`: proxy de datos en vivo con
+  caché, timeout y validación de ligas.
+- Autenticación por **API key**, scopes, allowlist de IP opcional y rate limiting.
+- Cliente listo en [`js/api.js`](js/api.js) para activar el backend cuando exista
+  una URL pública.
+
+La API key del navegador es pública y sirve para anti-abuso, no para autorizar
+pagos. Antes de cobrar hay que agregar cuentas, sesiones, entitlements y webhooks
+firmados. Ver [`server/SECURITY.md`](server/SECURITY.md).
+
+**Estado:** backend en desarrollo, no desplegado. No hay cuentas, pagos ni
+suscripciones todavía.
+

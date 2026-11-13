@@ -1,0 +1,12 @@
+.git
+.gitignore
+server/node_modules
+server/.env
+tools
+data
+docs
+img
+css
+js/*
+!js/stats.js
+*.log
