@@ -459,7 +459,15 @@
   <script src="js/storage.js?v=8"></script>
   <script src="js/store.js?v=21"></script>
   <script src="js/api.js?v=1"></script>
-  <script src="js/dataset.js?v=25"></script>
+  <script>
+    /* En Vercel los datos historicos se sirven desde GitHub Pages para no
+       superar el limite de archivos estaticos del plan Hobby. Si usas Vercel
+       Pro, podes desplegar data/ dentro del proyecto y borrar este bloque. */
+    if (/(^|\.)vercel\.app$/.test(location.hostname)) {
+      window.FUTBOLITYX_DATA_BASE = "https://francotomas44-del.github.io/Futbolityx/data/";
+    }
+  </script>
+  <script src="js/dataset.js?v=26"></script>
   <script src="js/backtest.js?v=5"></script>
   <script src="js/news.js?v=3"></script>
   <script src="js/tips.js?v=2"></script>

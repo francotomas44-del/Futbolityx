@@ -1,6 +1,24 @@
-function priceFromEnv(name, fallback) {
+function numberFromEnv(name, fallback) {
   var value = Number(process.env[name]);
   return Number.isFinite(value) && value >= 0 ? value : fallback;
+}
+
+function stringFromEnv(name) {
+  var value = String(process.env[name] || "").trim();
+  return value || null;
+}
+
+function providerPrices(prefix, plan) {
+  return {
+    paddle: {
+      monthlyPriceId: stringFromEnv(prefix + "_PADDLE_" + plan + "_MONTHLY"),
+      yearlyPriceId: stringFromEnv(prefix + "_PADDLE_" + plan + "_YEARLY")
+    },
+    mercadopago: {
+      monthlyPlanId: stringFromEnv(prefix + "_MP_" + plan + "_MONTHLY"),
+      yearlyPlanId: stringFromEnv(prefix + "_MP_" + plan + "_YEARLY")
+    }
+  };
 }
 
 /**
@@ -9,20 +27,28 @@ function priceFromEnv(name, fallback) {
  * "planned" lo deja explicito.
  */
 export function getPlans() {
-  var proArsMonthly = priceFromEnv("PLAN_PRO_ARS_MONTHLY", 6900);
-  var proArsYearly = priceFromEnv("PLAN_PRO_ARS_YEARLY", 59000);
-  var proUsdMonthly = priceFromEnv("PLAN_PRO_USD_MONTHLY", 9);
+  var proArsMonthly = numberFromEnv("PLAN_PRO_ARS_MONTHLY", 6900);
+  var proArsYearly = numberFromEnv("PLAN_PRO_ARS_YEARLY", 59000);
+  var proUsdMonthly = numberFromEnv("PLAN_PRO_USD_MONTHLY", 9);
+  var proUsdYearly = numberFromEnv("PLAN_PRO_USD_YEARLY", 90);
+
+  var eliteArsMonthly = numberFromEnv("PLAN_ELITE_ARS_MONTHLY", 14900);
+  var eliteArsYearly = numberFromEnv("PLAN_ELITE_ARS_YEARLY", 129000);
+  var eliteUsdMonthly = numberFromEnv("PLAN_ELITE_USD_MONTHLY", 19);
+  var eliteUsdYearly = numberFromEnv("PLAN_ELITE_USD_YEARLY", 190);
 
   return [
     {
       id: "free",
       name: "Free",
+      description: "Acceso inicial con analisis basico y limites diarios.",
       status: "available",
+      recommended: false,
       price: {
-        currency: "ARS",
-        monthly: 0,
-        yearly: 0
+        ars: { monthly: 0, yearly: 0 },
+        usd: { monthly: 0, yearly: 0 }
       },
+      providers: {},
       limits: {
         analysesPerDay: 10,
         historyDays: 30,
@@ -45,16 +71,14 @@ export function getPlans() {
     {
       id: "pro",
       name: "Pro",
+      description: "Todas las herramientas de analisis, datos en vivo y exportacion.",
       status: "planned",
+      recommended: true,
       price: {
-        currency: "ARS",
-        monthly: proArsMonthly,
-        yearly: proArsYearly
+        ars: { monthly: proArsMonthly, yearly: proArsYearly },
+        usd: { monthly: proUsdMonthly, yearly: proUsdYearly }
       },
-      altPrice: {
-        currency: "USD",
-        monthly: proUsdMonthly
-      },
+      providers: providerPrices("PLAN", "PRO"),
       limits: {
         analysesPerDay: 1000,
         historyDays: null,
@@ -77,8 +101,14 @@ export function getPlans() {
     {
       id: "elite",
       name: "Elite",
+      description: "Alertas, modelos configurables, API y soporte prioritario.",
       status: "planned",
-      price: null,
+      recommended: false,
+      price: {
+        ars: { monthly: eliteArsMonthly, yearly: eliteArsYearly },
+        usd: { monthly: eliteUsdMonthly, yearly: eliteUsdYearly }
+      },
+      providers: providerPrices("PLAN", "ELITE"),
       limits: {
         analysesPerDay: null,
         historyDays: null,

@@ -1,0 +1,13 @@
+{
+  "name": "futbolityx",
+  "private": true,
+  "type": "module",
+  "description": "Frontend estatico y funciones de Vercel para Futbolityx.",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.10",
+    "ipaddr.js": "^2.5.0"
+  }
+}

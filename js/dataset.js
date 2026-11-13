@@ -47,7 +47,8 @@
 
   window.AD = window.AD || {};
 
-  var BASE = "data/";
+  var BASE = String(window.FUTBOLITYX_DATA_BASE || "data/");
+  if (BASE && BASE.slice(-1) !== "/") BASE += "/";
   var MANIFEST = BASE + "manifest.json";
 
   /* Nombres legibles por código de competición (códigos internos) */

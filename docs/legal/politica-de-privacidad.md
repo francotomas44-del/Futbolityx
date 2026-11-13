@@ -72,7 +72,7 @@ el historial grande: equipos, partidos, predicciones y configuraciones.
 
 **c) Cache Storage (service worker).** Copia de los archivos de la aplicación y de
 los datos descargados, para que abra rápido y funcione sin conexión. El nombre de la
-caché incluye una versión (por ejemplo, `futbolityx-v54`).
+caché incluye una versión (por ejemplo, `futbolityx-v55`).
 
 **d) Archivos exportados.** El botón de copia de seguridad genera un archivo JSON en
 tu dispositivo. Ese archivo lo controlás vos: si lo compartís, la información que
