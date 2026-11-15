@@ -19,7 +19,7 @@ export async function sendMagicLinkEmail(options) {
   var link = options.link;
 
   if (!apiKey || !from) {
-    if (process.env.NODE_ENV === "production") {
+    if (process.env.NODE_ENV === "production" || process.env.VERCEL === "1") {
       throw new HttpError(503, "email_not_configured", "El envio de emails no esta configurado.");
     }
 

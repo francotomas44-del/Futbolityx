@@ -400,6 +400,7 @@
         "Las suscripciones se renuevan automáticamente y podés cancelarlas desde tu cuenta o escribiendo a " +
         '<a href="mailto:futbolityx@gmail.com">futbolityx@gmail.com</a>. ' +
         'Ver <a href="legal.html#doc-terminos">Términos</a>, ' +
+        '<a href="legal.html#doc-pagos">Pagos</a>, ' +
         '<a href="legal.html#doc-privacidad">Privacidad</a> y ' +
         '<a href="legal.html#doc-cookies">Cookies</a>.' +
       "</p>"
