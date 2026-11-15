@@ -1,6 +1,6 @@
 # Juego Responsable
 
-**Futbolityx** · Versión 1.0 · Última actualización: 5 de noviembre de 2026
+**Futbolityx** · Versión 2.0 · Última actualización: 14 de noviembre de 2026
 
 > Este documento aplica solo si el usuario decide usar la información de Futbolityx
 > con fines de apuestas. Forma parte del conjunto de documentos legales; ver el
@@ -9,8 +9,8 @@
 ## 1. Ámbito de aplicación
 
 Futbolityx es una herramienta **informativa y estadística**. No es un servicio de
-apuestas, no procesa apuestas ni pagos, no publica cuotas y no tiene vínculos
-comerciales con casas de apuestas.
+apuestas, no procesa apuestas, no publica cuotas y no tiene vínculos comerciales con
+casas de apuestas. Cobra únicamente suscripciones por el uso de la herramienta.
 
 Este documento no promueve ni recomienda apostar. Su objetivo es que, si el usuario
 decide hacerlo por su cuenta, lo haga de forma legal, consciente y con límites.
@@ -24,9 +24,11 @@ Para usar la información con fines de apuestas:
 - la actividad debe ser **legal en su país, provincia o ciudad**;
 - el operador con el que se interactúe debe estar **debidamente habilitado**.
 
-Futbolityx no verifica la edad ni la identidad del usuario, porque no tiene cuentas
-ni registro. La declaración y el cumplimiento son responsabilidad exclusiva del
-usuario.
+Futbolityx no verifica la edad ni la identidad del usuario para el uso básico. Los
+planes pagos requieren capacidad legal para contratar. Si el usuario utiliza la
+información con fines de apuestas, declara ser mayor de 18 años (o la edad mínima
+que exija su jurisdicción). La declaración y el cumplimiento son responsabilidad
+exclusiva del usuario.
 
 ## 3. Lo que Futbolityx no hace
 
@@ -113,6 +115,7 @@ Responsable”).
 ## 10. Documentos relacionados
 
 - [Términos y Condiciones de Uso](terminos-y-condiciones.md)
+- [Pagos, Suscripciones y Reembolsos](pagos-suscripciones-reembolsos.md)
 - [Descargo de Responsabilidad](descargo-de-responsabilidad.md)
 - [Política de Privacidad](politica-de-privacidad.md)
 - [Aviso Legal](aviso-legal.md)

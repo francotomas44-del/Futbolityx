@@ -1,6 +1,6 @@
 # Términos y Condiciones de Uso
 
-**Futbolityx** · Versión 1.0 · Última actualización: 5 de noviembre de 2026
+**Futbolityx** · Versión 2.0 · Última actualización: 14 de noviembre de 2026
 
 > Este documento regula el acceso y el uso de Futbolityx. Forma parte del conjunto
 > de documentos legales; ver el [índice](README.md).
@@ -8,22 +8,25 @@
 ## 1. Aceptación de los Términos
 
 Al acceder o utilizar Futbolityx (en adelante, “la Plataforma”), el usuario acepta
-quedar vinculado por los presentes Términos y Condiciones.
+quedar vinculado por los presentes Términos y Condiciones y por el resto de los
+documentos legales.
 
-La aceptación es electrónica y se perfecciona con el solo uso de la Plataforma. No
-se requiere firma ni registro.
+La aceptación es electrónica. Se perfecciona con el solo uso de la Plataforma y,
+cuando el usuario crea una cuenta o contrata un plan pago, con la confirmación
+expresa en el flujo correspondiente.
 
 Si el usuario no está de acuerdo con alguna de las disposiciones aquí establecidas,
 deberá abstenerse de utilizar la Plataforma.
 
-## 2. Identificación del titular
+## 2. Identificación del titular y alojamiento
 
 La Plataforma es un proyecto denominado **Futbolityx**, cuyo titular es **Franco
 Tomas Herrera Sanchez**, CUIT **20-37341881-2**, con domicilio legal en **Urquiza
 889** (República Argentina) y correo legal **futbolityx@gmail.com**.
 
-El sitio público se publica en `https://francotomas44-del.github.io/Futbolityx/`.
-El detalle del titular, el alojamiento y los canales de contacto figura en el
+El sitio se publica en Vercel y puede tener copias o espejos en otros dominios,
+incluido `https://francotomas44-del.github.io/Futbolityx/`. El detalle del
+titular, el alojamiento y los canales de contacto figura en el
 [Aviso Legal](aviso-legal.md).
 
 ## 3. Naturaleza de la Plataforma
@@ -37,21 +40,58 @@ La Plataforma **no** es ni presta, entre otros:
 - servicios de apuestas, casa de apuestas, operador de juegos de azar ni
   intermediación de apuestas;
 - publicación, fijación o recomendación de cuotas;
-- procesamiento de pagos, cobros, premios ni custodia de fondos;
+- custodia de fondos de apuestas, premios o activos de terceros;
 - asesoramiento financiero, de inversión, contable, fiscal, legal, médico ni
   profesional de ningún tipo;
 - gestión de capitales, carteras o patrimonios de terceros;
 - servicios de representación deportiva, scouting profesional o intermediación de
   jugadores.
 
-La Plataforma **no ejecuta apuestas** en nombre del usuario, no mantiene cuentas de
-usuario y no custodia dinero ni activos de ninguna naturaleza.
+La Plataforma **no ejecuta apuestas** en nombre del usuario y no custodia dinero ni
+activos de ninguna naturaleza. Los pagos que pueda recibir el titular son
+exclusivamente por el uso de la herramienta y sus funciones adicionales, no por
+apuestas.
 
-El acceso es **gratuito**. No existen planes de pago, suscripciones, membresías,
-compras dentro de la aplicación ni facturación; por lo tanto, tampoco existen
-reembolsos, cancelaciones ni cobros recurrentes.
+## 4. Cuenta, acceso y seguridad
 
-## 4. Requisitos de uso y edad
+El uso básico puede realizarse sin cuenta. Para contratar planes pagos, acceder a
+determinadas funciones o gestionar una suscripción, el usuario debe crear una
+cuenta mediante un enlace de acceso enviado a su email (magic link).
+
+El usuario se compromete a:
+
+- proporcionar un email válido del que sea titular;
+- mantener la confidencialidad de su acceso y de su dispositivo;
+- no compartir la cuenta ni revender el acceso;
+- informar de inmediato cualquier uso no autorizado a **futbolityx@gmail.com**;
+- mantener actualizados sus datos de contacto y facturación cuando corresponda.
+
+La cuenta es personal. Futbolityx puede suspender o limitar cuentas ante indicios
+razonables de fraude, abuso, uso compartido, reventa o incumplimiento de estos
+Términos.
+
+El usuario puede solicitar la eliminación de su cuenta escribiendo a
+**futbolityx@gmail.com**. La eliminación no borra automáticamente los registros
+que la ley obligue a conservar (por ejemplo, facturación) ni los datos locales del
+navegador, que se eliminan desde la configuración del navegador o con el botón
+**Borrar todo** de la app.
+
+## 5. Planes, pagos y suscripciones
+
+Futbolityx ofrece un plan **Free** y planes pagos **Pro** y **Elite**. Los planes
+pagos se contratan como suscripciones con renovación automática y se rigen por el
+documento [Pagos, Suscripciones y Reembolsos](pagos-suscripciones-reembolsos.md),
+que forma parte de estos Términos.
+
+Los cobros se procesan con **Mercado Pago** (ARS) y **Paddle** (USD). Futbolityx no
+almacena números de tarjeta ni credenciales bancarias. El usuario acepta también
+los términos y políticas del proveedor de pago elegido.
+
+La falta de pago puede derivar en la suspensión del plan pago y en la vuelta al
+plan Free, sin perjuicio de los importes devengados y de los derechos del
+consumidor.
+
+## 6. Requisitos de uso y edad
 
 El uso de la Plataforma requiere un dispositivo con navegador actualizado y, para
 las funciones que consultan datos en vivo, conexión a internet.
@@ -62,9 +102,10 @@ actividad es **legal en su país o jurisdicción**.
 
 Cuando la ley aplicable exija una edad mayor para contratar o para apostar,
 prevalece esa edad. Los menores de edad solo pueden utilizar la Plataforma con la
-autorización de su representante legal y nunca para fines de apuestas.
+autorización de su representante legal y nunca para fines de apuestas. Los planes
+pagos requieren capacidad legal para contratar.
 
-## 5. Licencia de uso
+## 7. Licencia de uso
 
 Se concede al usuario una licencia de uso **personal, limitada, no exclusiva,
 intransferible y revocable** para utilizar la Plataforma conforme a estos Términos.
@@ -79,7 +120,7 @@ lo que respecta al código y su reutilización. Los **datos de terceros** conser
 sus propias licencias (ver [Propiedad Intelectual](propiedad-intelectual.md) y
 [`docs/atribuciones.md`](../atribuciones.md)).
 
-## 6. Uso permitido y uso prohibido
+## 8. Uso permitido y uso prohibido
 
 El usuario se compromete a utilizar la Plataforma conforme a la legislación
 aplicable y a abstenerse de realizar actividades que puedan afectar su
@@ -100,40 +141,43 @@ aplicables.
   o de forma que sugiera patrocinio, afiliación o respaldo inexistente;
 - extraer información mediante procesos automatizados que sobrecarguen la
   infraestructura o violen las condiciones de las fuentes de datos;
-- intentar vulnerar controles de acceso, seguridad o integridad del sitio alojado;
-- revender, sublicenciar o explotar comercialmente la Plataforma como si fuera un
-  servicio oficial, sin autorización previa y por escrito.
+- eludir límites de plan, cuotas, controles de acceso o medidas de seguridad;
+- compartir credenciales, revender el acceso o explotar comercialmente la
+  Plataforma como si fuera un servicio oficial, sin autorización previa y por
+  escrito.
 
 Estas prohibiciones **no limitan** los derechos que la licencia MIT otorga sobre el
 código, ni el derecho a estudiar, modificar o redistribuir el código conforme a esa
 licencia.
 
-El incumplimiento podrá derivar en el bloqueo del acceso al sitio alojado, sin
-perjuicio de las acciones legales que pudieran corresponder. Como la Plataforma no
-tiene cuentas de usuario, no existe “cancelación de cuenta”.
+El incumplimiento podrá derivar en la suspensión o el bloqueo del acceso al sitio
+alojado, sin perjuicio de las acciones legales que pudieran corresponder y de los
+derechos del consumidor.
 
-## 7. Contenido y datos del usuario
+## 9. Contenido y datos del usuario
 
 Las funcionalidades de la Plataforma permiten guardar **predicciones, análisis,
 configuraciones y copias de seguridad** generadas por el usuario.
 
-Ese contenido se almacena **únicamente en el navegador del usuario** (IndexedDB,
-con respaldo en localStorage) y **no se envía a servidores de Futbolityx**, porque
-la Plataforma no tiene backend propio.
+Ese contenido se almacena principalmente **en el navegador del usuario** (IndexedDB,
+con respaldo en localStorage). Cuando el usuario utiliza funciones del backend,
+algunos datos técnicos y de cuenta se procesan en servidores propios conforme a la
+[Política de Privacidad](politica-de-privacidad.md). Los análisis enviados al
+backend se usan para calcular el resultado solicitado y no se publican.
 
 El usuario:
 
 - conserva la titularidad sobre el contenido que genere;
 - es el único responsable de su exactitud, licitud y uso;
 - es responsable de realizar y conservar sus propias copias de seguridad;
-- acepta que el contenido puede perderse si borra los datos del navegador, usa el
-  modo privado, cambia de dominio, desinstala la aplicación o si el navegador
-  libera espacio de almacenamiento.
+- acepta que el contenido local puede perderse si borra los datos del navegador,
+  usa el modo privado, cambia de dominio, desinstala la aplicación o si el
+  navegador libera espacio de almacenamiento.
 
 La Plataforma no aloja contenido público, no tiene comunidad, muro, comentarios ni
 mensajería entre usuarios.
 
-## 8. Funcionalidades informativas y ausencia de asesoramiento
+## 10. Funcionalidades informativas y ausencia de asesoramiento
 
 Las herramientas, estadísticas, simulaciones, análisis, indicadores, métricas,
 probabilidades y demás funcionalidades poseen carácter **exclusivamente tecnológico
@@ -150,7 +194,7 @@ stake de Kelly). No publica cuotas, no sugiere apuestas y no garantiza resultado
 Toda decisión adoptada por el usuario será realizada bajo su exclusiva
 responsabilidad. Ver el [Descargo de Responsabilidad](descargo-de-responsabilidad.md).
 
-## 9. Propiedad intelectual y datos de terceros
+## 11. Propiedad intelectual y datos de terceros
 
 El código, la marca, la identidad visual, los textos originales y los datos de
 terceros se rigen por lo dispuesto en la [Propiedad Intelectual](propiedad-intelectual.md).
@@ -159,7 +203,7 @@ Los nombres de equipos, ligas, competiciones y jugadores son hechos y se usan de
 forma **nominativa**. La Plataforma no usa escudos ni logos oficiales y no implica
 afiliación ni respaldo alguno.
 
-## 10. Disponibilidad, cambios y suspensión
+## 12. Disponibilidad, cambios y suspensión
 
 La Plataforma se proporciona **“tal cual”** y **“según disponibilidad”**.
 
@@ -174,12 +218,15 @@ El titular podrá modificar, actualizar, restringir, suspender o discontinuar
 funcionalidades, módulos o el servicio completo por razones técnicas, operativas,
 de seguridad, regulatorias o de evolución tecnológica.
 
-La Plataforma depende de servicios de terceros (alojamiento y fuentes públicas de
-datos). Las fallas, cambios o bloqueos de esos servicios pueden afectar su
-funcionamiento sin que ello genere responsabilidad para el titular, en la medida
-permitida por la ley.
+La Plataforma depende de servicios de terceros (alojamiento, base de datos, email,
+pagos y fuentes públicas de datos). Las fallas, cambios o bloqueos de esos
+servicios pueden afectar su funcionamiento sin que ello genere responsabilidad para
+el titular, en la medida permitida por la ley.
 
-## 11. Limitación de responsabilidad
+Si se discontinúa un plan pago, se aplicará lo previsto en el documento de
+[Pagos, Suscripciones y Reembolsos](pagos-suscripciones-reembolsos.md).
+
+## 13. Limitación de responsabilidad
 
 En la máxima medida permitida por la legislación aplicable, el titular de la
 Plataforma no será responsable por pérdidas directas, indirectas, incidentales,
@@ -199,7 +246,7 @@ cumpla no constituye incumplimiento de estos Términos.
   limitarla;
 - cualquier responsabilidad que la ley imponga con carácter imperativo.
 
-## 12. Indemnidad
+## 14. Indemnidad
 
 En la medida permitida por la ley, el usuario mantendrá indemne al titular frente a
 reclamos, daños, costos y gastos (incluidos honorarios razonables) que se deriven
@@ -213,39 +260,42 @@ de:
 Esta obligación no se extiende a los supuestos en que el daño sea imputable
 exclusivamente al titular ni a los derechos irrenunciables del consumidor.
 
-## 13. Privacidad, cookies y seguridad
+## 15. Privacidad, cookies y seguridad
 
 El tratamiento de datos se rige por la [Política de Privacidad](politica-de-privacidad.md)
 y la [Política de Cookies](politica-de-cookies.md).
 
-En síntesis: Futbolityx no tiene cuentas, no recopila datos personales en servidores
-propios y guarda la información del usuario únicamente en su navegador. El
-alojamiento y las fuentes externas pueden registrar datos técnicos conforme a sus
-propias políticas.
+En síntesis: la app puede usarse sin cuenta y guarda la información principal en el
+navegador. Si el usuario crea una cuenta o contrata un plan, Futbolityx procesa su
+email, datos de sesión, plan, uso y referencias de pago en servidores propios y de
+terceros, con las medidas de seguridad razonables. No se venden datos personales.
 
-## 14. Modificaciones de los Términos
+## 16. Modificaciones de los Términos
 
 Los presentes Términos podrán ser modificados periódicamente.
 
 Las nuevas versiones entrarán en vigencia desde su publicación en la Plataforma,
 con indicación de la fecha de actualización. Cuando el cambio sea sustancial, se
-avisará de forma razonable dentro del sitio.
+avisará de forma razonable dentro del sitio o por email a las cuentas registradas.
 
 El uso continuado de la Plataforma después de la publicación implica la aceptación
-de la versión vigente. Si el usuario no está de acuerdo, deberá dejar de utilizarla.
+de la versión vigente. Si el usuario no está de acuerdo, deberá dejar de utilizarla
+y, si corresponde, cancelar su suscripción.
 
-## 15. Duración y terminación
+## 17. Duración y terminación
 
 Estos Términos rigen mientras el usuario utilice la Plataforma.
 
-El usuario puede dejar de usarla en cualquier momento y eliminar sus datos locales
-con el botón **Borrar todo** de la app o desde la configuración de su navegador.
+El usuario puede dejar de usarla en cualquier momento, cancelar su suscripción y
+solicitar la eliminación de su cuenta. También puede eliminar sus datos locales con
+el botón **Borrar todo** de la app o desde la configuración de su navegador.
 
 El titular puede suspender o discontinuar el sitio alojado en cualquier momento,
 sin obligación de conservar datos locales del usuario (que, de todos modos, nunca
-estuvieron bajo su control).
+estuvieron bajo su control), sin perjuicio de los derechos del consumidor y de las
+obligaciones legales de conservación.
 
-## 16. Nulidad parcial, integridad, no renuncia y cesión
+## 18. Nulidad parcial, integridad, no renuncia y cesión
 
 Si alguna cláusula resultara nula o inaplicable, las restantes conservarán validez y
 la cláusula se interpretará de la forma más cercana posible a su finalidad.
@@ -261,7 +311,7 @@ titular puede cederla a un sucesor en el proyecto, con notificación en el sitio
 Los títulos de las secciones son meramente orientativos y no afectan su
 interpretación.
 
-## 17. Legislación aplicable y jurisdicción
+## 19. Legislación aplicable y jurisdicción
 
 Los presentes Términos se rigen por la legislación vigente de la **República
 Argentina**.
@@ -276,12 +326,14 @@ tribunales competentes de la República Argentina, sin perjuicio de:
 Antes de iniciar una acción judicial, las partes se comprometen a intentar una
 solución directa mediante el correo de contacto.
 
-## 18. Contacto
+## 20. Contacto
 
 Consultas, notificaciones y reclamos: **futbolityx@gmail.com** (asunto “Legal”).
+Para pagos y suscripciones: **futbolityx@gmail.com** (asunto “Pagos”).
 
-## 19. Documentos relacionados
+## 21. Documentos relacionados
 
+- [Pagos, Suscripciones y Reembolsos](pagos-suscripciones-reembolsos.md)
 - [Política de Privacidad](politica-de-privacidad.md)
 - [Política de Cookies](politica-de-cookies.md)
 - [Descargo de Responsabilidad](descargo-de-responsabilidad.md)

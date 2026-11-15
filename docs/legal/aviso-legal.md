@@ -1,6 +1,6 @@
 # Aviso Legal
 
-**Futbolityx** · Versión 1.0 · Última actualización: 5 de noviembre de 2026
+**Futbolityx** · Versión 2.0 · Última actualización: 14 de noviembre de 2026
 
 > Datos de identificación del titular, objeto del sitio y condiciones generales de
 > acceso. Forma parte del conjunto de documentos legales; ver el
@@ -13,7 +13,8 @@
 - **CUIT:** 20-37341881-2.
 - **Domicilio legal:** Urquiza 889, República Argentina.
 - **Correo legal:** futbolityx@gmail.com.
-- **Sitio:** https://francotomas44-del.github.io/Futbolityx/
+- **Sitio principal:** el dominio de Vercel donde se publica la app.
+- **Espejo:** https://francotomas44-del.github.io/Futbolityx/
 - **Repositorio:** https://github.com/francotomas44-del/Futbolityx
 
 > Los datos de identificación pueden actualizarse en este documento y en el
@@ -23,31 +24,39 @@
 
 Futbolityx es una aplicación web informativa y estadística para el análisis de
 partidos de fútbol. Ofrece probabilidades, estimaciones, simulaciones e informes a
-partir de datos históricos y públicos.
+partir de datos históricos y públicos. También ofrece un plan Free y planes pagos
+Pro y Elite con funciones adicionales.
 
 La Plataforma:
 
 - no es un servicio de apuestas ni un operador de juegos de azar;
-- no procesa pagos ni custodia fondos;
+- no procesa apuestas ni custodia fondos de apuestas;
+- cobra únicamente por el uso de la herramienta y sus funciones adicionales;
 - no publica ni recomienda cuotas;
 - no presta asesoramiento profesional;
 - no garantiza resultados.
 
-## 3. Alojamiento
+Los planes pagos, las suscripciones y los reembolsos se rigen por el documento de
+[Pagos, Suscripciones y Reembolsos](pagos-suscripciones-reembolsos.md).
 
-El sitio se publica mediante **GitHub Pages**, un servicio de **GitHub, Inc.**, que
-actúa como proveedor de infraestructura y puede registrar datos técnicos conforme a
-su propia política de privacidad.
+## 3. Alojamiento e infraestructura
 
-Futbolityx no administra servidores propios ni bases de datos de usuarios.
+El sitio y el backend se publican mediante **Vercel**, un servicio de **Vercel Inc.**
+Las cuentas, sesiones y suscripciones se guardan en un servicio **PostgreSQL
+gestionado**. Los emails transaccionales se envían con **Resend**. Los pagos se
+procesan con **Mercado Pago** y **Paddle**. El espejo estático y los datos
+históricos pueden servirse mediante **GitHub Pages** (GitHub, Inc.).
+
+Cada proveedor puede registrar datos técnicos conforme a su propia política de
+privacidad. El detalle está en la [Política de Privacidad](politica-de-privacidad.md).
 
 ## 4. Condiciones de acceso
 
-El acceso es gratuito y no requiere registro ni cuenta.
+El uso básico es gratuito y no requiere registro. Para contratar planes pagos,
+acceder a determinadas funciones o gestionar una suscripción se requiere una cuenta
+creada por magic link.
 
-El uso del sitio implica la aceptación de los [Términos y Condiciones de
-Uso](terminos-y-condiciones.md), la [Política de Privacidad](politica-de-privacidad.md)
-y la [Política de Cookies](politica-de-cookies.md).
+El uso del sitio implica la aceptación de los [Términos y Condiciones de Uso](terminos-y-condiciones.md), el documento de [Pagos, Suscripciones y Reembolsos](pagos-suscripciones-reembolsos.md), la [Política de Privacidad](politica-de-privacidad.md) y la [Política de Cookies](politica-de-cookies.md).
 
 El usuario se compromete a utilizar el sitio conforme a la ley y a no realizar
 actividades que afecten su funcionamiento, seguridad o integridad.
@@ -103,6 +112,7 @@ Consultas legales: **futbolityx@gmail.com** (asunto "Legal").
 ## 11. Documentos relacionados
 
 - [Términos y Condiciones de Uso](terminos-y-condiciones.md)
+- [Pagos, Suscripciones y Reembolsos](pagos-suscripciones-reembolsos.md)
 - [Política de Privacidad](politica-de-privacidad.md)
 - [Política de Cookies](politica-de-cookies.md)
 - [Descargo de Responsabilidad](descargo-de-responsabilidad.md)

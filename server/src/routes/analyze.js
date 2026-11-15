@@ -5,6 +5,7 @@ export default async function analyzeRoutes(app, opts) {
   var config = opts.config;
   var authenticate = opts.authenticate;
   var requireScope = opts.requireScope;
+  var accountService = opts.accountService;
 
   var bodySchema = {
     type: "object",
@@ -56,7 +57,15 @@ export default async function analyzeRoutes(app, opts) {
   };
 
   app.post("/v1/analyze", {
-    preHandler: [authenticate, requireScope("analyze")],
+    preHandler: [
+      authenticate,
+      requireScope("analyze"),
+      async function checkQuota(request) {
+        if (request.account && accountService) {
+          await accountService.assertAnalyzeAllowed(request.account);
+        }
+      }
+    ],
     schema: { body: bodySchema },
     config: {
       rateLimit: { max: 20, timeWindow: "1 minute" }
@@ -65,7 +74,7 @@ export default async function analyzeRoutes(app, opts) {
     var payload = validateAnalysisPayload(request.body, config.analyze);
 
     request.log.info({
-      keyId: request.auth.keyId,
+      keyId: request.auth.keyId || request.auth.userId,
       homeId: payload.cfg.homeId,
       awayId: payload.cfg.awayId,
       matches: payload.matches.length,
@@ -73,6 +82,11 @@ export default async function analyzeRoutes(app, opts) {
     }, "analyze");
 
     var result = computeAnalysis(payload);
+
+    if (request.account && accountService) {
+      await accountService.recordAnalyze(request.account);
+    }
+
     reply.header("cache-control", "no-store");
     return result;
   });

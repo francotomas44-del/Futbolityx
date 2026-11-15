@@ -7,9 +7,13 @@ import { pathToFileURL } from "node:url";
 import { config as baseConfig } from "./config.js";
 import { buildAuthenticator, requireScope } from "./auth.js";
 import { registerErrorHandler } from "./errors.js";
+import { AccountService } from "./lib/accounts/service.js";
+import { buildAuthenticateAny, buildRequireSession, requireFeature } from "./lib/accounts/middleware.js";
 import healthRoutes from "./routes/health.js";
 import analyzeRoutes from "./routes/analyze.js";
 import liveRoutes from "./routes/live.js";
+import accountRoutes from "./routes/account.js";
+import billingRoutes from "./routes/billing.js";
 
 export async function buildServer(overrides) {
   var config = Object.assign({}, baseConfig, overrides || {});
@@ -31,8 +35,19 @@ export async function buildServer(overrides) {
     crossOriginEmbedderPolicy: false
   });
 
+  // Guardamos el cuerpo crudo para verificar firmas de webhooks.
+  app.addContentTypeParser("application/json", { parseAs: "string" }, function (request, body, done) {
+    request.rawBody = body;
+    try {
+      done(null, body ? JSON.parse(body) : {});
+    } catch (error) {
+      done(error);
+    }
+  });
+
   await app.register(cors, {
     origin: config.corsOrigins,
+    credentials: true,
     methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["Content-Type", "X-API-Key", "Authorization"],
     exposedHeaders: ["X-Cache"],
@@ -50,6 +65,9 @@ export async function buildServer(overrides) {
   registerErrorHandler(app);
 
   var authenticate = buildAuthenticator(config);
+  var accountService = new AccountService();
+  var requireSession = buildRequireSession(config, accountService);
+  var authenticateAny = buildAuthenticateAny(config, authenticate, accountService);
 
   app.get("/", async function () {
     return {
@@ -70,8 +88,28 @@ export async function buildServer(overrides) {
   });
 
   await app.register(healthRoutes, { config: config });
-  await app.register(analyzeRoutes, { config: config, authenticate: authenticate, requireScope: requireScope });
-  await app.register(liveRoutes, { config: config, authenticate: authenticate, requireScope: requireScope });
+  await app.register(accountRoutes, {
+    config: config,
+    accountService: accountService,
+    requireSession: requireSession
+  });
+  await app.register(billingRoutes, {
+    config: config,
+    accountService: accountService,
+    requireSession: requireSession
+  });
+  await app.register(analyzeRoutes, {
+    config: config,
+    authenticate: authenticateAny,
+    requireScope: requireScope,
+    accountService: accountService
+  });
+  await app.register(liveRoutes, {
+    config: config,
+    authenticate: authenticateAny,
+    requireScope: requireScope,
+    requireFeature: requireFeature
+  });
 
   if (!config.apiKeys || !config.apiKeys.length) {
     app.log.warn("API_KEYS esta vacio: las rutas protegidas rechazaran todas las requests.");

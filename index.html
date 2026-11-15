@@ -4,10 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Futbolityx — Pronósticos de fútbol, claros y honestos</title>
-  <meta name="description" content="Pronósticos y probabilidades de fútbol calculados 100% en tu navegador. Sin registro, gratis y con estadística honesta." />
+  <meta name="description" content="Pronósticos y probabilidades de fútbol calculados en tu navegador. Empezá gratis; planes Pro y Elite para datos en vivo y más funciones." />
   <meta name="theme-color" content="#070c15" />
   <meta property="og:title" content="Futbolityx — Pronósticos de fútbol" />
-  <meta property="og:description" content="Probabilidades 1X2, goles esperados y marcador más probable. Gratis y sin registro." />
+  <meta property="og:description" content="Probabilidades 1X2, goles esperados y marcador más probable. Empezá gratis; planes Pro y Elite opcionales." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="img/icon-512.png" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -16,6 +16,7 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="stylesheet" href="css/styles.css?v=14" />
   <link rel="stylesheet" href="css/v2.css?v=13" />
+  <link rel="stylesheet" href="css/account.css?v=1" />
 </head>
 <body>
   <header class="topbar">
@@ -28,6 +29,7 @@
     </div>
     <div class="topbar-actions">
       <span id="save-indicator" class="save-indicator" title="Estado del guardado">Sin guardar</span>
+      <button id="btn-account" class="btn btn-ghost btn-mini" type="button" aria-haspopup="dialog">Ingresar</button>
       <label class="tz-pick" title="Elegí tu país para ver los horarios en tu hora local">
         <span class="tz-pick-ico" aria-hidden="true">🌐</span>
         <select id="sel-country" aria-label="País desde el que usás la app (para los horarios)"></select>
@@ -398,9 +400,9 @@
         <h3 data-tip="Futbolityx da estimaciones probabilísticas, no hechos ni garantías.">Naturaleza del contenido</h3>
         <p>Futbolityx es una herramienta <strong>informativa y estadística</strong>. Genera <strong>estimaciones probabilísticas</strong>, no hechos ni garantías. Un modelo bien calibrado puede fallar en partidos individuales. No prometemos predicciones infalibles.</p>
         <h3 data-tip="La app no es un servicio de apuestas ni da consejos; el uso es responsabilidad de cada persona.">Sin asesoramiento de apuestas</h3>
-        <p>Esta app <strong>no es un servicio de apuestas</strong>: no procesa pagos ni apuestas, no publica ni recomienda cuotas, y no ofrece consejos de apuestas. La sección <strong>Cuotas y valor</strong> sólo calcula indicadores estadísticos (EV, cuota justa, Kelly) a partir de los números que vos ingresás: son <strong>estimaciones</strong>, no recomendaciones. Si decidís usar la información con fines de apuestas, es tu entera responsabilidad: debe ser <strong>legal en tu país</strong> y debés ser <strong>mayor de 18 años</strong>. Apostar conlleva riesgo de pérdida y puede generar adicción; si lo necesitás, buscá ayuda profesional.</p>
-        <h3 data-tip="No se recolectan datos en servidores propios: todo se guarda en tu navegador.">Privacidad</h3>
-        <p>No recolectamos ni almacenamos datos personales en servidores propios. Toda la información (equipos, partidos y predicciones) se guarda <strong>únicamente en tu navegador</strong> (IndexedDB, con respaldo en localStorage). No hay cuentas, cookies de seguimiento ni analítica. Las consultas de datos en vivo van directo a una fuente pública, que recibe tu IP según su propia política. La copia de seguridad (JSON) se genera y queda en tu propio dispositivo.</p>
+        <p>Esta app <strong>no es un servicio de apuestas</strong>: no procesa apuestas ni custodia fondos de apuestas, no publica ni recomienda cuotas, y no ofrece consejos de apuestas. Cobra únicamente suscripciones por el uso de la herramienta. La sección <strong>Cuotas y valor</strong> sólo calcula indicadores estadísticos (EV, cuota justa, Kelly) a partir de los números que vos ingresás: son <strong>estimaciones</strong>, no recomendaciones. Si decidís usar la información con fines de apuestas, es tu entera responsabilidad: debe ser <strong>legal en tu país</strong> y debés ser <strong>mayor de 18 años</strong>. Apostar conlleva riesgo de pérdida y puede generar adicción; si lo necesitás, buscá ayuda profesional.</p>
+        <h3 data-tip="La app funciona sin cuenta; para planes pagos se usa un email y una cookie de sesión.">Privacidad y cuentas</h3>
+        <p>La app funciona <strong>sin cuenta</strong> y guarda equipos, partidos y predicciones <strong>en tu navegador</strong> (IndexedDB, con respaldo en localStorage). Si creás una cuenta para contratar Pro o Elite, tratamos tu email, plan, uso y referencias de pago en servidores propios y de terceros, con una cookie de sesión técnica. No hay cookies de seguimiento ni analítica, y no vendemos datos. Las consultas de datos en vivo pueden ir a una fuente pública, que recibe tu IP según su propia política. La copia de seguridad (JSON) se genera y queda en tu propio dispositivo.</p>
         <h3 data-tip="De dónde salen los datos y su uso nominativo.">Datos y fuentes</h3>
         <p>La base histórica proviene de <strong>archivos públicos</strong> de resultados y estadísticas. El detalle de <strong>tarjetas y córners</strong> por partido proviene de una <strong>fuente pública de estadísticas</strong>. Los nombres de equipos, ligas y competiciones se usan de forma <strong>nominativa</strong> (son hechos) y no implican afiliación ni respaldo. Esta app <strong>no</strong> usa escudos ni logos oficiales. Ver <code>docs/atribuciones.md</code>.</p>
         <h3 data-tip="Código bajo licencia MIT; los datos de terceros conservan su licencia.">Licencia</h3>
@@ -409,6 +411,7 @@
         <p>Este panel es un resumen. El texto completo y vigente está en <a href="legal.html"><strong>Información legal</strong></a>:</p>
         <ul>
           <li><a href="legal.html#doc-terminos">Términos y Condiciones de Uso</a></li>
+          <li><a href="legal.html#doc-pagos">Pagos, Suscripciones y Reembolsos</a></li>
           <li><a href="legal.html#doc-privacidad">Política de Privacidad</a></li>
           <li><a href="legal.html#doc-cookies">Política de Cookies</a></li>
           <li><a href="legal.html#doc-descargo">Descargo de Responsabilidad</a></li>
@@ -434,12 +437,14 @@
     <p><strong>Futbolityx</strong> · herramienta local de análisis probabilístico. Las predicciones son estimaciones, no hechos confirmados.</p>
     <p class="footer-legal">
       Herramienta informativa y estadística; <strong>no constituye consejo de apuestas</strong> ni garantiza resultados.
-      Datos históricos: <strong>base pública de resultados</strong>. No recolectamos datos personales en servidores propios: todo queda en tu navegador.
+      Datos históricos: <strong>base pública de resultados</strong>. La app funciona sin cuenta; los planes pagos usan una cuenta por email y se rigen por los Términos y la política de pagos.
     </p>
     <p class="footer-links">
       <a href="legal.html">Información legal</a>
       <span class="footer-sep">&middot;</span>
       <a href="legal.html#doc-terminos">Términos</a>
+      <span class="footer-sep">&middot;</span>
+      <a href="legal.html#doc-pagos">Pagos</a>
       <span class="footer-sep">&middot;</span>
       <a href="legal.html#doc-privacidad">Privacidad</a>
       <span class="footer-sep">&middot;</span>
@@ -454,11 +459,33 @@
     </p>
   </footer>
 
+  <div id="account-modal" class="account-modal" hidden>
+    <div class="account-backdrop" data-account-close></div>
+    <div class="account-card" role="dialog" aria-modal="true" aria-labelledby="account-title">
+      <button class="account-close" type="button" data-account-close aria-label="Cerrar">&times;</button>
+      <div id="account-root"></div>
+    </div>
+  </div>
+
   <script src="js/stats.js?v=8"></script>
   <script src="js/metrics.js?v=5"></script>
   <script src="js/storage.js?v=8"></script>
   <script src="js/store.js?v=21"></script>
-  <script src="js/api.js?v=1"></script>
+  <script>
+    /* El backend vive en el mismo proyecto de Vercel. En GitHub Pages no hay
+       backend: la UI de cuenta queda en modo informativo. En local usa el
+       servidor Fastify de :8787. */
+    if (!window.FUTBOLITYX_API) {
+      if (/(^|\.)vercel\.app$/.test(location.hostname)) {
+        window.FUTBOLITYX_API = { base: location.origin };
+      } else if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+        window.FUTBOLITYX_API = { base: location.protocol + "//" + location.hostname + ":8787" };
+      } else if (location.protocol === "https:" && !/github\.io$/.test(location.hostname)) {
+        window.FUTBOLITYX_API = { base: location.origin };
+      }
+    }
+  </script>
+  <script src="js/api.js?v=2"></script>
   <script>
     /* En Vercel los datos historicos se sirven desde GitHub Pages para no
        superar el limite de archivos estaticos del plan Hobby. Si usas Vercel
@@ -476,5 +503,6 @@
   <script src="js/live.js?v=10"></script>
   <script src="js/livehoy.js?v=5"></script>
   <script src="js/live-ingest.js?v=2"></script>
+  <script src="js/account.js?v=1"></script>
 </body>
 </html>

@@ -2,7 +2,7 @@
    Cachea el "shell" de la app para que abra rápido y funcione sin conexión.
    Los archivos de datos (data/) son inmutables: se cachean de forma agresiva. */
 
-var CACHE = "futbolityx-v55";
+var CACHE = "futbolityx-v58";
 var CORE = [
   "./",
   "index.html",
@@ -10,10 +10,13 @@ var CORE = [
   "css/styles.css",
   "css/v2.css",
   "css/legal.css",
+  "css/account.css",
   "js/legal.js",
   "js/api.js",
+  "js/account.js",
   "docs/legal/README.md",
   "docs/legal/terminos-y-condiciones.md",
+  "docs/legal/pagos-suscripciones-reembolsos.md",
   "docs/legal/politica-de-privacidad.md",
   "docs/legal/politica-de-cookies.md",
   "docs/legal/descargo-de-responsabilidad.md",
@@ -49,6 +52,9 @@ self.addEventListener("fetch", function (e) {
   var url;
   try { url = new URL(req.url); } catch (err) { return; }
   if (url.origin !== self.location.origin) return;
+
+  // La API y los webhooks nunca se cachean.
+  if (url.pathname.indexOf("/api/") === 0 || url.pathname.indexOf("/v1/") === 0) return;
 
   // El manifiesto cambia cuando se agregan datos: red primero, cache de respaldo.
   if (url.pathname.indexOf("/data/manifest.json") !== -1) {

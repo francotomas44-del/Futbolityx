@@ -188,6 +188,7 @@ El proyecto podrá desarrollarse progresivamente mediante los siguientes módulo
 - **Confidence Engine:** evaluación de incertidumbre y fiabilidad de las predicciones.
 - **Reporting Engine:** generación de informes comprensibles y estructurados.
 - **Evaluation Engine:** seguimiento del rendimiento histórico de los modelos y detección de errores.
+- **Account & Billing Engine:** cuentas por magic link, sesiones, planes y entitlements, checkout con Mercado Pago/Paddle y webhooks firmados.
 
 Los módulos deberán diseñarse para poder actualizarse y mejorarse de manera independiente.
 
@@ -301,37 +302,47 @@ La prioridad será construir un sistema confiable y medible antes de aumentar su
   [`docs/atribuciones.md`](docs/atribuciones.md).
 - **Naturaleza:** herramienta **informativa y estadística**. Sus salidas son
   **estimaciones probabilísticas**, no hechos ni garantías.
-- **Sin apuestas:** no es un servicio de apuestas, no procesa pagos ni muestra
-  cuotas, y no ofrece consejos de apuestas. Si se usa con fines de apuestas, es
-  responsabilidad del usuario (debe ser legal en su país y ser mayor de 18 años).
-- **Privacidad:** no recolecta datos personales en servidores propios; todo se
-  guarda en el navegador.
+- **Sin apuestas:** no es un servicio de apuestas, no procesa apuestas ni custodia
+  fondos de apuestas, y no ofrece consejos de apuestas. Cobra únicamente
+  suscripciones por el uso de la herramienta (planes Pro y Elite). Si se usa con
+  fines de apuestas, es responsabilidad del usuario (debe ser legal en su país y
+  ser mayor de 18 años).
+- **Privacidad:** el uso básico se guarda en el navegador. Las cuentas, sesiones y
+  suscripciones se tratan en servidores propios y de terceros según la
+  [Política de Privacidad](docs/legal/politica-de-privacidad.md).
 - **Marcas:** los nombres de equipos y competiciones se usan de forma nominativa;
   no se usan escudos ni logos oficiales ni se implica afiliación alguna.
-- **Documentos legales:** el conjunto completo (términos, privacidad, cookies,
-  descargo, aviso legal, juego responsable, propiedad intelectual y filosofía) está
-  en [`docs/legal/`](docs/legal/README.md) y en [`legal.html`](legal.html) dentro de
-  la app.
+- **Documentos legales:** el conjunto completo (términos, pagos y reembolsos,
+  privacidad, cookies, descargo, aviso legal, juego responsable, propiedad
+  intelectual y filosofía) está en [`docs/legal/`](docs/legal/README.md) y en
+  [`legal.html`](legal.html) dentro de la app.
 
 > El aviso completo también está dentro de la app, en la pestaña **Acerca de → Aviso legal y privacidad**, y en la página **Información legal** ([`legal.html`](legal.html)).
 
-## 15. Backend y API
+## 15. Backend, cuentas y pagos
 
-La app sigue funcionando de forma 100% local. En paralelo se está armando un
-backend propio en [`server/`](server/README.md) para mover las funciones
-importantes y preparar cuentas y suscripciones:
+La app sigue funcionando sin cuenta para el análisis local. El backend propio en
+[`server/`](server/README.md) agrega cuentas, planes y datos en vivo:
 
 - `POST /v1/analyze`: mismo motor de análisis, ejecutado en el servidor.
 - `GET /v1/live/scoreboard` y `GET /v1/live/summary`: proxy de datos en vivo con
   caché, timeout y validación de ligas.
-- Autenticación por **API key**, scopes, allowlist de IP opcional y rate limiting.
-- Cliente listo en [`js/api.js`](js/api.js) para activar el backend cuando exista
-  una URL pública.
+- **Cuentas** por magic link, sesiones con cookie `HttpOnly`, entitlements y cuotas
+  por plan (Free, Pro y Elite).
+- **Pagos** con Mercado Pago (ARS) y Paddle (USD), checkout y webhooks firmados e
+  idempotentes.
+- Autenticación por **API key** para integraciones, scopes, allowlist de IP
+  opcional y rate limiting.
+- Handlers de **Vercel** en [`api/`](api/) y cliente en [`js/api.js`](js/api.js).
+- UI de cuenta y planes en [`js/account.js`](js/account.js) y
+  [`css/account.css`](css/account.css).
 
 La API key del navegador es pública y sirve para anti-abuso, no para autorizar
-pagos. Antes de cobrar hay que agregar cuentas, sesiones, entitlements y webhooks
-firmados. Ver [`server/SECURITY.md`](server/SECURITY.md).
+pagos. El acceso a funciones pagas se valida con la sesión del usuario y el plan
+resuelto en el servidor. Ver [`server/SECURITY.md`](server/SECURITY.md).
 
-**Estado:** backend en desarrollo, no desplegado. No hay cuentas, pagos ni
-suscripciones todavía.
+**Estado:** backend, cuentas y UI implementados y probados en local. Falta cargar
+credenciales, aprobar los precios definitivos y desplegar en Vercel. Los cobros
+permanecen deshabilitados hasta completar esos pasos. Ver
+[`docs/legal/pagos-suscripciones-reembolsos.md`](docs/legal/pagos-suscripciones-reembolsos.md).
 

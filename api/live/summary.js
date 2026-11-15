@@ -1,7 +1,7 @@
 import { config } from "../../server/src/config.js";
 import { createUpstream } from "../../server/src/lib/upstream.js";
 import { EVENT_ID, isAllowedLeague, summaryUrl } from "../../server/src/lib/live.js";
-import { requireApiKey } from "../_lib/auth.js";
+import { requireAnyAuth, requireFeature } from "../_lib/auth.js";
 import { applyCors, getUrl, handleError, methodNotAllowed, sendJson } from "../_lib/http.js";
 import { rateLimit } from "../_lib/rate-limit.js";
 import { HttpError } from "../../server/src/errors.js";
@@ -21,7 +21,8 @@ export default async function handler(req, res) {
 
   try {
     rateLimit(req, "live-summary", 40, 60 * 1000);
-    await requireApiKey(req, "live");
+    var auth = await requireAnyAuth(req, "live");
+    requireFeature(auth, "live");
 
     var params = getUrl(req).searchParams;
     var league = String(params.get("league") || "");

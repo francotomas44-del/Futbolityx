@@ -6,6 +6,7 @@
   var DOCS = [
     { id: "indice", file: "docs/legal/README.md", title: "Índice y versión" },
     { id: "terminos", file: "docs/legal/terminos-y-condiciones.md", title: "Términos y Condiciones" },
+    { id: "pagos", file: "docs/legal/pagos-suscripciones-reembolsos.md", title: "Pagos y Reembolsos" },
     { id: "privacidad", file: "docs/legal/politica-de-privacidad.md", title: "Política de Privacidad" },
     { id: "cookies", file: "docs/legal/politica-de-cookies.md", title: "Política de Cookies" },
     { id: "descargo", file: "docs/legal/descargo-de-responsabilidad.md", title: "Descargo de Responsabilidad" },

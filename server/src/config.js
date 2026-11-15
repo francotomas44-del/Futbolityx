@@ -62,10 +62,16 @@ function positiveInt(value, fallback) {
   return Number.isFinite(n) && n > 0 ? Math.floor(n) : fallback;
 }
 
+var nodeEnv = process.env.NODE_ENV || "development";
+var isProduction = nodeEnv === "production" || process.env.VERCEL === "1";
+
 export var config = {
   service: "futbolityx-api",
   version: "0.1.0",
-  env: process.env.NODE_ENV || "development",
+  env: nodeEnv,
+  isProduction: isProduction,
+  appUrl: process.env.APP_URL || "http://localhost:8766",
+  apiPublicUrl: process.env.API_PUBLIC_URL || "",
   host: process.env.HOST || "0.0.0.0",
   port: positiveInt(process.env.PORT, 8787),
   logLevel: process.env.LOG_LEVEL || "info",
@@ -79,7 +85,7 @@ export var config = {
   apiKeys: parseApiKeys(process.env.API_KEYS),
   ipAllowlist: splitList(process.env.IP_ALLOWLIST),
 
-  bodyLimit: positiveInt(process.env.BODY_LIMIT_BYTES, 8 * 1024 * 1024),
+  bodyLimit: positiveInt(process.env.BODY_LIMIT_BYTES, 4500000),
 
   rateLimit: {
     max: positiveInt(process.env.RATE_LIMIT_MAX, 60),
@@ -94,5 +100,21 @@ export var config = {
   upstream: {
     timeoutMs: positiveInt(process.env.UPSTREAM_TIMEOUT_MS, 8000),
     cacheMs: positiveInt(process.env.UPSTREAM_CACHE_MS, 30000)
+  },
+
+  auth: {
+    sessionCookie: process.env.SESSION_COOKIE_NAME || "futbolityx_session",
+    sessionDays: positiveInt(process.env.SESSION_DAYS, 30),
+    magicLinkMinutes: positiveInt(process.env.MAGIC_LINK_MINUTES, 15),
+    devMode: process.env.AUTH_DEV_MODE === "true"
+  },
+
+  email: {
+    from: process.env.EMAIL_FROM || "",
+    resendApiKey: process.env.RESEND_API_KEY || ""
+  },
+
+  billing: {
+    returnUrl: process.env.BILLING_RETURN_URL || ""
   }
 };

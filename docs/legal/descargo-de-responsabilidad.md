@@ -1,6 +1,6 @@
 # Descargo de Responsabilidad
 
-**Futbolityx** · Versión 1.0 · Última actualización: 5 de noviembre de 2026
+**Futbolityx** · Versión 2.0 · Última actualización: 14 de noviembre de 2026
 
 > Este documento explica qué significan —y qué no significan— las estimaciones de
 > Futbolityx. Forma parte del conjunto de documentos legales; ver el
@@ -104,10 +104,14 @@ volatilidad significativa. Su uso es responsabilidad exclusiva del usuario.
 
 Futbolityx **no es un servicio de apuestas**:
 
-- no procesa pagos ni apuestas;
+- no procesa apuestas ni custodia fondos de apuestas;
+- cobra únicamente suscripciones por el uso de la herramienta;
 - no publica ni recomienda cuotas;
 - no ofrece consejos de apuestas;
 - no tiene vínculos comerciales con casas de apuestas.
+
+Los pagos de los planes Pro y Elite se rigen por el documento de
+[Pagos, Suscripciones y Reembolsos](pagos-suscripciones-reembolsos.md).
 
 Si el usuario decide usar la información con fines de apuestas:
 
@@ -186,6 +190,7 @@ aceptado:
 ## 12. Documentos relacionados
 
 - [Términos y Condiciones de Uso](terminos-y-condiciones.md)
+- [Pagos, Suscripciones y Reembolsos](pagos-suscripciones-reembolsos.md)
 - [Política de Privacidad](politica-de-privacidad.md)
 - [Política de Cookies](politica-de-cookies.md)
 - [Aviso Legal](aviso-legal.md)

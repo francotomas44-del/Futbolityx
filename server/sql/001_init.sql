@@ -1,18 +1,34 @@
 -- Futbolityx API - esquema inicial (PostgreSQL 14+)
--- Borrador para la etapa de cuentas y suscripciones. Todavia no se ejecuta
--- desde el servidor: primero hay que elegir el proveedor de base de datos.
+-- Aplicar con: psql "$DATABASE_URL" -f server/sql/001_init.sql
+--
+-- El servidor usa este esquema para cuentas, sesiones, suscripciones y
+-- eventos de pago. En desarrollo, si DATABASE_URL no esta definida, usa un
+-- store en memoria (solo para pruebas locales).
 
 create extension if not exists pgcrypto;
-create extension if not exists citext;
 
 create table if not exists users (
   id uuid primary key default gen_random_uuid(),
-  email citext not null unique,
+  email text not null,
   email_verified_at timestamptz,
   display_name text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+create unique index if not exists users_email_lower_idx on users (lower(email));
+
+create table if not exists login_tokens (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references users(id) on delete cascade,
+  token_hash text not null unique,
+  expires_at timestamptz not null,
+  used_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists login_tokens_user_idx on login_tokens (user_id);
+create index if not exists login_tokens_expires_idx on login_tokens (expires_at);
 
 create table if not exists sessions (
   id uuid primary key default gen_random_uuid(),
@@ -32,8 +48,9 @@ create table if not exists subscriptions (
   user_id uuid not null references users(id) on delete cascade,
   plan text not null check (plan in ('free', 'pro', 'elite')),
   status text not null check (status in ('active', 'trialing', 'past_due', 'canceled', 'expired')),
-  provider text,
+  provider text check (provider in ('paddle', 'mercadopago')),
   provider_subscription_id text,
+  provider_customer_id text,
   current_period_start timestamptz,
   current_period_end timestamptz,
   cancel_at_period_end boolean not null default false,

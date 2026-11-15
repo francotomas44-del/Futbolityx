@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "dotenv": "^18.0.10",
-    "ipaddr.js": "^2.5.0"
+    "ipaddr.js": "^2.5.0",
+    "pg": "^8.23.1"
   }
 }

@@ -28,6 +28,42 @@ export function verifyMercadoPagoSignature(options) {
 }
 
 /**
+ * Obtiene el detalle de una suscripcion (preapproval). Los webhooks de
+ * Mercado Pago solo envian el id; hay que consultar la API para saber el
+ * estado real y el plan.
+ */
+export async function getMercadoPagoPreapproval(id) {
+  if (!process.env.MP_ACCESS_TOKEN) {
+    throw new HttpError(503, "mercadopago_not_configured", "Mercado Pago no esta configurado.");
+  }
+
+  var base = String(process.env.MP_API_BASE || DEFAULT_API_BASE).replace(/\/+$/, "");
+  var response = await fetch(base + "/preapproval/" + encodeURIComponent(id), {
+    headers: {
+      authorization: "Bearer " + process.env.MP_ACCESS_TOKEN
+    }
+  });
+
+  var payload = null;
+  try {
+    payload = await response.json();
+  } catch (error) {
+    payload = null;
+  }
+
+  if (!response.ok) {
+    throw new HttpError(
+      502,
+      "mercadopago_error",
+      "Mercado Pago rechazo la consulta de la suscripcion.",
+      payload && payload.message ? { message: payload.message } : undefined
+    );
+  }
+
+  return payload;
+}
+
+/**
  * Crea una suscripcion (preapproval) a partir de un plan creado en Mercado Pago.
  * Devuelve el `init_point` para redirigir al usuario.
  */

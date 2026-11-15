@@ -1,4 +1,4 @@
-import { getPlans } from "../lib/plans.js";
+import { getBillingStatus, getPlans } from "../lib/plans.js";
 
 export default async function healthRoutes(app, opts) {
   var config = opts.config;
@@ -28,10 +28,14 @@ export default async function healthRoutes(app, opts) {
   });
 
   app.get("/v1/plans", async function () {
+    var status = getBillingStatus();
     return {
-      pricingStatus: "proposed",
-      billing: "not_available",
-      note: "Todavia no se procesan pagos. Los precios son una propuesta.",
+      pricingStatus: status.pricingStatus,
+      billing: status.billing,
+      providers: status.providers,
+      note: status.billing === "available"
+        ? "Los pagos estan habilitados segun el proveedor configurado."
+        : "Todavia no se procesan pagos. Los precios son una propuesta.",
       plans: getPlans()
     };
   });

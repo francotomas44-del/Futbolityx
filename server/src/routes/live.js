@@ -10,10 +10,11 @@ export default async function liveRoutes(app, opts) {
   var config = opts.config;
   var authenticate = opts.authenticate;
   var requireScope = opts.requireScope;
+  var requireFeature = opts.requireFeature;
   var upstream = createUpstream(config);
 
   app.get("/v1/live/scoreboard", {
-    preHandler: [authenticate, requireScope("live")],
+    preHandler: [authenticate, requireScope("live"), requireFeature("live")],
     schema: {
       querystring: {
         type: "object",
@@ -54,7 +55,7 @@ export default async function liveRoutes(app, opts) {
   });
 
   app.get("/v1/live/summary", {
-    preHandler: [authenticate, requireScope("live")],
+    preHandler: [authenticate, requireScope("live"), requireFeature("live")],
     schema: {
       querystring: {
         type: "object",

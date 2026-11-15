@@ -6,14 +6,16 @@ el terreno para cuentas y suscripciones.
 Estado actual:
 
 - El frontend **sigue funcionando solo**, sin backend.
-- `server/` expone el **motor de análisis** y un **proxy de datos en vivo**.
+- `server/` expone el **motor de análisis**, un **proxy de datos en vivo**,
+  **cuentas por magic link**, **sesiones**, **entitlements** y **checkout**.
 - La misma lógica corre como servidor Fastify local/Docker y como funciones
   serverless en **Vercel** (`api/`).
 - La app puede empezar a usar el backend de forma gradual mediante `js/api.js`.
-- El catálogo ya tiene **Free, Pro y Elite** y los precios propuestos.
-- Todavía **no** hay usuarios, pagos ni suscripciones activas. La integración
-  de **Paddle** y **Mercado Pago** está preparada a nivel de configuración y
-  verificación de firmas; falta conectar la base de datos y los checkouts.
+- El catálogo tiene **Free, Pro y Elite** y los precios propuestos.
+- El flujo de cuentas, cuotas, checkout y webhooks ya está implementado y
+  probado con un store en memoria.
+- Todavía **no** hay cobros activos: faltan credenciales, price IDs, base de
+  datos PostgreSQL, proveedor de email y la aprobación de precios.
 
 ## Requisitos
 
@@ -55,11 +57,18 @@ Invoke-RestMethod http://127.0.0.1:8787/v1/health
 | --- | --- | --- | --- |
 | `GET` | `/v1/health` | pública | Estado del servicio. |
 | `GET` | `/v1/meta` | pública | Versión, features y límites. |
-| `GET` | `/v1/plans` | pública | Catálogo propuesto de planes (todavía sin cobro). |
+| `GET` | `/v1/plans` | pública | Catálogo de planes y estado del cobro. |
+| `POST` | `/v1/auth/magic-link` | pública | Envía un magic link al email. |
+| `GET` | `/v1/auth/callback` | token | Valida el link y crea la sesión. |
+| `POST` | `/v1/auth/logout` | cookie | Cierra la sesión. |
+| `GET` | `/v1/account` | sesión | Usuario, plan, suscripción y uso. |
+| `POST` | `/v1/billing/checkout` | sesión | Crea checkout de Paddle o Mercado Pago. |
+| `POST` | `/v1/webhooks/paddle` | firma | Activa/renueva/cancela suscripciones. |
+| `POST` | `/v1/webhooks/mercadopago` | firma | Activa/renueva/cancela suscripciones. |
 | `GET` | `/v1/whoami` | `X-API-Key` | Devuelve key, scopes e IP vista por el servidor. |
-| `POST` | `/v1/analyze` | `X-API-Key` + scope `analyze` | Motor de análisis completo. |
-| `GET` | `/v1/live/scoreboard` | `X-API-Key` + scope `live` | Partidos del día por liga. |
-| `GET` | `/v1/live/summary` | `X-API-Key` + scope `live` | Ficha en vivo de un partido. |
+| `POST` | `/v1/analyze` | sesión o `X-API-Key` | Motor de análisis completo. |
+| `GET` | `/v1/live/scoreboard` | sesión Pro/Elite o `X-API-Key` | Partidos del día por liga. |
+| `GET` | `/v1/live/summary` | sesión Pro/Elite o `X-API-Key` | Ficha en vivo de un partido. |
 
 En Vercel las mismas funciones se publican como `/api/...`:
 
@@ -68,6 +77,13 @@ En Vercel las mismas funciones se publican como `/api/...`:
 | `/v1/health` | `/api/health` |
 | `/v1/meta` | `/api/meta` |
 | `/v1/plans` | `/api/plans` |
+| `/v1/auth/magic-link` | `/api/auth/magic-link` |
+| `/v1/auth/callback` | `/api/auth/callback` |
+| `/v1/auth/logout` | `/api/auth/logout` |
+| `/v1/account` | `/api/account` |
+| `/v1/billing/checkout` | `/api/billing/checkout` |
+| `/v1/webhooks/paddle` | `/api/webhooks/paddle` |
+| `/v1/webhooks/mercadopago` | `/api/webhooks/mercadopago` |
 | `/v1/whoami` | `/api/whoami` |
 | `/v1/analyze` | `/api/analyze` |
 | `/v1/live/scoreboard` | `/api/live/scoreboard` |
@@ -107,7 +123,9 @@ que el motor del frontend (`input`, `output`, `homeStats`, `awayStats`,
 }
 ```
 
-Límites por defecto: 50.000 partidos, 20.000 equipos y 8 MB de cuerpo.
+Límites por defecto: 50.000 partidos, 20.000 equipos y 4,5 MB de cuerpo
+(Vercel Functions no acepta más). Si corrés Fastify en un VPS podés subir
+`BODY_LIMIT_BYTES`.
 
 ### Datos en vivo
 
@@ -120,14 +138,20 @@ Invoke-RestMethod "http://127.0.0.1:8787/v1/live/summary?league=arg.1&event=1234
 El backend valida la liga contra una allowlist, valida la fecha/evento, aplica
 timeout, cachea la respuesta y devuelve `cached`/`stale`.
 
-## Planes (propuesta)
+## Planes y entitlements
 
 `GET /v1/plans` devuelve el catálogo con `pricingStatus: "proposed"` y
-`billing: "not_available"`. La propuesta es **Free + Pro + Elite**:
+`billing: "not_available"` mientras no se configuren los proveedores. La
+propuesta es **Free + Pro + Elite**:
 
-- **Free:** análisis básico y límites diarios.
-- **Pro:** todas las herramientas, datos en vivo y exportación.
-- **Elite:** alertas, modelos configurables, API y soporte prioritario.
+- **Free:** análisis básico, 10 análisis por día, sin datos en vivo.
+- **Pro:** análisis ilimitado, datos en vivo, exportación y comparador.
+- **Elite:** todo Pro, alertas, modelos configurables, API y soporte
+  prioritario.
+
+Los entitlements se resuelven en el servidor a partir de la suscripción activa.
+Una suscripción `canceled` conserva el acceso hasta `current_period_end`. Una
+suscripción vencida o inexistente vuelve a Free.
 
 Los precios y los IDs de cada proveedor se configuran por entorno:
 
@@ -154,8 +178,24 @@ PLAN_MP_ELITE_MONTHLY=...
 PLAN_MP_ELITE_YEARLY=...
 ```
 
-El esquema de base de datos para cuentas y suscripciones está en
-[`sql/001_init.sql`](sql/001_init.sql), todavía sin conectar.
+El esquema PostgreSQL está en [`sql/001_init.sql`](sql/001_init.sql). El store
+usa `DATABASE_URL` en producción y memoria en desarrollo/tests. Las tablas
+incluyen usuarios, tokens de login, sesiones, suscripciones, eventos de pago y
+eventos de uso.
+
+### Flujo de cuentas
+
+1. `POST /v1/auth/magic-link` con `{ "email": "..." }`.
+2. El usuario abre el link recibido por email (o `devLink` en desarrollo).
+3. `GET /v1/auth/callback?token=...` valida el token, marca el email y setea
+   una cookie `HttpOnly` `SameSite=Lax`.
+4. `GET /v1/account` devuelve usuario, plan, suscripción y uso de las últimas
+   24 horas.
+5. `POST /v1/billing/checkout` crea el checkout del proveedor elegido.
+6. El webhook firmado actualiza la suscripción y, por lo tanto, el plan.
+
+Los magic links vencen a los 15 minutos y son de un solo uso. Las sesiones
+duran 30 días por defecto. Ambos valores se configuran por entorno.
 
 ### Paddle y Mercado Pago
 
@@ -166,12 +206,30 @@ El esquema de base de datos para cuentas y suscripciones está en
 - Los webhooks se verifican con firma HMAC:
   - Paddle: `Paddle-Signature` (`ts` + `h1`).
   - Mercado Pago: `x-signature` (`ts` + `v1`).
-- Los módulos están en `src/lib/payments/`. Falta persistir los eventos y
-  actualizar `subscriptions` cuando se conecte la base.
+- Los eventos se guardan en `payment_events` con `provider_event_id` único.
+  Si un evento se reintenta después de procesarse, se ignora; si falla a mitad
+  de camino, queda sin `processed_at` para que el reintento lo complete.
+- Paddle envía el `user_id` en `custom_data`; Mercado Pago lo envía en
+  `external_reference`. El servidor también puede recuperar el usuario desde
+  la suscripción existente.
+- Para Mercado Pago, el webhook solo trae el ID: el servidor consulta
+  `GET /preapproval/{id}` para conocer estado, plan y período.
+
+Checkout local sin credenciales devuelve `503 checkout_not_configured` o
+`503 paddle_not_configured` / `503 mercadopago_not_configured`. Es el
+comportamiento esperado hasta cargar las claves reales.
 
 ## Autenticación
 
-Cada request protegida lleva:
+Hay dos formas de autenticarse:
+
+1. **Sesión de usuario** (navegador): cookie `HttpOnly` creada por el magic
+   link. Se usa para el panel de cuenta, el checkout y la app.
+2. **API key** (server-to-server): header `X-API-Key`. Se usa para
+   integraciones, workers o clientes propios. No consume la cuota del plan.
+
+`/v1/analyze` y `/v1/live/*` aceptan ambas. Las rutas de cuenta y checkout
+solo aceptan sesión. `/v1/whoami` solo acepta API key.
 
 ```http
 X-API-Key: <key>
@@ -238,9 +296,19 @@ Ver [`.env.example`](.env.example). Las principales:
 | `API_KEYS` | vacío | Keys y scopes. |
 | `IP_ALLOWLIST` | vacío | Allowlist global opcional. |
 | `TRUST_PROXY` | `false` | Confiar en `X-Forwarded-For` del proxy. |
+| `BODY_LIMIT_BYTES` | `4500000` | Tope del cuerpo (límite de Vercel). |
 | `ANALYZE_MAX_MATCHES` | `50000` | Tope de partidos. |
 | `UPSTREAM_TIMEOUT_MS` | `8000` | Timeout de datos en vivo. |
 | `APP_URL` | `http://localhost:8766` | URL pública del frontend. |
+| `API_PUBLIC_URL` | vacío | URL pública del backend (para magic links). |
+| `DATABASE_URL` | vacío | PostgreSQL de cuentas y suscripciones. |
+| `SESSION_COOKIE_NAME` | `futbolityx_session` | Nombre de la cookie de sesión. |
+| `SESSION_DAYS` | `30` | Duración de la sesión. |
+| `MAGIC_LINK_MINUTES` | `15` | Vigencia del magic link. |
+| `AUTH_DEV_MODE` | `false` | Devuelve el magic link en la respuesta (solo dev). |
+| `RESEND_API_KEY` | vacío | Envío de emails con Resend. |
+| `EMAIL_FROM` | vacío | Remitente verificado en Resend. |
+| `BILLING_RETURN_URL` | `APP_URL` | Retorno después del pago. |
 | `PADDLE_API_KEY` | vacío | API key de Paddle Billing. |
 | `PADDLE_WEBHOOK_SECRET` | vacío | Secreto de webhooks de Paddle. |
 | `MP_ACCESS_TOKEN` | vacío | Access token de Mercado Pago. |
@@ -273,9 +341,34 @@ Variables mínimas en Vercel:
 
 ```env
 NODE_ENV=production
-API_KEYS=[{"id":"web","keyHash":"<sha256>","scopes":["analyze","live"],"ips":[]}]
+APP_URL=https://tu-proyecto.vercel.app
+API_PUBLIC_URL=https://tu-proyecto.vercel.app
 CORS_ORIGINS=https://tu-proyecto.vercel.app,https://francotomas44-del.github.io
+API_KEYS=[{"id":"web","keyHash":"<sha256>","scopes":["analyze","live"],"ips":[]}]
 ANALYZE_MAX_MATCHES=20000
+DATABASE_URL=postgresql://...
+SESSION_COOKIE_NAME=futbolityx_session
+SESSION_DAYS=30
+MAGIC_LINK_MINUTES=15
+RESEND_API_KEY=re_...
+EMAIL_FROM=Futbolityx <no-reply@futbolityx.com>
+```
+
+Variables de cobro (cuando estén aprobadas):
+
+```env
+PADDLE_API_KEY=...
+PADDLE_WEBHOOK_SECRET=...
+PLAN_PADDLE_PRO_MONTHLY=pri_...
+PLAN_PADDLE_PRO_YEARLY=pri_...
+PLAN_PADDLE_ELITE_MONTHLY=pri_...
+PLAN_PADDLE_ELITE_YEARLY=pri_...
+MP_ACCESS_TOKEN=...
+MP_WEBHOOK_SECRET=...
+PLAN_MP_PRO_MONTHLY=...
+PLAN_MP_PRO_YEARLY=...
+PLAN_MP_ELITE_MONTHLY=...
+PLAN_MP_ELITE_YEARLY=...
 ```
 
 Notas:
@@ -284,7 +377,15 @@ Notas:
   `ANALYZE_MAX_MATCHES` bajo y enviá solo los partidos necesarios.
 - El rate limiting en memoria no se comparte entre instancias; para producción
   real, usar Upstash Redis o Vercel KV.
+- El rate limiting de los magic links y del checkout también es por instancia.
+  Si hay abuso, moverlo a Redis.
+- Configurar los webhooks apuntando a
+  `https://tu-proyecto.vercel.app/api/webhooks/paddle` y
+  `https://tu-proyecto.vercel.app/api/webhooks/mercadopago`.
 - El health check es `/api/health`.
+- Si el frontend y el backend están en dominios distintos, la cookie de sesión
+  necesita `SameSite=None; Secure` y CORS con credenciales. La configuración
+  actual usa `SameSite=Lax`, pensada para el mismo dominio o subdominios.
 
 ### Docker / VPS
 
@@ -313,33 +414,51 @@ Checklist general:
 AD.api.isConfigured();
 AD.api.health();
 AD.api.meta();
+AD.api.plans();
 AD.api.analyze(payload);
 AD.api.liveScoreboard("arg.1", "2026-11-13");
 AD.api.liveSummary("arg.1", "123456");
+AD.api.requestMagicLink("vos@email.com");
+AD.api.account();
+AD.api.checkout({ plan: "pro", interval: "month", provider: "mercadopago" });
+AD.api.logout();
 ```
 
-Para activarlo, definir antes de cargar `js/api.js`:
+`js/account.js` usa esas funciones para el modal de cuenta, el plan actual, la
+cuota y el selector Free/Pro/Elite.
+
+En Vercel, el frontend y el backend comparten el mismo proyecto. `index.html`
+detecta el dominio y configura `base` con el mismo origen; `vercel.json` reescribe
+`/v1/:path*` a `/api/:path*`, así que el cliente puede seguir usando rutas `/v1`.
+En local usa `http://localhost:8787`.
+
+Para activarlo manualmente, definir antes de cargar `js/api.js`:
 
 ```html
 <script>
   window.FUTBOLITYX_API = {
     base: "https://api.futbolityx.com",
-    key: "futbolityx_web_...",
+    key: "futbolityx_web_...", // opcional, solo server-to-server
     timeoutMs: 15000
   };
 </script>
 ```
 
-Mientras no esté configurado, la app sigue usando el motor local.
+Mientras no esté configurado, la app sigue usando el motor local y el modal de
+cuenta muestra un aviso.
 
 ## Próximos pasos
 
-1. Mover la base de datos al servidor (hoy `/v1/analyze` recibe los partidos).
-2. Cuentas de usuario (email magic link u OAuth) y sesiones.
-3. Tabla de suscripciones/entitlements y verificación en cada endpoint premium.
-4. Integración de pagos (Mercado Pago para ARS; Paddle para USD).
-5. Webhooks firmados para activar/renovar/cancelar suscripciones.
-6. Panel de cuenta: plan, renovación, cancelación y comprobantes.
+1. Aprobar los precios definitivos y cargar los price/plan IDs de Paddle y
+   Mercado Pago.
+2. Crear la base PostgreSQL, ejecutar `sql/001_init.sql` y configurar
+   `DATABASE_URL`.
+3. Configurar Resend (`RESEND_API_KEY`, `EMAIL_FROM`) y verificar el dominio.
+4. Desplegar en Vercel y probar magic link, checkout y webhooks en sandbox.
+5. Mover el rate limiting a Redis/Upstash si hay más de una instancia.
+6. Agregar alertas de fallas de webhook y conciliación de pagos.
+7. Evaluar migrar el cálculo de análisis completamente al servidor (hoy el
+   frontend sigue calculando localmente).
 
 ## Seguridad
 

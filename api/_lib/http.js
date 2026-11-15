@@ -67,7 +67,7 @@ export function getUrl(req) {
 }
 
 export async function readJson(req, maxBytes) {
-  var limit = maxBytes || Number(process.env.BODY_LIMIT_BYTES) || 8 * 1024 * 1024;
+  var limit = maxBytes || Number(process.env.BODY_LIMIT_BYTES) || 4500000;
 
   if (req.body !== undefined) {
     if (Buffer.isBuffer(req.body)) {

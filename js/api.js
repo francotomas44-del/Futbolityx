@@ -1,19 +1,19 @@
 /* api.js - cliente del backend de Futbolityx.
    ---------------------------------------------------------------
-   La app sigue funcionando sin backend. Cuando exista una URL y una
-   API key configuradas, estas funciones permiten usar el motor y los
-   datos en vivo desde el servidor.
+   La app sigue funcionando sin backend. Cuando exista una URL, estas
+   funciones permiten usar cuentas, planes, el motor y los datos en vivo
+   desde el servidor.
 
    Configuracion (antes de cargar este script):
      window.FUTBOLITYX_API = {
        base: "https://api.futbolityx.com",
-       key: "futbolityx_web_...",
+       key: "futbolityx_web_...",   // opcional, solo server-to-server
        timeoutMs: 15000
      };
 
-   La key del navegador es publica: sirve para identificar al cliente y
-   aplicar rate limiting, no para autorizar suscripciones. La validacion
-   real de usuarios se hara con sesiones y entitlements en el backend.
+   La key del navegador es publica. Para usuarios finales se usa la cookie
+   de sesion creada por el magic link; el backend resuelve el plan y las
+   cuotas. La key queda para integraciones server-to-server.
 */
 (function () {
   "use strict";
@@ -26,7 +26,11 @@
   var timeoutMs = Number(config.timeoutMs || 15000);
 
   function isConfigured() {
-    return !!(base && key);
+    return !!base;
+  }
+
+  function hasKey() {
+    return !!key;
   }
 
   function apiError(message, code, status) {
@@ -48,13 +52,15 @@
       controller.abort();
     }, timeoutMs);
 
-    var headers = { "X-API-Key": key };
+    var headers = {};
+    if (key) headers["X-API-Key"] = key;
     if (options.body !== undefined) headers["Content-Type"] = "application/json";
 
     try {
       var response = await fetch(base + path, {
         method: options.method || "GET",
         headers: headers,
+        credentials: "include",
         body: options.body === undefined ? undefined : JSON.stringify(options.body),
         signal: controller.signal
       });
@@ -87,23 +93,30 @@
   }
 
   window.AD.api = {
-    version: "0.1.0",
+    version: "0.2.0",
     isConfigured: isConfigured,
+    hasKey: hasKey,
+    base: function () {
+      return base;
+    },
     config: function () {
-      return { base: base, timeoutMs: timeoutMs };
+      return { base: base, timeoutMs: timeoutMs, hasKey: !!key };
     },
     configure: function (next) {
       next = next || {};
       if (next.base !== undefined) base = String(next.base || "").replace(/\/+$/, "");
       if (next.key !== undefined) key = String(next.key || "");
       if (next.timeoutMs !== undefined) timeoutMs = Number(next.timeoutMs || 15000);
-      return { base: base, timeoutMs: timeoutMs };
+      return { base: base, timeoutMs: timeoutMs, hasKey: !!key };
     },
     health: function () {
       return request("/v1/health");
     },
     meta: function () {
       return request("/v1/meta");
+    },
+    plans: function () {
+      return request("/v1/plans");
     },
     analyze: function (payload) {
       return request("/v1/analyze", { method: "POST", body: payload });
@@ -117,6 +130,18 @@
       return request(
         "/v1/live/summary?league=" + encodeURIComponent(league) + "&event=" + encodeURIComponent(event)
       );
+    },
+    requestMagicLink: function (email) {
+      return request("/v1/auth/magic-link", { method: "POST", body: { email: email } });
+    },
+    logout: function () {
+      return request("/v1/auth/logout", { method: "POST" });
+    },
+    account: function () {
+      return request("/v1/account");
+    },
+    checkout: function (payload) {
+      return request("/v1/billing/checkout", { method: "POST", body: payload });
     }
   };
 })();

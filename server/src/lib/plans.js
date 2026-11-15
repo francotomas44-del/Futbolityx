@@ -22,10 +22,39 @@ function providerPrices(prefix, plan) {
 }
 
 /**
- * Catalogo de planes. Los precios son una PROPUESTA y se pueden cambiar por
- * variables de entorno sin tocar codigo. La app todavia no cobra: el estado
- * "planned" lo deja explicito.
+ * Estado del catalogo y de los cobros. `pricingStatus` queda en "proposed"
+ * hasta que se aprueben los precios; `billing` indica si al menos un proveedor
+ * tiene credenciales y price/plan IDs configurados.
  */
+export function getBillingStatus() {
+  var plans = getPlans();
+  var paddleConfigured = !!process.env.PADDLE_API_KEY && plans.some(function (plan) {
+    return plan.providers.paddle &&
+      (plan.providers.paddle.monthlyPriceId || plan.providers.paddle.yearlyPriceId);
+  });
+  var mercadoPagoConfigured = !!process.env.MP_ACCESS_TOKEN && plans.some(function (plan) {
+    return plan.providers.mercadopago &&
+      (plan.providers.mercadopago.monthlyPlanId || plan.providers.mercadopago.yearlyPlanId);
+  });
+
+  return {
+    pricingStatus: process.env.PRICING_STATUS === "approved" ? "approved" : "proposed",
+    billing: paddleConfigured || mercadoPagoConfigured ? "available" : "not_available",
+    providers: {
+      paddle: paddleConfigured,
+      mercadopago: mercadoPagoConfigured
+    }
+  };
+}
+
+export function getPlan(planId) {
+  var plans = getPlans();
+  for (var i = 0; i < plans.length; i++) {
+    if (plans[i].id === planId) return plans[i];
+  }
+  return plans[0];
+}
+
 export function getPlans() {
   var proArsMonthly = numberFromEnv("PLAN_PRO_ARS_MONTHLY", 6900);
   var proArsYearly = numberFromEnv("PLAN_PRO_ARS_YEARLY", 59000);
@@ -41,7 +70,7 @@ export function getPlans() {
     {
       id: "free",
       name: "Free",
-      description: "Acceso inicial con analisis basico y limites diarios.",
+      description: "Acceso inicial con análisis básico y límites diarios.",
       status: "available",
       recommended: false,
       price: {
@@ -49,6 +78,11 @@ export function getPlans() {
         usd: { monthly: 0, yearly: 0 }
       },
       providers: {},
+      highlights: [
+        "10 análisis por día",
+        "Hoy y análisis básico",
+        "Historial de 30 días"
+      ],
       limits: {
         analysesPerDay: 10,
         historyDays: 30,
@@ -71,7 +105,7 @@ export function getPlans() {
     {
       id: "pro",
       name: "Pro",
-      description: "Todas las herramientas de analisis, datos en vivo y exportacion.",
+      description: "Todas las herramientas de análisis, datos en vivo y exportación.",
       status: "planned",
       recommended: true,
       price: {
@@ -79,6 +113,12 @@ export function getPlans() {
         usd: { monthly: proUsdMonthly, yearly: proUsdYearly }
       },
       providers: providerPrices("PLAN", "PRO"),
+      highlights: [
+        "Análisis ilimitado",
+        "Datos en vivo",
+        "Evaluación y rendimiento",
+        "Informe y exportación"
+      ],
       limits: {
         analysesPerDay: 1000,
         historyDays: null,
@@ -109,6 +149,11 @@ export function getPlans() {
         usd: { monthly: eliteUsdMonthly, yearly: eliteUsdYearly }
       },
       providers: providerPrices("PLAN", "ELITE"),
+      highlights: [
+        "Todo lo de Pro",
+        "Alertas y modelos configurables",
+        "API y soporte prioritario"
+      ],
       limits: {
         analysesPerDay: null,
         historyDays: null,

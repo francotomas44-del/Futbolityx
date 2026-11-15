@@ -1041,13 +1041,13 @@
         '<div class="onboard-orb" aria-hidden="true"></div>' +
         '<span class="hero-pill">&#9917; ' + esc(BRAND.name) + "</span>" +
         '<h2 class="onboard-title" data-tip="Futbolityx calcula pronósticos de fútbol con datos históricos, simulación e informes. Todo se procesa en tu navegador.">Pronósticos de fútbol en segundos</h2>' +
-        '<p class="onboard-sub">Mirá las probabilidades de los próximos partidos, calculadas 100% en tu navegador. ' +
-          "Sin registro, sin cuentas, gratis.</p>" +
+        '<p class="onboard-sub">Mirá las probabilidades de los próximos partidos, calculadas en tu navegador. ' +
+          "Empezá gratis; los planes Pro y Elite son opcionales.</p>" +
         '<div class="onboard-actions">' +
           '<button class="btn btn-primary btn-lg" id="onboard-start" type="button">Cargar partidos y empezar</button>' +
           '<button class="btn btn-ghost btn-lg" type="button" data-goto="acerca">Cómo funciona</button>' +
         "</div>" +
-        '<p class="muted onboard-note">La primera vez descarga la base histórica (~70 MB, una sola vez). ' +
+        '<p class="muted onboard-note">La primera vez descarga la base histórica (~95 MB, una sola vez). ' +
         "Después queda guardada en este navegador y abre al instante.</p>" +
         '<p class="muted onboard-legal">Al usar Futbolityx aceptás los ' +
         '<a href="legal.html#doc-terminos">Términos y Condiciones</a> y la ' +
