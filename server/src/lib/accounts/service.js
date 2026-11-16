@@ -297,6 +297,14 @@ export class AccountService {
       throw new HttpError(503, "pricing_not_approved", "Los precios todavia no estan aprobados para el cobro.");
     }
 
+    if (planIdForSubscription(session.subscription) !== "free") {
+      throw new HttpError(
+        409,
+        "already_subscribed",
+        "Ya tenes un plan activo. Para cambiar de plan, cancela la renovacion y espera el final del periodo."
+      );
+    }
+
     var plan = getPlan(planId);
     var providers = plan.providers || {};
     var providerConfig = providers[provider];

@@ -343,6 +343,18 @@ test("webhook de Mercado Pago acepta pagos sin consultar preapproval", async fun
   assert.equal(response.json().received, true);
 });
 
+test("checkout rechaza una segunda suscripcion activa", async function () {
+  var response = await app.inject({
+    method: "POST",
+    url: "/v1/billing/checkout",
+    headers: { cookie: cookie },
+    payload: { plan: "elite", interval: "month", provider: "paddle" }
+  });
+
+  assert.equal(response.statusCode, 409);
+  assert.equal(response.json().error.code, "already_subscribed");
+});
+
 test("cancelar renovacion de Paddle mantiene el acceso hasta el periodo pagado", async function () {
   var previousKey = process.env.PADDLE_API_KEY;
   var originalFetch = globalThis.fetch;

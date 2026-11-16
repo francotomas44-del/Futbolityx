@@ -196,7 +196,9 @@ eventos de uso.
    una cookie `HttpOnly` `SameSite=Lax`.
 4. `GET /v1/account` devuelve usuario, plan, suscripción y uso de las últimas
    24 horas.
-5. `POST /v1/billing/checkout` crea el checkout del proveedor elegido.
+5. `POST /v1/billing/checkout` crea el checkout del proveedor elegido. Solo se
+   permite si el usuario no tiene un plan pago activo; si ya lo tiene, devuelve
+   `409 already_subscribed`.
 6. El webhook firmado actualiza la suscripción y, por lo tanto, el plan.
 7. `POST /v1/billing/cancel` cancela la renovación en Paddle o Mercado Pago y
    mantiene el acceso hasta `current_period_end`.
@@ -225,6 +227,10 @@ duran 30 días por defecto. Ambos valores se configuran por entorno.
 Checkout local sin credenciales devuelve `503 checkout_not_configured` o
 `503 paddle_not_configured` / `503 mercadopago_not_configured`. Es el
 comportamiento esperado hasta cargar las claves reales.
+
+Si el usuario ya tiene un plan pago activo, el checkout devuelve
+`409 already_subscribed`. Para cambiar de plan debe cancelar la renovación y
+esperar el final del período pagado, o escribir a **futbolityx@gmail.com**.
 
 ## Autenticación
 

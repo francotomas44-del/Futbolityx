@@ -209,6 +209,9 @@ Antes de cobrar de verdad:
   Si se separan, usar `SameSite=None; Secure` y CORS con credenciales.
 - El plan Free tiene 10 análisis cada 24 horas. El uso se cuenta en
   `usage_events`.
+- El checkout permite una sola suscripción paga activa por cuenta. Para cambiar
+  de plan, el usuario debe cancelar la renovación y esperar el final del período,
+  o solicitar el cambio por email.
 
 ## 10. Rollback
 

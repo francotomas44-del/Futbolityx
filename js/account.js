@@ -300,6 +300,10 @@
       return '<button class="btn btn-primary" type="button" data-action="login">Ingresar para contratar</button>';
     }
 
+    if (current !== "free" && plan.id !== current) {
+      return '<button class="btn btn-ghost" type="button" disabled>Plan activo</button>';
+    }
+
     if (!billingAvailable()) {
       return '<button class="btn btn-ghost" type="button" disabled>Próximamente</button>';
     }
@@ -398,6 +402,9 @@
         '<p class="account-note">' + esc(note) + "</p>" +
         (state.plans.pricingStatus === "proposed"
           ? '<p class="account-note">Precios de lanzamiento, sujetos a aprobación.</p>'
+          : "") +
+        (state.account && currentPlan() !== "free"
+          ? '<p class="account-note">Ya tenés un plan activo. Para cambiar de plan, cancelá la renovación y esperá el final del período, o escribí a <a href="mailto:futbolityx@gmail.com">futbolityx@gmail.com</a>.</p>'
           : "") +
       "</section>"
     );
@@ -550,6 +557,12 @@
   async function upgrade(planId) {
     if (!state.account) {
       setMessage("Ingresá con tu email para contratar un plan.", "error");
+      render();
+      return;
+    }
+
+    if (currentPlan() !== "free") {
+      setMessage("Ya tenés un plan activo. Para cambiar de plan, cancelá la renovación y esperá el final del período.", "error");
       render();
       return;
     }

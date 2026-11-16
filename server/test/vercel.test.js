@@ -265,6 +265,17 @@ test("Vercel auth, cuenta, checkout y webhook de Paddle", async function () {
 
   assert.equal(JSON.parse(proAccountRes.body).plan, "pro");
 
+  var secondCheckoutRes = mockRes();
+  await checkout(mockReq({
+    method: "POST",
+    url: "/api/billing/checkout",
+    headers: { cookie: cookie },
+    body: { plan: "elite", interval: "month", provider: "paddle" }
+  }), secondCheckoutRes);
+
+  assert.equal(secondCheckoutRes.statusCode, 409);
+  assert.equal(JSON.parse(secondCheckoutRes.body).error.code, "already_subscribed");
+
   var proLiveRes = mockRes();
   await scoreboard(mockReq({
     method: "GET",
