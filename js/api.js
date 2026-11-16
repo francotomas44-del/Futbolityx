@@ -142,6 +142,9 @@
     },
     checkout: function (payload) {
       return request("/v1/billing/checkout", { method: "POST", body: payload });
+    },
+    cancelSubscription: function () {
+      return request("/v1/billing/cancel", { method: "POST" });
     }
   };
 })();

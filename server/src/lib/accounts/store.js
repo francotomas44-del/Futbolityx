@@ -12,6 +12,29 @@ function clone(value) {
   return value ? JSON.parse(JSON.stringify(value)) : value;
 }
 
+function planRank(plan) {
+  if (plan === "elite") return 3;
+  if (plan === "pro") return 2;
+  return 1;
+}
+
+function subscriptionAccessRank(item, now) {
+  var status = item.status;
+  var end = item.current_period_end ? asDate(item.current_period_end) : null;
+  var withinPeriod = end ? end > now : status !== "canceled";
+
+  if (withinPeriod && (
+    status === "active" ||
+    status === "trialing" ||
+    status === "past_due" ||
+    status === "canceled"
+  )) {
+    return 0;
+  }
+
+  return 1;
+}
+
 /**
  * Store en memoria para desarrollo y tests. No usar en produccion: se pierde
  * todo al reiniciar y no se comparte entre instancias de Vercel.
@@ -132,12 +155,21 @@ export class MemoryStore {
     }) || null);
   }
 
+  // Elige la suscripcion con mejor acceso: primero las vigentes, luego el
+  // plan de mayor jerarquia y, por ultimo, la de vencimiento mas lejano.
   async findLatestSubscription(userId) {
+    var now = new Date();
     var rows = this.subscriptions.filter(function (item) {
       return item.user_id === userId;
     });
 
     rows.sort(function (a, b) {
+      var accessDiff = subscriptionAccessRank(a, now) - subscriptionAccessRank(b, now);
+      if (accessDiff) return accessDiff;
+
+      var planDiff = planRank(b.plan) - planRank(a.plan);
+      if (planDiff) return planDiff;
+
       var aTime = asDate(a.current_period_end || a.created_at).getTime();
       var bTime = asDate(b.current_period_end || b.created_at).getTime();
       return bTime - aTime;
@@ -323,10 +355,17 @@ export class PostgresStore {
     return result.rows[0] || null;
   }
 
+  // Mismo criterio que MemoryStore: vigentes primero, luego mayor plan y
+  // vencimiento mas lejano.
   async findLatestSubscription(userId) {
     var result = await this.pool.query(
       "select * from subscriptions where user_id = $1 " +
-      "order by coalesce(current_period_end, created_at) desc, created_at desc limit 1",
+      "order by " +
+      "case when status in ('active', 'trialing', 'past_due', 'canceled') " +
+      "and (current_period_end > now() or (current_period_end is null and status <> 'canceled')) " +
+      "then 0 else 1 end asc, " +
+      "case plan when 'elite' then 3 when 'pro' then 2 else 1 end desc, " +
+      "coalesce(current_period_end, created_at) desc, created_at desc limit 1",
       [userId]
     );
     return result.rows[0] || null;

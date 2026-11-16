@@ -77,7 +77,8 @@
   }
 
   function providerAvailable(provider) {
-    return !!(state.plans && state.plans.providers && state.plans.providers[provider]);
+    return billingAvailable() &&
+      !!(state.plans && state.plans.providers && state.plans.providers[provider]);
   }
 
   function billingAvailable() {
@@ -237,6 +238,12 @@
           usagePercent(usage) + '%"></div></div>';
     }
 
+    var sub = account.subscription;
+    var canCancel = !!(sub &&
+      sub.status !== "canceled" &&
+      sub.status !== "expired" &&
+      !sub.cancelAtPeriodEnd);
+
     return (
       '<section class="account-section">' +
         '<div class="account-user">' +
@@ -250,6 +257,9 @@
         '<div class="account-usage">' + usageHtml + "</div>" +
         '<div class="account-actions">' +
           '<button class="btn btn-secondary" type="button" data-action="refresh"' + (state.busy ? " disabled" : "") + ">Actualizar</button>" +
+          (canCancel
+            ? '<button class="btn btn-ghost" type="button" data-action="cancel"' + (state.busy ? " disabled" : "") + ">Cancelar renovación</button>"
+            : "") +
           '<button class="btn btn-ghost" type="button" data-action="logout"' + (state.busy ? " disabled" : "") + ">Cerrar sesión</button>" +
         "</div>" +
       "</section>"
@@ -507,6 +517,36 @@
     }
   }
 
+  async function cancelSubscription() {
+    var sub = state.account && state.account.subscription;
+    if (!sub) return;
+
+    if (!window.confirm("¿Cancelar la renovación automática? El acceso sigue hasta el final del período pagado.")) {
+      return;
+    }
+
+    state.busy = true;
+    setMessage("Cancelando la renovación…", "info");
+    render();
+
+    try {
+      var result = await api().cancelSubscription();
+      if (state.account && state.account.subscription) {
+        state.account.subscription.cancelAtPeriodEnd = !!(result && result.cancelAtPeriodEnd);
+        if (result && result.status) state.account.subscription.status = result.status;
+        if (result && result.currentPeriodEnd) {
+          state.account.subscription.currentPeriodEnd = result.currentPeriodEnd;
+        }
+      }
+      setMessage("Renovación cancelada. El acceso sigue hasta el final del período pagado.", "ok");
+    } catch (error) {
+      setMessage(error && error.message ? error.message : "No pudimos cancelar la renovación.", "error");
+    } finally {
+      state.busy = false;
+      render();
+    }
+  }
+
   async function upgrade(planId) {
     if (!state.account) {
       setMessage("Ingresá con tu email para contratar un plan.", "error");
@@ -598,6 +638,11 @@
 
     if (action === "logout") {
       logout();
+      return;
+    }
+
+    if (action === "cancel") {
+      cancelSubscription();
       return;
     }
 

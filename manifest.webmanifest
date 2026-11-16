@@ -1,7 +1,7 @@
 {
   "name": "Futbolityx — Pronósticos de fútbol",
   "short_name": "Futbolityx",
-  "description": "Pronósticos y probabilidades de fútbol, calculados 100% en tu navegador. Sin registro.",
+  "description": "Pronósticos y probabilidades de fútbol, calculados en tu navegador. Empezá gratis; planes Pro y Elite opcionales.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

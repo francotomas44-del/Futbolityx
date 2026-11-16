@@ -33,9 +33,7 @@ export default async function healthRoutes(app, opts) {
       pricingStatus: status.pricingStatus,
       billing: status.billing,
       providers: status.providers,
-      note: status.billing === "available"
-        ? "Los pagos estan habilitados segun el proveedor configurado."
-        : "Todavia no se procesan pagos. Los precios son una propuesta.",
+      note: status.note,
       plans: getPlans()
     };
   });

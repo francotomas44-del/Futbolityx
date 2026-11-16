@@ -1,8 +1,12 @@
 import crypto from "node:crypto";
 import { HttpError } from "../../errors.js";
-import { getPlan, getPlans } from "../plans.js";
-import { createPaddleCheckout } from "../payments/paddle.js";
-import { createMercadoPagoPreapproval, getMercadoPagoPreapproval } from "../payments/mercadopago.js";
+import { getBillingStatus, getPlan, getPlans } from "../plans.js";
+import { cancelPaddleSubscription, createPaddleCheckout } from "../payments/paddle.js";
+import {
+  cancelMercadoPagoPreapproval,
+  createMercadoPagoPreapproval,
+  getMercadoPagoPreapproval
+} from "../payments/mercadopago.js";
 import { sendMagicLinkEmail } from "./email.js";
 import { getStore } from "./store.js";
 
@@ -35,6 +39,7 @@ function expiresIn(ms) {
 export function planIdForSubscription(subscription) {
   if (!subscription) return "free";
   if (subscription.status === "expired") return "free";
+  if (subscription.status === "canceled" && !subscription.current_period_end) return "free";
 
   if (subscription.current_period_end) {
     var end = new Date(subscription.current_period_end).getTime();
@@ -288,6 +293,10 @@ export class AccountService {
       throw new HttpError(400, "invalid_provider", "El medio de pago no esta disponible.");
     }
 
+    if (getBillingStatus().pricingStatus !== "approved") {
+      throw new HttpError(503, "pricing_not_approved", "Los precios todavia no estan aprobados para el cobro.");
+    }
+
     var plan = getPlan(planId);
     var providers = plan.providers || {};
     var providerConfig = providers[provider];
@@ -360,6 +369,54 @@ export class AccountService {
       interval: interval,
       url: mercadoPago.initPoint,
       id: mercadoPago.id
+    };
+  }
+
+  async cancelSubscription(session) {
+    var subscription = session && session.subscription;
+
+    if (!subscription || subscription.status === "expired") {
+      throw new HttpError(404, "no_subscription", "No hay una suscripcion activa para cancelar.");
+    }
+
+    if (subscription.status === "canceled" || subscription.cancel_at_period_end) {
+      return {
+        ok: true,
+        status: subscription.status,
+        cancelAtPeriodEnd: true,
+        currentPeriodEnd: subscription.current_period_end || null
+      };
+    }
+
+    if (!subscription.provider_subscription_id) {
+      throw new HttpError(400, "subscription_not_cancelable", "La suscripcion no tiene un identificador del proveedor.");
+    }
+
+    if (subscription.provider === "paddle") {
+      await cancelPaddleSubscription(subscription.provider_subscription_id);
+    } else if (subscription.provider === "mercadopago") {
+      await cancelMercadoPagoPreapproval(subscription.provider_subscription_id);
+    } else {
+      throw new HttpError(400, "subscription_not_cancelable", "La suscripcion no tiene un proveedor cancelable.");
+    }
+
+    await this.store.upsertSubscription({
+      user_id: subscription.user_id,
+      plan: subscription.plan,
+      status: subscription.status,
+      provider: subscription.provider,
+      provider_subscription_id: subscription.provider_subscription_id,
+      provider_customer_id: subscription.provider_customer_id || null,
+      current_period_start: subscription.current_period_start || null,
+      current_period_end: subscription.current_period_end || null,
+      cancel_at_period_end: true
+    });
+
+    return {
+      ok: true,
+      status: subscription.status,
+      cancelAtPeriodEnd: true,
+      currentPeriodEnd: subscription.current_period_end || null
     };
   }
 
@@ -443,7 +500,11 @@ export class AccountService {
       return { received: true, duplicate: true };
     }
 
-    var preapprovalId = event.data && event.data.id;
+    var isPreapprovalEvent =
+      /^preapproval(\.|$)/i.test(eventType) ||
+      /^subscription_preapproval(\.|$)/i.test(eventType);
+    var preapprovalId = isPreapprovalEvent && event.data && event.data.id;
+
     if (preapprovalId) {
       var details = await getMercadoPagoPreapproval(preapprovalId);
       await this.applyMercadoPagoPreapproval(details);

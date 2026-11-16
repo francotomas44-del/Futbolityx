@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 
 process.env.NODE_ENV = "test";
 process.env.AUTH_DEV_MODE = "true";
+process.env.PRICING_STATUS = "approved";
 process.env.PADDLE_WEBHOOK_SECRET = "paddle_test_secret";
 process.env.MP_WEBHOOK_SECRET = "mp_test_secret";
 process.env.PLAN_PADDLE_PRO_MONTHLY = "pri_test_pro";
@@ -11,7 +12,8 @@ const { buildServer } = await import("../src/index.js");
 const { setStore, MemoryStore } = await import("../src/lib/accounts/store.js");
 const { hmacSha256Hex } = await import("../src/lib/payments/signatures.js");
 
-setStore(new MemoryStore());
+var store = new MemoryStore();
+setStore(store);
 
 var app;
 var cookie = "";
@@ -145,6 +147,26 @@ test("flujo completo de cuenta, cuota y suscripcion", async function () {
   assert.equal(checkout.json().error.code, "paddle_not_configured");
 });
 
+test("checkout rechaza precios no aprobados", async function () {
+  var previous = process.env.PRICING_STATUS;
+  delete process.env.PRICING_STATUS;
+
+  try {
+    var res = await app.inject({
+      method: "POST",
+      url: "/v1/billing/checkout",
+      headers: { cookie: cookie },
+      payload: { plan: "pro", interval: "month", provider: "paddle" }
+    });
+
+    assert.equal(res.statusCode, 503);
+    assert.equal(res.json().error.code, "pricing_not_approved");
+  } finally {
+    if (previous === undefined) delete process.env.PRICING_STATUS;
+    else process.env.PRICING_STATUS = previous;
+  }
+});
+
 test("webhook de Paddle activa el plan y es idempotente", async function () {
   assert.ok(user, "el usuario debe existir");
 
@@ -190,6 +212,60 @@ test("webhook de Paddle activa el plan y es idempotente", async function () {
   assert.equal(account.json().plan, "pro");
   assert.equal(account.json().subscription.provider, "paddle");
   assert.equal(account.json().subscription.status, "active");
+
+  await store.upsertSubscription({
+    user_id: user.id,
+    plan: "elite",
+    status: "active",
+    provider: "mercadopago",
+    provider_subscription_id: "mp_test_elite",
+    current_period_start: new Date().toISOString(),
+    current_period_end: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString()
+  });
+
+  var upgraded = await app.inject({
+    method: "GET",
+    url: "/v1/account",
+    headers: { cookie: cookie }
+  });
+
+  assert.equal(upgraded.json().plan, "elite");
+
+  await store.upsertSubscription({
+    user_id: user.id,
+    plan: "elite",
+    status: "active",
+    provider: "mercadopago",
+    provider_subscription_id: "mp_test_elite",
+    current_period_start: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
+    current_period_end: new Date(Date.now() - 1000).toISOString()
+  });
+
+  var afterEliteExpired = await app.inject({
+    method: "GET",
+    url: "/v1/account",
+    headers: { cookie: cookie }
+  });
+
+  assert.equal(afterEliteExpired.json().plan, "pro");
+
+  await store.upsertSubscription({
+    user_id: user.id,
+    plan: "elite",
+    status: "canceled",
+    provider: "mercadopago",
+    provider_subscription_id: "mp_test_elite",
+    current_period_start: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
+    current_period_end: null
+  });
+
+  var afterCanceledWithoutEnd = await app.inject({
+    method: "GET",
+    url: "/v1/account",
+    headers: { cookie: cookie }
+  });
+
+  assert.equal(afterCanceledWithoutEnd.json().plan, "pro");
 
   var proLive = await app.inject({
     method: "GET",
@@ -241,6 +317,129 @@ test("webhooks rechazan firmas invalidas", async function () {
 
   assert.equal(mercadoPago.statusCode, 401);
   assert.equal(mercadoPago.json().error.code, "invalid_signature");
+});
+
+test("webhook de Mercado Pago acepta pagos sin consultar preapproval", async function () {
+  var ts = String(Math.floor(Date.now() / 1000));
+  var manifest = "id:pay_123;request-id:req-payment;ts:" + ts + ";";
+  var signature = "ts=" + ts + ",v1=" + hmacSha256Hex("mp_test_secret", manifest);
+
+  var response = await app.inject({
+    method: "POST",
+    url: "/v1/webhooks/mercadopago?data.id=pay_123",
+    headers: {
+      "content-type": "application/json",
+      "x-request-id": "req-payment",
+      "x-signature": signature
+    },
+    payload: JSON.stringify({
+      id: "notif_payment_1",
+      type: "payment",
+      data: { id: "pay_123" }
+    })
+  });
+
+  assert.equal(response.statusCode, 200);
+  assert.equal(response.json().received, true);
+});
+
+test("cancelar renovacion de Paddle mantiene el acceso hasta el periodo pagado", async function () {
+  var previousKey = process.env.PADDLE_API_KEY;
+  var originalFetch = globalThis.fetch;
+  var calls = [];
+
+  process.env.PADDLE_API_KEY = "paddle_test_key";
+  globalThis.fetch = async function (url, options) {
+    calls.push({ url: String(url), options: options });
+    return new Response(JSON.stringify({
+      data: { id: "sub_test_1", status: "active" }
+    }), {
+      status: 200,
+      headers: { "content-type": "application/json" }
+    });
+  };
+
+  try {
+    var response = await app.inject({
+      method: "POST",
+      url: "/v1/billing/cancel",
+      headers: { cookie: cookie }
+    });
+
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.json().cancelAtPeriodEnd, true);
+    assert.match(calls[0].url, /\/subscriptions\/sub_test_1\/cancel$/);
+    assert.equal(calls[0].options.method, "POST");
+    assert.match(calls[0].options.body, /next_billing_period/);
+  } finally {
+    globalThis.fetch = originalFetch;
+    if (previousKey === undefined) delete process.env.PADDLE_API_KEY;
+    else process.env.PADDLE_API_KEY = previousKey;
+  }
+
+  var account = await app.inject({
+    method: "GET",
+    url: "/v1/account",
+    headers: { cookie: cookie }
+  });
+
+  assert.equal(account.json().plan, "pro");
+  assert.equal(account.json().subscription.cancelAtPeriodEnd, true);
+});
+
+test("cancelar renovacion de Mercado Pago actualiza la suscripcion", async function () {
+  await store.upsertSubscription({
+    user_id: user.id,
+    plan: "elite",
+    status: "active",
+    provider: "mercadopago",
+    provider_subscription_id: "mp_cancel_test",
+    current_period_start: new Date().toISOString(),
+    current_period_end: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString()
+  });
+
+  var previousToken = process.env.MP_ACCESS_TOKEN;
+  var originalFetch = globalThis.fetch;
+  var calls = [];
+
+  process.env.MP_ACCESS_TOKEN = "mp_test_token";
+  globalThis.fetch = async function (url, options) {
+    calls.push({ url: String(url), options: options });
+    return new Response(JSON.stringify({
+      id: "mp_cancel_test",
+      status: "cancelled"
+    }), {
+      status: 200,
+      headers: { "content-type": "application/json" }
+    });
+  };
+
+  try {
+    var response = await app.inject({
+      method: "POST",
+      url: "/v1/billing/cancel",
+      headers: { cookie: cookie }
+    });
+
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.json().cancelAtPeriodEnd, true);
+    assert.match(calls[0].url, /\/preapproval\/mp_cancel_test$/);
+    assert.equal(calls[0].options.method, "PUT");
+    assert.match(calls[0].options.body, /cancelled/);
+  } finally {
+    globalThis.fetch = originalFetch;
+    if (previousToken === undefined) delete process.env.MP_ACCESS_TOKEN;
+    else process.env.MP_ACCESS_TOKEN = previousToken;
+  }
+
+  var account = await app.inject({
+    method: "GET",
+    url: "/v1/account",
+    headers: { cookie: cookie }
+  });
+
+  assert.equal(account.json().plan, "elite");
+  assert.equal(account.json().subscription.cancelAtPeriodEnd, true);
 });
 
 test("logout invalida la sesion y los links vencidos redirigen", async function () {

@@ -343,6 +343,7 @@ resuelto en el servidor. Ver [`server/SECURITY.md`](server/SECURITY.md).
 
 **Estado:** backend, cuentas y UI implementados y probados en local. Falta cargar
 credenciales, aprobar los precios definitivos y desplegar en Vercel. Los cobros
-permanecen deshabilitados hasta completar esos pasos. Ver
-[`docs/legal/pagos-suscripciones-reembolsos.md`](docs/legal/pagos-suscripciones-reembolsos.md).
+permanecen deshabilitados hasta completar esos pasos. Ver la
+[guía de deploy y cobros](docs/deploy-vercel.md) y la
+[política de pagos](docs/legal/pagos-suscripciones-reembolsos.md).
 

@@ -7,13 +7,14 @@ Estado actual:
 
 - El frontend **sigue funcionando solo**, sin backend.
 - `server/` expone el **motor de análisis**, un **proxy de datos en vivo**,
-  **cuentas por magic link**, **sesiones**, **entitlements** y **checkout**.
+  **cuentas por magic link**, **sesiones**, **entitlements**, **checkout** y
+  **cancelación de suscripciones**.
 - La misma lógica corre como servidor Fastify local/Docker y como funciones
   serverless en **Vercel** (`api/`).
 - La app puede empezar a usar el backend de forma gradual mediante `js/api.js`.
 - El catálogo tiene **Free, Pro y Elite** y los precios propuestos.
-- El flujo de cuentas, cuotas, checkout y webhooks ya está implementado y
-  probado con un store en memoria.
+- El flujo de cuentas, cuotas, checkout, cancelación y webhooks ya está
+  implementado y probado con un store en memoria.
 - Todavía **no** hay cobros activos: faltan credenciales, price IDs, base de
   datos PostgreSQL, proveedor de email y la aprobación de precios.
 
@@ -63,6 +64,7 @@ Invoke-RestMethod http://127.0.0.1:8787/v1/health
 | `POST` | `/v1/auth/logout` | cookie | Cierra la sesión. |
 | `GET` | `/v1/account` | sesión | Usuario, plan, suscripción y uso. |
 | `POST` | `/v1/billing/checkout` | sesión | Crea checkout de Paddle o Mercado Pago. |
+| `POST` | `/v1/billing/cancel` | sesión | Cancela la renovación en el proveedor. |
 | `POST` | `/v1/webhooks/paddle` | firma | Activa/renueva/cancela suscripciones. |
 | `POST` | `/v1/webhooks/mercadopago` | firma | Activa/renueva/cancela suscripciones. |
 | `GET` | `/v1/whoami` | `X-API-Key` | Devuelve key, scopes e IP vista por el servidor. |
@@ -82,6 +84,7 @@ En Vercel las mismas funciones se publican como `/api/...`:
 | `/v1/auth/logout` | `/api/auth/logout` |
 | `/v1/account` | `/api/account` |
 | `/v1/billing/checkout` | `/api/billing/checkout` |
+| `/v1/billing/cancel` | `/api/billing/cancel` |
 | `/v1/webhooks/paddle` | `/api/webhooks/paddle` |
 | `/v1/webhooks/mercadopago` | `/api/webhooks/mercadopago` |
 | `/v1/whoami` | `/api/whoami` |
@@ -141,8 +144,10 @@ timeout, cachea la respuesta y devuelve `cached`/`stale`.
 ## Planes y entitlements
 
 `GET /v1/plans` devuelve el catálogo con `pricingStatus: "proposed"` y
-`billing: "not_available"` mientras no se configuren los proveedores. La
-propuesta es **Free + Pro + Elite**:
+`billing: "not_available"` mientras los precios no estén aprobados o falte
+configurar un proveedor. El checkout rechaza la compra con
+`pricing_not_approved` hasta definir `PRICING_STATUS=approved`. La propuesta es
+**Free + Pro + Elite**:
 
 - **Free:** análisis básico, 10 análisis por día, sin datos en vivo.
 - **Pro:** análisis ilimitado, datos en vivo, exportación y comparador.
@@ -193,6 +198,8 @@ eventos de uso.
    24 horas.
 5. `POST /v1/billing/checkout` crea el checkout del proveedor elegido.
 6. El webhook firmado actualiza la suscripción y, por lo tanto, el plan.
+7. `POST /v1/billing/cancel` cancela la renovación en Paddle o Mercado Pago y
+   mantiene el acceso hasta `current_period_end`.
 
 Los magic links vencen a los 15 minutos y son de un solo uso. Las sesiones
 duran 30 días por defecto. Ambos valores se configuran por entorno.
@@ -309,8 +316,12 @@ Ver [`.env.example`](.env.example). Las principales:
 | `RESEND_API_KEY` | vacío | Envío de emails con Resend. |
 | `EMAIL_FROM` | vacío | Remitente verificado en Resend. |
 | `BILLING_RETURN_URL` | `APP_URL` | Retorno después del pago. |
+| `PRICING_STATUS` | `proposed` | `approved` habilita el checkout. |
+| `PADDLE_ENVIRONMENT` | `production` | `sandbox` usa `sandbox-api.paddle.com`. |
+| `PADDLE_API_BASE` | vacío | Override de la URL de la API de Paddle. |
 | `PADDLE_API_KEY` | vacío | API key de Paddle Billing. |
 | `PADDLE_WEBHOOK_SECRET` | vacío | Secreto de webhooks de Paddle. |
+| `MP_API_BASE` | vacío | Override de la URL de la API de Mercado Pago. |
 | `MP_ACCESS_TOKEN` | vacío | Access token de Mercado Pago. |
 | `MP_WEBHOOK_SECRET` | vacío | Secreto de webhooks de Mercado Pago. |
 
@@ -324,6 +335,9 @@ docker run --env-file server/.env -p 8787:8787 futbolityx-api
 ```
 
 ## Deploy en Vercel
+
+Guía paso a paso, variables y checklist de cobros:
+[`docs/deploy-vercel.md`](../docs/deploy-vercel.md).
 
 El repo está preparado para un solo proyecto de Vercel:
 
@@ -357,6 +371,9 @@ EMAIL_FROM=Futbolityx <no-reply@futbolityx.com>
 Variables de cobro (cuando estén aprobadas):
 
 ```env
+PRICING_STATUS=approved
+PADDLE_ENVIRONMENT=sandbox
+PADDLE_API_BASE=
 PADDLE_API_KEY=...
 PADDLE_WEBHOOK_SECRET=...
 PLAN_PADDLE_PRO_MONTHLY=pri_...
@@ -421,6 +438,7 @@ AD.api.liveSummary("arg.1", "123456");
 AD.api.requestMagicLink("vos@email.com");
 AD.api.account();
 AD.api.checkout({ plan: "pro", interval: "month", provider: "mercadopago" });
+AD.api.cancelSubscription();
 AD.api.logout();
 ```
 

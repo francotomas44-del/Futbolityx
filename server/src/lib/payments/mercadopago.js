@@ -112,3 +112,41 @@ export async function createMercadoPagoPreapproval(options) {
     raw: payload
   };
 }
+
+/**
+ * Cancela una suscripcion (preapproval) de Mercado Pago. El acceso local se
+ * mantiene hasta current_period_end segun la politica de Futbolityx.
+ */
+export async function cancelMercadoPagoPreapproval(id) {
+  if (!process.env.MP_ACCESS_TOKEN) {
+    throw new HttpError(503, "mercadopago_not_configured", "Mercado Pago no esta configurado.");
+  }
+
+  var base = String(process.env.MP_API_BASE || DEFAULT_API_BASE).replace(/\/+$/, "");
+  var response = await fetch(base + "/preapproval/" + encodeURIComponent(id), {
+    method: "PUT",
+    headers: {
+      authorization: "Bearer " + process.env.MP_ACCESS_TOKEN,
+      "content-type": "application/json"
+    },
+    body: JSON.stringify({ status: "cancelled" })
+  });
+
+  var payload = null;
+  try {
+    payload = await response.json();
+  } catch (error) {
+    payload = null;
+  }
+
+  if (!response.ok) {
+    throw new HttpError(
+      502,
+      "mercadopago_error",
+      "Mercado Pago rechazo la cancelacion de la suscripcion.",
+      payload && payload.message ? { message: payload.message } : undefined
+    );
+  }
+
+  return payload || {};
+}

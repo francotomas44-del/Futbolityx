@@ -1,3 +1,4 @@
+import net from "node:net";
 import { HttpError } from "../../server/src/errors.js";
 
 function allowedOrigins() {
@@ -58,8 +59,13 @@ export function methodNotAllowed(res, allowed) {
 
 export function getIp(req) {
   var forwarded = req.headers["x-forwarded-for"];
-  if (forwarded) return String(forwarded).split(",")[0].trim();
-  return (req.socket && req.socket.remoteAddress) || "";
+  if (forwarded) {
+    var first = String(forwarded).split(",")[0].trim();
+    if (net.isIP(first)) return first;
+  }
+
+  var remote = req.socket && req.socket.remoteAddress;
+  return remote && net.isIP(remote) ? remote : "";
 }
 
 export function getUrl(req) {

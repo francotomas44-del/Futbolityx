@@ -485,12 +485,18 @@
       }
     }
   </script>
-  <script src="js/api.js?v=2"></script>
+  <script src="js/api.js?v=3"></script>
   <script>
-    /* En Vercel los datos historicos se sirven desde GitHub Pages para no
-       superar el limite de archivos estaticos del plan Hobby. Si usas Vercel
-       Pro, podes desplegar data/ dentro del proyecto y borrar este bloque. */
-    if (/(^|\.)vercel\.app$/.test(location.hostname)) {
+    /* En Vercel (y otros hosts sin data/) los datos historicos se sirven desde
+       GitHub Pages para no superar el limite de archivos estaticos del plan
+       Hobby. En GitHub Pages, localhost y file:// se usa data/ local. Si usas
+       Vercel Pro y desplegas data/ dentro del proyecto, borra este bloque. */
+    if (
+      location.protocol !== "file:" &&
+      !/github\.io$/.test(location.hostname) &&
+      location.hostname !== "localhost" &&
+      location.hostname !== "127.0.0.1"
+    ) {
       window.FUTBOLITYX_DATA_BASE = "https://francotomas44-del.github.io/Futbolityx/data/";
     }
   </script>
@@ -503,6 +509,6 @@
   <script src="js/live.js?v=10"></script>
   <script src="js/livehoy.js?v=5"></script>
   <script src="js/live-ingest.js?v=2"></script>
-  <script src="js/account.js?v=2"></script>
+  <script src="js/account.js?v=4"></script>
 </body>
 </html>

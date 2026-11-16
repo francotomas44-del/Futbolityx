@@ -1,3 +1,6 @@
+import { isMercadoPagoConfigured } from "./payments/mercadopago.js";
+import { isPaddleConfigured } from "./payments/paddle.js";
+
 function numberFromEnv(name, fallback) {
   var value = Number(process.env[name]);
   return Number.isFinite(value) && value >= 0 ? value : fallback;
@@ -23,23 +26,34 @@ function providerPrices(prefix, plan) {
 
 /**
  * Estado del catalogo y de los cobros. `pricingStatus` queda en "proposed"
- * hasta que se aprueben los precios; `billing` indica si al menos un proveedor
- * tiene credenciales y price/plan IDs configurados.
+ * hasta que se aprueben los precios. `billing` solo pasa a "available" cuando
+ * los precios estan aprobados Y al menos un proveedor tiene credenciales y
+ * price/plan IDs configurados. `providers` refleja la configuracion de cada
+ * proveedor por separado.
  */
 export function getBillingStatus() {
   var plans = getPlans();
-  var paddleConfigured = !!process.env.PADDLE_API_KEY && plans.some(function (plan) {
+  var pricingApproved = process.env.PRICING_STATUS === "approved";
+  var paddleConfigured = isPaddleConfigured() && plans.some(function (plan) {
     return plan.providers.paddle &&
       (plan.providers.paddle.monthlyPriceId || plan.providers.paddle.yearlyPriceId);
   });
-  var mercadoPagoConfigured = !!process.env.MP_ACCESS_TOKEN && plans.some(function (plan) {
+  var mercadoPagoConfigured = isMercadoPagoConfigured() && plans.some(function (plan) {
     return plan.providers.mercadopago &&
       (plan.providers.mercadopago.monthlyPlanId || plan.providers.mercadopago.yearlyPlanId);
   });
 
+  var billingAvailable = pricingApproved && (paddleConfigured || mercadoPagoConfigured);
+  var note = billingAvailable
+    ? "Los pagos estan habilitados segun el proveedor configurado."
+    : pricingApproved
+      ? "Los precios estan aprobados, pero falta configurar un proveedor de pagos."
+      : "Los precios aun no estan aprobados; los cobros estan deshabilitados.";
+
   return {
-    pricingStatus: process.env.PRICING_STATUS === "approved" ? "approved" : "proposed",
-    billing: paddleConfigured || mercadoPagoConfigured ? "available" : "not_available",
+    pricingStatus: pricingApproved ? "approved" : "proposed",
+    billing: billingAvailable ? "available" : "not_available",
+    note: note,
     providers: {
       paddle: paddleConfigured,
       mercadopago: mercadoPagoConfigured

@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 
 process.env.NODE_ENV = "test";
 process.env.AUTH_DEV_MODE = "true";
+process.env.PRICING_STATUS = "approved";
 process.env.PADDLE_WEBHOOK_SECRET = "paddle_test_secret";
 process.env.MP_WEBHOOK_SECRET = "mp_test_secret";
 process.env.PLAN_PADDLE_PRO_MONTHLY = "pri_test_pro";
@@ -25,6 +26,7 @@ const magicLink = (await import("../../api/auth/magic-link.js")).default;
 const callback = (await import("../../api/auth/callback.js")).default;
 const account = (await import("../../api/account.js")).default;
 const checkout = (await import("../../api/billing/checkout.js")).default;
+const cancel = (await import("../../api/billing/cancel.js")).default;
 const paddleWebhook = await import("../../api/webhooks/paddle.js");
 const mercadoPagoWebhook = await import("../../api/webhooks/mercadopago.js");
 
@@ -272,6 +274,44 @@ test("Vercel auth, cuenta, checkout y webhook de Paddle", async function () {
 
   assert.equal(proLiveRes.statusCode, 400);
   assert.equal(JSON.parse(proLiveRes.body).error.code, "invalid_league");
+
+  var previousKey = process.env.PADDLE_API_KEY;
+  var originalFetch = globalThis.fetch;
+
+  process.env.PADDLE_API_KEY = "paddle_test_key";
+  globalThis.fetch = async function () {
+    return new Response(JSON.stringify({
+      data: { id: "sub_vercel_1", status: "active" }
+    }), {
+      status: 200,
+      headers: { "content-type": "application/json" }
+    });
+  };
+
+  try {
+    var cancelRes = mockRes();
+    await cancel(mockReq({
+      method: "POST",
+      url: "/api/billing/cancel",
+      headers: { cookie: cookie }
+    }), cancelRes);
+
+    assert.equal(cancelRes.statusCode, 200);
+    assert.equal(JSON.parse(cancelRes.body).cancelAtPeriodEnd, true);
+  } finally {
+    globalThis.fetch = originalFetch;
+    if (previousKey === undefined) delete process.env.PADDLE_API_KEY;
+    else process.env.PADDLE_API_KEY = previousKey;
+  }
+
+  var canceledAccountRes = mockRes();
+  await account(mockReq({
+    method: "GET",
+    url: "/api/account",
+    headers: { cookie: cookie }
+  }), canceledAccountRes);
+
+  assert.equal(JSON.parse(canceledAccountRes.body).subscription.cancelAtPeriodEnd, true);
 });
 
 test("Vercel webhook de Mercado Pago rechaza firma invalida", async function () {

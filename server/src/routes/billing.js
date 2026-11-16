@@ -33,6 +33,15 @@ export default async function billingRoutes(app, opts) {
     });
   });
 
+  app.post("/v1/billing/cancel", {
+    preHandler: [requireSession],
+    config: {
+      rateLimit: { max: 5, timeWindow: "1 minute" }
+    }
+  }, async function (request) {
+    return accountService.cancelSubscription(request.account);
+  });
+
   app.post("/v1/webhooks/paddle", {
     config: {
       rateLimit: { max: 300, timeWindow: "1 minute" }
