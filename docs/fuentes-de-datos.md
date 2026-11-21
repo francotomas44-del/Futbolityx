@@ -144,7 +144,7 @@ amplió con varios pasos reproducibles:
   (Antes incluía también la carpeta `copa-libertadores/`, hoy reemplazada por la API.)
 - **CONMEBOL Sudamericana (`sudamericana`)** — la base pública no la publica, así que
   `scripts/build-sudamericana.ps1` baja de la API las **22 temporadas 2005–2026** a
-  `data/sudamericana/conmebol.sudamericana.json`: **2.293 partidos jugados**
+  `data/sudamericana/conmebol.sudamericana.json`: **2.296 partidos jugados**
   (`STATUS_FULL_TIME` + `STATUS_FINAL_PEN`, estos últimos son llaves a doble partido
   definidas por penales, y se guarda el resultado de ese partido) **+ los partidos por
   jugar** sin marcador, para que la portada **"Hoy"** los muestre con su pronóstico.
