@@ -1072,15 +1072,57 @@
     return out;
   }
 
-  function compOptions(fixtures) {
+  /* El filtro de "Hoy" lista las competiciones con partidos por jugar y también
+     las conocidas por AD.dataset.leagues. Así una competición como CONMEBOL
+     Sudamericana sigue figurando aunque su última jornada ya haya terminado. */
+  function allCompetitionNames(fixtures) {
     var seen = {}, names = [];
-    fixtures.forEach(function (f) {
-      if (f.competition && !seen[f.competition]) { seen[f.competition] = true; names.push(f.competition); }
+    function add(n) {
+      if (!n) return;
+      n = String(n);
+      if (seen[n]) return;
+      seen[n] = true;
+      names.push(n);
+    }
+    (fixtures || []).forEach(function (f) { add(f && f.competition); });
+    var known = window.AD && window.AD.dataset && window.AD.dataset.leagues;
+    if (known) Object.keys(known).forEach(function (k) { add(known[k]); });
+    names.sort(function (a, b) {
+      var x = a.toLowerCase(), y = b.toLowerCase();
+      return x < y ? -1 : (x > y ? 1 : 0);
     });
-    names.sort(function (a, b) { return a.toLowerCase() < b.toLowerCase() ? -1 : 1; });
-    return '<option value="">Todas las competiciones</option>' + names.map(function (n) {
+    return names;
+  }
+
+  function compOptions(fixtures) {
+    return '<option value="">Todas las competiciones</option>' + allCompetitionNames(fixtures).map(function (n) {
       return '<option value="' + esc(n) + '">' + esc(n) + "</option>";
     }).join("");
+  }
+
+  function hoyToolsHTML(fixtures) {
+    return '<div class="hoy-tools">' +
+      '<label class="hoy-field"><span>Competición</span>' +
+        '<select id="hoy-comp">' + compOptions(fixtures) + "</select></label>" +
+      '<label class="hoy-field hoy-live"><span>Fuente</span>' +
+        '<span class="hoy-live-pick"><input type="checkbox" id="hoy-live"' +
+          (prefs.arLive !== false ? " checked" : "") +
+        "> Liga Argentina (en vivo)</span></label>" +
+      "</div>";
+  }
+
+  function wireHoyTools() {
+    var sel = $("hoy-comp");
+    if (sel) {
+      sel.value = cache.filter || "";
+      sel.addEventListener("change", function () { cache.filter = sel.value; renderList(); });
+    }
+    var liveCb = $("hoy-live");
+    if (liveCb) liveCb.addEventListener("change", function () {
+      prefs.arLive = liveCb.checked;
+      savePrefs();
+      upcomingWithLive(cache.local || []).then(function (fx) { cache.fixtures = fx || []; renderList(); });
+    });
   }
 
   function renderList() {
@@ -1105,12 +1147,19 @@
     }
 
     var filter = cache.filter || "";
-    /* Si la competición elegida ya no tiene partidos por jugar, vuelve a "Todas". */
-    if (filter && !fixtures.some(function (f) { return f.competition === filter; })) {
-      filter = "";
-      cache.filter = "";
-    }
     var filtered = filter ? fixtures.filter(function (f) { return f.competition === filter; }) : fixtures;
+
+    /* El filtro puede apuntar a una competición conocida sin partidos próximos
+       (p. ej. CONMEBOL Sudamericana). En ese caso se mantiene la selección y se
+       explica el estado vacío, en vez de volver silenciosamente a "Todas". */
+    if (!filtered.length) {
+      if (sub) sub.textContent = "Sin partidos de " + filter;
+      listEl.innerHTML = hoyToolsHTML(fixtures) +
+        '<div class="panel"><p class="muted">No hay partidos en vivo ni por jugar de <strong>' +
+        esc(filter) + "</strong> en este momento. Elegí otra competición o analizá un cruce desde <strong>Analizar</strong>.</p></div>";
+      wireHoyTools();
+      return;
+    }
 
     refreshDayKeys();
 
@@ -1157,14 +1206,7 @@
     }
 
     var parts = [];
-    parts.push('<div class="hoy-tools">' +
-      '<label class="hoy-field"><span>Competición</span>' +
-        '<select id="hoy-comp">' + compOptions(fixtures) + "</select></label>" +
-      '<label class="hoy-field hoy-live"><span>Fuente</span>' +
-        '<span class="hoy-live-pick"><input type="checkbox" id="hoy-live"' +
-          (prefs.arLive !== false ? " checked" : "") +
-        "> Liga Argentina (en vivo)</span></label>" +
-      "</div>");
+    parts.push(hoyToolsHTML(fixtures));
     if (liveCount) parts.push('<p class="hoy-src">' + liveCount +
       (liveCount === 1 ? " partido en vivo" : " partidos en vivo") +
       " · marcadores al día</p>");
@@ -1184,18 +1226,7 @@
        si el tablero no cambió. */
     cache.arSig = arSignature(cache.fixtures);
 
-    var sel = $("hoy-comp");
-    if (sel) {
-      sel.value = filter;
-      sel.addEventListener("change", function () { cache.filter = sel.value; renderList(); });
-    }
-
-    var liveCb = $("hoy-live");
-    if (liveCb) liveCb.addEventListener("change", function () {
-      prefs.arLive = liveCb.checked;
-      savePrefs();
-      upcomingWithLive(cache.local || []).then(function (fx) { cache.fixtures = fx || []; renderList(); });
-    });
+    wireHoyTools();
 
     listEl.querySelectorAll("[data-fx]").forEach(function (btn) {
       btn.addEventListener("click", function () { onCardAction(btn, items); });
