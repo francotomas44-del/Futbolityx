@@ -226,12 +226,17 @@
     var k = kickoff(f);
     if (k.ms) return dayLabel(dateKeyInTz(k.ms)) + " · " + timeInTz(k.ms);
     if (k.hasTime) return dayLabel(f.date) + " · " + f.time + " (hora local)";
-    return dayLabel(f.date) + " · hora por confirmar";
+    /* Sin hora no sabemos el día real: la base sólo trae la fecha de la
+       jornada. No afirmamos que sea hoy. */
+    return "Fecha sin confirmar";
   }
-  /* Clave de agrupación por día (en la zona del usuario). */
+  /* Clave de agrupación por día (en la zona del usuario). Los partidos sin
+     hora van a un grupo aparte, al final, para no mezclarlos con "Hoy". */
   function groupKey(f) {
     var k = kickoff(f);
-    return k.ms ? dateKeyInTz(k.ms) : f.date;
+    if (k.ms) return dateKeyInTz(k.ms);
+    if (k.hasTime) return f.date;
+    return "sin-hora";
   }
   function slug(s) {
     return String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
@@ -742,7 +747,7 @@
   }
 
   /* ===== Portada "Hoy" ======================================== */
-  var cache = { fixtures: null, local: null, filter: "" };
+  var cache = { fixtures: null, local: null, enriched: null, filter: "" };
 
   function isActive() {
     var v = $("view-hoy");
@@ -791,7 +796,13 @@
 
   function isOver(f, now) {
     var k = kickoff(f);
-    if (!k || !k.ms) return false;
+    if (!k || !k.ms) {
+      /* Sin hora: la fecha de la base es de la jornada, no del partido.
+         Al pasar ese día el encuentro deja de mostrarse igualmente. */
+      if (!f || !f.date) return false;
+      refreshDayKeys();
+      return f.date < _todayKey;
+    }
     if (now - k.ms >= MATCH_HARD_MS) return true;
     if (f && f.state === "in") return false; /* fuente en vivo: sigue en juego */
     var st = stateFor(f, now);
@@ -974,7 +985,7 @@
     if (now - arPollTs < 55000) return;
     if (!cache.fixtures || !cache.fixtures.some(function (f) { return f.code === AR_CODE; })) return;
     arPollTs = now;
-    upcomingWithLive(cache.local, true).then(function (fx) {
+    upcomingWithLive(cache.enriched || cache.local, true).then(function (fx) {
       if (!isActive()) return;
       var sig = arSignature(fx);
       if (sig === cache.arSig) return;
@@ -1025,7 +1036,15 @@
       '<div id="hoy-list">' + skeleton(4) + "</div>";
 
     DS.loadUpcoming()
-      .then(function (fx) { cache.local = fx || []; return upcomingWithLive(cache.local); })
+      .then(function (fx) {
+        cache.local = fx || [];
+        var FT = window.AD.fixtureTime;
+        return FT ? FT.enrich(cache.local) : cache.local;
+      })
+      .then(function (fx) {
+        cache.enriched = fx || [];
+        return upcomingWithLive(cache.enriched);
+      })
       .then(function (fx) { cache.fixtures = fx || []; renderList(); })
       .catch(function (e) {
         var list = $("hoy-list"), sub = $("hoy-sub");
@@ -1121,7 +1140,7 @@
     if (liveCb) liveCb.addEventListener("change", function () {
       prefs.arLive = liveCb.checked;
       savePrefs();
-      upcomingWithLive(cache.local || []).then(function (fx) { cache.fixtures = fx || []; renderList(); });
+      upcomingWithLive(cache.enriched || cache.local || []).then(function (fx) { cache.fixtures = fx || []; renderList(); });
     });
   }
 
@@ -1171,8 +1190,8 @@
     });
     decorated.sort(function (a, b) {
       if (!!a.live !== !!b.live) return a.live ? -1 : 1;
-      var av = a.ms != null ? a.ms : Date.parse(a.f.date + "T12:00:00");
-      var bv = b.ms != null ? b.ms : Date.parse(b.f.date + "T12:00:00");
+      var av = a.ms != null ? a.ms : Infinity;
+      var bv = b.ms != null ? b.ms : Infinity;
       if (av !== bv) return av - bv;
       return a.f.competition < b.f.competition ? -1 : 1;
     });
@@ -1215,7 +1234,8 @@
     items.forEach(function (it, i) {
       if (it.key !== lastDay) {
         lastDay = it.key;
-        parts.push('<div class="day-sep"><span>' + esc(dayLabel(it.key)) + "</span><i></i></div>");
+        var dayName = it.key === "sin-hora" ? "Sin horario confirmado" : dayLabel(it.key);
+        parts.push('<div class="day-sep"><span>' + esc(dayName) + "</span><i></i></div>");
       }
       parts.push(cardHTML(it, i));
     });
