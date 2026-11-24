@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import { HttpError } from "../../errors.js";
+import { assertBetaAccess, getBetaForUser } from "../beta.js";
 import { getBillingStatus, getPlan, getPlans } from "../plans.js";
 import { cancelPaddleSubscription, createPaddleCheckout } from "../payments/paddle.js";
 import {
@@ -156,6 +157,8 @@ export class AccountService {
     }
 
     var normalized = normalizeEmail(email);
+    assertBetaAccess(normalized);
+
     var user = await this.store.findOrCreateUser(normalized);
     var token = newToken();
     var expiresAt = expiresIn(MAGIC_LINK_TTL_MS);
@@ -182,6 +185,9 @@ export class AccountService {
       throw new HttpError(400, "invalid_token", "El enlace vencio o ya fue usado.");
     }
 
+    var user = await this.store.findUserById(userId);
+    assertBetaAccess(user && user.email);
+
     await this.store.markEmailVerified(userId);
 
     var sessionToken = newToken();
@@ -195,7 +201,7 @@ export class AccountService {
 
     return {
       sessionToken: sessionToken,
-      user: await this.store.findUserById(userId)
+      user: user
     };
   }
 
@@ -205,14 +211,23 @@ export class AccountService {
     var found = await this.store.findSession(hashToken(sessionToken));
     if (!found) return null;
 
+    var beta = getBetaForUser(found.user.email);
+    if (beta.enabled && !beta.invited) return null;
+
     var subscription = await this.store.findLatestSubscription(found.user.id);
-    var planId = planIdForSubscription(subscription);
+    var paidPlanId = planIdForSubscription(subscription);
+    var betaPlan = beta.invited && beta.testPlan && beta.testPlan !== "free" && paidPlanId === "free"
+      ? beta.testPlan
+      : null;
+    var planId = betaPlan || paidPlanId;
 
     return {
       user: found.user,
       session: found.session,
       subscription: subscription,
       planId: planId,
+      betaPlan: betaPlan,
+      beta: beta,
       entitlements: getEntitlements(planId)
     };
   }
@@ -228,6 +243,7 @@ export class AccountService {
       plan: session.planId,
       subscription: publicSubscription(session.subscription),
       entitlements: session.entitlements,
+      beta: session.beta,
       usage: await this.getUsage(session)
     };
   }
@@ -293,8 +309,25 @@ export class AccountService {
       throw new HttpError(400, "invalid_provider", "El medio de pago no esta disponible.");
     }
 
+    var beta = getBetaForUser(session.user.email);
+    if (beta.checkoutDisabled) {
+      throw new HttpError(
+        403,
+        "beta_checkout_disabled",
+        "Durante la prueba cerrada los pagos estan deshabilitados. Tu plan de prueba ya esta activo."
+      );
+    }
+
     if (getBillingStatus().pricingStatus !== "approved") {
       throw new HttpError(503, "pricing_not_approved", "Los precios todavia no estan aprobados para el cobro.");
+    }
+
+    if (session.betaPlan) {
+      throw new HttpError(
+        409,
+        "already_subscribed",
+        "Ya tenes un plan de prueba activo. Escribi a futbolityx@gmail.com si necesitas cambiarlo."
+      );
     }
 
     if (planIdForSubscription(session.subscription) !== "free") {

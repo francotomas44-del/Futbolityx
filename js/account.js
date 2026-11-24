@@ -33,6 +33,30 @@
     return !!(api() && api().isConfigured && api().isConfigured());
   }
 
+  function betaInfo() {
+    return (state.account && state.account.beta) || (state.plans && state.plans.beta) || null;
+  }
+
+  function betaEnabled() {
+    var beta = betaInfo();
+    return !!(beta && beta.enabled);
+  }
+
+  function betaInvited() {
+    var beta = state.account && state.account.beta;
+    return !!(beta && beta.invited);
+  }
+
+  function betaCheckoutDisabled() {
+    var beta = betaInfo();
+    return !!(beta && beta.enabled && beta.checkoutDisabled);
+  }
+
+  function betaLabel() {
+    var beta = betaInfo();
+    return (beta && beta.label) || "Prueba cerrada";
+  }
+
   function esc(value) {
     return String(value == null ? "" : value).replace(/[&<>"']/g, function (char) {
       if (char === "&") return "&amp;";
@@ -136,8 +160,12 @@
           "</h2>" +
           '<p class="account-sub">' +
             (state.account
-              ? "Gestioná tu plan, tus análisis y tu suscripción."
-              : "Sin contraseñas: te enviamos un enlace de acceso a tu email.") +
+              ? betaInvited()
+                ? "Prueba cerrada: estás usando un plan de prueba sin cobro."
+                : "Gestioná tu plan, tus análisis y tu suscripción."
+              : betaEnabled()
+                ? "Acceso solo para invitados a la prueba cerrada."
+                : "Sin contraseñas: te enviamos un enlace de acceso a tu email.") +
           "</p>" +
         "</div>" +
       "</div>" +
@@ -180,6 +208,11 @@
         (state.devLink
           ? '<a class="account-devlink" href="' + esc(state.devLink) + '">Abrir enlace de acceso (desarrollo)</a>'
           : "") +
+        (betaEnabled()
+          ? '<p class="account-note">' + esc(betaLabel()) +
+            ': el acceso está limitado a los emails invitados. Si no tenés acceso, escribí a ' +
+            '<a href="mailto:futbolityx@gmail.com">futbolityx@gmail.com</a>.</p>'
+          : "") +
         '<p class="account-note">El enlace vence en 15 minutos y es de un solo uso. Al ingresar aceptás los ' +
           '<a href="legal.html#doc-terminos">Términos</a> y la ' +
           '<a href="legal.html#doc-privacidad">Política de Privacidad</a>.</p>' +
@@ -196,6 +229,10 @@
   function subscriptionText(account) {
     var text = planName(account.plan);
     var sub = account.subscription;
+
+    if (!sub && account.beta && account.beta.invited) {
+      return text + " · plan de prueba";
+    }
 
     if (!sub) return text + " · sin suscripción";
 
@@ -221,6 +258,7 @@
     var account = state.account;
     var usage = account.usage || {};
     var badgeClass = account.plan === "pro" ? " is-pro" : account.plan === "elite" ? " is-elite" : "";
+    var badgeText = planName(account.plan) + (account.beta && account.beta.invited ? " · Beta" : "");
     var initial = String(account.user && account.user.email ? account.user.email : "?").charAt(0).toUpperCase();
     var usageHtml;
 
@@ -252,7 +290,7 @@
             '<p class="account-email">' + esc(account.user.email) + "</p>" +
             '<p class="account-meta">' + esc(subscriptionText(account)) + "</p>" +
           "</div>" +
-          '<span class="account-plan-badge' + badgeClass + '">' + esc(planName(account.plan)) + "</span>" +
+          '<span class="account-plan-badge' + badgeClass + '">' + esc(badgeText) + "</span>" +
         "</div>" +
         '<div class="account-usage">' + usageHtml + "</div>" +
         '<div class="account-actions">' +
@@ -287,7 +325,8 @@
     var current = currentPlan();
 
     if (state.account && current === plan.id) {
-      return '<button class="btn btn-secondary" type="button" disabled>Plan actual</button>';
+      var currentLabel = betaInvited() ? "Plan de prueba" : "Plan actual";
+      return '<button class="btn btn-secondary" type="button" disabled>' + currentLabel + "</button>";
     }
 
     if (plan.id === "free") {
@@ -298,6 +337,10 @@
 
     if (!state.account) {
       return '<button class="btn btn-primary" type="button" data-action="login">Ingresar para contratar</button>';
+    }
+
+    if (betaCheckoutDisabled()) {
+      return '<button class="btn btn-ghost" type="button" disabled>Prueba cerrada</button>';
     }
 
     if (current !== "free" && plan.id !== current) {
@@ -353,18 +396,24 @@
       '<div class="account-provider">' +
         '<button type="button" data-action="provider" data-provider="mercadopago"' +
           (provider === "mercadopago" ? ' class="is-on"' : "") +
-          (!providerAvailable("mercadopago") ? " disabled" : "") +
+          (!providerAvailable("mercadopago") || betaCheckoutDisabled() ? " disabled" : "") +
           ">Mercado Pago · ARS</button>" +
         '<button type="button" data-action="provider" data-provider="paddle"' +
           (provider === "paddle" ? ' class="is-on"' : "") +
-          (!providerAvailable("paddle") ? " disabled" : "") +
+          (!providerAvailable("paddle") || betaCheckoutDisabled() ? " disabled" : "") +
           ">Paddle · USD</button>" +
       "</div>";
 
-    var note = state.plans && state.plans.billing === "available"
-      ? "Pago seguro con " + (provider === "paddle" ? "Paddle" : "Mercado Pago") +
-        ". Podés cancelar cuando quieras; el acceso sigue hasta el final del período pagado."
-      : "Los pagos todavía no están habilitados. Podés crear tu cuenta gratis y te avisamos cuando se abran los planes.";
+    var note;
+    if (betaCheckoutDisabled()) {
+      note = "Prueba cerrada: no se cobra nada. Los invitados usan un plan de prueba; " +
+        "los pagos se habilitarán recién en el lanzamiento.";
+    } else if (state.plans && state.plans.billing === "available") {
+      note = "Pago seguro con " + (provider === "paddle" ? "Paddle" : "Mercado Pago") +
+        ". Podés cancelar cuando quieras; el acceso sigue hasta el final del período pagado.";
+    } else {
+      note = "Los pagos todavía no están habilitados. Podés crear tu cuenta gratis y te avisamos cuando se abran los planes.";
+    }
 
     if (state.plansLoading && !state.plans) {
       return '<section class="account-section"><h3>Planes</h3><p class="account-note">Cargando planes…</p></section>';
@@ -397,6 +446,10 @@
               (state.interval === "year" ? ' class="is-on"' : "") + ">Anual</button>" +
           "</div>" +
         "</div>" +
+        (betaEnabled()
+          ? '<p class="account-note"><strong>' + esc(betaLabel()) +
+            '.</strong> Acceso limitado a invitados. Los pagos están deshabilitados durante esta etapa.</p>'
+          : "") +
         providersHtml +
         '<div class="account-plans">' + plans.map(renderPlanCard).join("") + "</div>" +
         '<p class="account-note">' + esc(note) + "</p>" +

@@ -66,6 +66,34 @@ EMAIL_FROM=Futbolityx <no-reply@tudominio.com>
 Sin `RESEND_API_KEY` y `EMAIL_FROM`, el magic link falla con
 `email_not_configured` en producción.
 
+### Prueba cerrada (beta)
+
+Para la primera ronda de testers, cargar en **Preview** (y en Production solo si
+querés la misma restricción):
+
+```env
+BETA_MODE=closed
+BETA_ALLOWED_EMAILS=tester1@email.com,tester2@email.com
+BETA_TEST_PLAN=pro
+BETA_DISABLE_CHECKOUT=true
+BETA_LABEL=Prueba cerrada
+PRICING_STATUS=proposed
+```
+
+- Solo los emails listados pueden pedir el magic link. Los demás reciben
+  `beta_invite_required`.
+- Los invitados entran directo al plan `BETA_TEST_PLAN` sin pago y con los
+  entitlements de ese plan.
+- El checkout queda deshabilitado aunque haya precios aprobados y proveedores
+  configurados. Para probar Paddle sandbox con tarjetas de prueba, cambiar
+  `BETA_DISABLE_CHECKOUT=false` temporalmente y dejar `BETA_TEST_PLAN=free`.
+- Si `BETA_ALLOWED_EMAILS` está vacío con `BETA_MODE=closed`, nadie puede entrar.
+  Eso es intencional: revisá la variable antes de invitar.
+- Para abrir al público, borrar `BETA_MODE` (o poner `off`) y redeployar.
+
+El detalle operativo y el checklist de QA están en
+[`docs/closed-beta.md`](closed-beta.md).
+
 ### Precios y cobros
 
 Primero dejar los precios en `proposed`. Cuando estén aprobados, cambiar a
@@ -150,8 +178,10 @@ Luego, en el navegador:
    `SameSite=Lax`.
 4. Abrir **Mi cuenta** y comprobar plan Free, uso `0 / 10` y logout.
 5. Confirmar que el plan Pro/Elite muestra **Próximamente** mientras
-   `PRICING_STATUS=proposed`.
-6. Con una suscripción de prueba activa, usar **Cancelar renovación** y verificar
+   `PRICING_STATUS=proposed`, o **Prueba cerrada** mientras `BETA_MODE=closed`.
+6. Con `BETA_MODE=closed`, verificar que un email no invitado recibe el aviso de
+   acceso limitado y que un invitado entra con el plan de prueba.
+7. Con una suscripción de prueba activa, usar **Cancelar renovación** y verificar
    que el acceso se mantiene hasta `current_period_end`.
 
 ## 6. Paddle sandbox
@@ -185,6 +215,7 @@ Luego, en el navegador:
 
 Antes de cobrar de verdad:
 
+- [ ] Beta cerrada apagada (`BETA_MODE=off`) o lista de invitados vacía solo en Preview.
 - [ ] Precios definitivos aprobados.
 - [ ] `PRICING_STATUS=approved`.
 - [ ] `PADDLE_ENVIRONMENT=production` y credenciales live de Paddle.
@@ -219,7 +250,8 @@ Si un deploy rompe cuentas o cobros:
 
 1. Volver al deployment anterior desde Vercel.
 2. Si el problema es de precios, poner `PRICING_STATUS=proposed` para
-   deshabilitar checkout sin tocar el resto.
+   deshabilitar checkout sin tocar el resto. Para volver a una ronda cerrada,
+   `BETA_MODE=closed` con `BETA_ALLOWED_EMAILS` reducido y `BETA_DISABLE_CHECKOUT=true`.
 3. Si el problema es de un proveedor, quitar su API key o webhook secret; el
    checkout de ese proveedor se deshabilita.
 4. No borrar `payment_events` ni `subscriptions`: son la fuente de verdad para

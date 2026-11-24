@@ -1,3 +1,4 @@
+import { getBetaStatus } from "./beta.js";
 import { isMercadoPagoConfigured } from "./payments/mercadopago.js";
 import { isPaddleConfigured } from "./payments/paddle.js";
 
@@ -43,17 +44,26 @@ export function getBillingStatus() {
       (plan.providers.mercadopago.monthlyPlanId || plan.providers.mercadopago.yearlyPlanId);
   });
 
+  var beta = getBetaStatus();
   var billingAvailable = pricingApproved && (paddleConfigured || mercadoPagoConfigured);
-  var note = billingAvailable
-    ? "Los pagos estan habilitados segun el proveedor configurado."
-    : pricingApproved
-      ? "Los precios estan aprobados, pero falta configurar un proveedor de pagos."
-      : "Los precios aun no estan aprobados; los cobros estan deshabilitados.";
+
+  if (beta.checkoutDisabled) {
+    billingAvailable = false;
+  }
+
+  var note = beta.checkoutDisabled
+    ? "Prueba cerrada: los pagos estan deshabilitados y los invitados usan un plan de prueba (" + beta.testPlan + ")."
+    : billingAvailable
+      ? "Los pagos estan habilitados segun el proveedor configurado."
+      : pricingApproved
+        ? "Los precios estan aprobados, pero falta configurar un proveedor de pagos."
+        : "Los precios aun no estan aprobados; los cobros estan deshabilitados.";
 
   return {
     pricingStatus: pricingApproved ? "approved" : "proposed",
     billing: billingAvailable ? "available" : "not_available",
     note: note,
+    beta: beta,
     providers: {
       paddle: paddleConfigured,
       mercadopago: mercadoPagoConfigured

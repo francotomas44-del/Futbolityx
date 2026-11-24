@@ -16,6 +16,7 @@ export default async function handler(req, res) {
   sendJson(res, 200, {
     pricingStatus: status.pricingStatus,
     billing: status.billing,
+    beta: status.beta,
     providers: status.providers,
     note: status.note,
     plans: getPlans()

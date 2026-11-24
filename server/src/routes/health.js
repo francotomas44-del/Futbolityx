@@ -32,6 +32,7 @@ export default async function healthRoutes(app, opts) {
     return {
       pricingStatus: status.pricingStatus,
       billing: status.billing,
+      beta: status.beta,
       providers: status.providers,
       note: status.note,
       plans: getPlans()

@@ -58,11 +58,11 @@ Invoke-RestMethod http://127.0.0.1:8787/v1/health
 | --- | --- | --- | --- |
 | `GET` | `/v1/health` | pública | Estado del servicio. |
 | `GET` | `/v1/meta` | pública | Versión, features y límites. |
-| `GET` | `/v1/plans` | pública | Catálogo de planes y estado del cobro. |
+| `GET` | `/v1/plans` | pública | Catálogo, estado del cobro y modo beta. |
 | `POST` | `/v1/auth/magic-link` | pública | Envía un magic link al email. |
 | `GET` | `/v1/auth/callback` | token | Valida el link y crea la sesión. |
 | `POST` | `/v1/auth/logout` | cookie | Cierra la sesión. |
-| `GET` | `/v1/account` | sesión | Usuario, plan, suscripción y uso. |
+| `GET` | `/v1/account` | sesión | Usuario, plan, suscripción, beta y uso. |
 | `POST` | `/v1/billing/checkout` | sesión | Crea checkout de Paddle o Mercado Pago. |
 | `POST` | `/v1/billing/cancel` | sesión | Cancela la renovación en el proveedor. |
 | `POST` | `/v1/webhooks/paddle` | firma | Activa/renueva/cancela suscripciones. |
@@ -157,6 +157,31 @@ configurar un proveedor. El checkout rechaza la compra con
 Los entitlements se resuelven en el servidor a partir de la suscripción activa.
 Una suscripción `canceled` conserva el acceso hasta `current_period_end`. Una
 suscripción vencida o inexistente vuelve a Free.
+
+### Prueba cerrada (beta)
+
+Para abrir una ronda cerrada sin cobrar:
+
+```env
+BETA_MODE=closed
+BETA_ALLOWED_EMAILS=tester1@email.com,tester2@email.com
+BETA_TEST_PLAN=pro
+BETA_DISABLE_CHECKOUT=true
+BETA_LABEL=Prueba cerrada
+```
+
+- `BETA_MODE=closed` rechaza magic links de emails no invitados con
+  `403 beta_invite_required`. También invalida las sesiones si el email sale de la
+  lista.
+- `BETA_TEST_PLAN` (`pro` por defecto, o `elite`) se otorga sin suscripción a los
+  invitados. Si el usuario tiene una suscripción paga real, esa tiene prioridad.
+- `BETA_DISABLE_CHECKOUT=true` (default) bloquea `/v1/billing/checkout` con
+  `403 beta_checkout_disabled` y fuerza `billing: "not_available"` en
+  `/v1/plans`. Ponerlo en `false` permite probar checkout en sandbox.
+- `/v1/plans` expone `beta` y `/v1/account` expone `beta.invited` para que la UI
+  muestre el cartel de prueba.
+- Apagar la beta es `BETA_MODE=off`; los invitados vuelven a Free (o a su
+  suscripción real) y no se borran datos.
 
 Los precios y los IDs de cada proveedor se configuran por entorno:
 
