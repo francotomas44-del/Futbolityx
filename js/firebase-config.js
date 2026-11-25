@@ -3,11 +3,12 @@
    No es un secreto: el SDK web la necesita en el navegador.
 
    El backend debe usar el MISMO projectId en FIREBASE_PROJECT_ID.
-   Mientras estos valores sigan vacios, la UI muestra el flujo legacy de
-   magic link para no cortar las pruebas locales. */
+   Si se deja vacio, account.js muestra el flujo legacy de magic link. */
 window.FIREBASE_CONFIG = window.FIREBASE_CONFIG || {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  appId: ""
+  apiKey: "AIzaSyALmdI3Ob4IyoZqFbdcFQPe3Psc3FthkaU",
+  authDomain: "futbolityx-e7a20.firebaseapp.com",
+  projectId: "futbolityx-e7a20",
+  storageBucket: "futbolityx-e7a20.firebasestorage.app",
+  messagingSenderId: "152319802533",
+  appId: "1:152319802533:web:cef39854fbc03fb29fe14c"
 };

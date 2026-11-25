@@ -16,6 +16,9 @@
   }
 
   function isConfigured() {
+    // Inicializamos aca, no solo en requireAuth(): account.js decide qué form
+    // mostrar durante el primer render, antes de que haya un click.
+    init();
     var cfg = config();
     return !!(configured && cfg.apiKey && cfg.projectId && window.firebase);
   }

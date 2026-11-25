@@ -173,7 +173,6 @@ export function createFirebaseVerifier(options) {
         throw invalid("El token no usa la firma esperada.");
       }
 
-      var claims = validateClaims(payload);
       var keys = await loadKeys(false);
       var key = findKey(keys, header.kid);
 
@@ -207,7 +206,8 @@ export function createFirebaseVerifier(options) {
 
       if (!valid) throw invalid("La firma del token no es valida.");
 
-      return claims;
+      // Solo confiamos en los claims despues de verificar la firma.
+      return validateClaims(payload);
     }
   };
 }

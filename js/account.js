@@ -613,7 +613,7 @@
     }
 
     if (!user.emailVerified) {
-      setMessage("Verificá tu email antes de continuar. Te enviamos el mensaje a " + user.email + ".", "info");
+      setMessage("Verificá tu email antes de continuar. Te enviamos el mensaje a " + (user.email || "tu correo") + ".", "info");
       try {
         await AD.firebaseAuth.sendVerificationEmail();
       } catch (error) {
@@ -713,10 +713,14 @@
   }
 
   async function restoreFirebaseSession() {
-    if (!firebaseEnabled() || !AD.firebaseAuth.currentUser) return;
+    if (!firebaseEnabled()) return;
+
+    var user = AD.firebaseAuth.currentUser;
+    // Firebase puede exponer un User todavia no inicializado al cargar la page.
+    if (!user || !user.email || !user.emailVerified) return;
 
     try {
-      await finishFirebaseSignIn(AD.firebaseAuth.currentUser);
+      await finishFirebaseSignIn(user);
     } catch (error) {
       // Si la beta revoco el email o el backend no responde, seguimos sin cuenta.
     }
