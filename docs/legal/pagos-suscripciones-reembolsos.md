@@ -1,6 +1,6 @@
 # Pagos, Suscripciones y Reembolsos
 
-**Futbolityx** · Versión 2.0 · Última actualización: 14 de noviembre de 2026
+**Futbolityx** · Versión 2.1 · Última actualización: 25 de noviembre de 2026
 
 > Este documento forma parte del conjunto legal de Futbolityx. Complementa los
 > [Términos y Condiciones](terminos-y-condiciones.md) y la
@@ -59,8 +59,8 @@ se activa.
 
 ## 4. Cuenta y autorización
 
-Para contratar un plan pago se requiere una cuenta creada con un email válido
-mediante el enlace de acceso (magic link). El usuario debe:
+Para contratar un plan pago se requiere una cuenta verificada, creada con Google
+o con email y contraseña a través de Firebase Auth. El usuario debe:
 
 - usar un email del que sea titular y que revise periódicamente;
 - mantener la confidencialidad de su acceso;

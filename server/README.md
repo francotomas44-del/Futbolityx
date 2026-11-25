@@ -7,8 +7,8 @@ Estado actual:
 
 - El frontend **sigue funcionando solo**, sin backend.
 - `server/` expone el **motor de análisis**, un **proxy de datos en vivo**,
-  **cuentas por magic link**, **sesiones**, **entitlements**, **checkout** y
-  **cancelación de suscripciones**.
+  **cuentas con Firebase Auth (Google y email/contraseña)**, **sesiones**,
+  **entitlements**, **checkout** y **cancelación de suscripciones**.
 - La misma lógica corre como servidor Fastify local/Docker y como funciones
   serverless en **Vercel** (`api/`).
 - La app puede empezar a usar el backend de forma gradual mediante `js/api.js`.
@@ -59,8 +59,9 @@ Invoke-RestMethod http://127.0.0.1:8787/v1/health
 | `GET` | `/v1/health` | pública | Estado del servicio. |
 | `GET` | `/v1/meta` | pública | Versión, features y límites. |
 | `GET` | `/v1/plans` | pública | Catálogo, estado del cobro y modo beta. |
-| `POST` | `/v1/auth/magic-link` | pública | Envía un magic link al email. |
-| `GET` | `/v1/auth/callback` | token | Valida el link y crea la sesión. |
+| `POST` | `/v1/auth/firebase` | ID token | Verifica Firebase y crea la sesión. |
+| `POST` | `/v1/auth/magic-link` | pública | Legacy: envía un magic link al email. |
+| `GET` | `/v1/auth/callback` | token | Legacy: valida el link y crea la sesión. |
 | `POST` | `/v1/auth/logout` | cookie | Cierra la sesión. |
 | `GET` | `/v1/account` | sesión | Usuario, plan, suscripción, beta y uso. |
 | `POST` | `/v1/billing/checkout` | sesión | Crea checkout de Paddle o Mercado Pago. |
@@ -79,6 +80,7 @@ En Vercel las mismas funciones se publican como `/api/...`:
 | `/v1/health` | `/api/health` |
 | `/v1/meta` | `/api/meta` |
 | `/v1/plans` | `/api/plans` |
+| `/v1/auth/firebase` | `/api/auth/firebase` |
 | `/v1/auth/magic-link` | `/api/auth/magic-link` |
 | `/v1/auth/callback` | `/api/auth/callback` |
 | `/v1/auth/logout` | `/api/auth/logout` |
@@ -170,9 +172,9 @@ BETA_DISABLE_CHECKOUT=true
 BETA_LABEL=Prueba cerrada
 ```
 
-- `BETA_MODE=closed` rechaza magic links de emails no invitados con
-  `403 beta_invite_required`. También invalida las sesiones si el email sale de la
-  lista.
+- `BETA_MODE=closed` rechaza logins de Firebase (y magic links heredados) de emails
+  no invitados con `403 beta_invite_required`. El email se toma del ID token
+  verificado. También invalida las sesiones si el email sale de la lista.
 - `BETA_TEST_PLAN` (`pro` por defecto, o `elite`) se otorga sin suscripción a los
   invitados. Si el usuario tiene una suscripción paga real, esa tiene prioridad.
 - `BETA_DISABLE_CHECKOUT=true` (default) bloquea `/v1/billing/checkout` con
@@ -215,10 +217,13 @@ eventos de uso.
 
 ### Flujo de cuentas
 
-1. `POST /v1/auth/magic-link` con `{ "email": "..." }`.
-2. El usuario abre el link recibido por email (o `devLink` en desarrollo).
-3. `GET /v1/auth/callback?token=...` valida el token, marca el email y setea
-   una cookie `HttpOnly` `SameSite=Lax`.
+1. El frontend inicia sesión en Firebase con Google o email/contraseña y obtiene
+   un ID token. Las cuentas con email deben verificar el correo
+   (`email_verified=true`).
+2. `POST /v1/auth/firebase` con `{ "idToken": "..." }` verifica firma, audiencia,
+   emisor y vencimiento contra las claves públicas de Google.
+3. El backend aplica la beta cerrada al email verificado, crea/actualiza el usuario
+   en Postgres y setea una cookie de sesión `HttpOnly` `SameSite=Lax`.
 4. `GET /v1/account` devuelve usuario, plan, suscripción y uso de las últimas
    24 horas.
 5. `POST /v1/billing/checkout` crea el checkout del proveedor elegido. Solo se
@@ -228,8 +233,9 @@ eventos de uso.
 7. `POST /v1/billing/cancel` cancela la renovación en Paddle o Mercado Pago y
    mantiene el acceso hasta `current_period_end`.
 
-Los magic links vencen a los 15 minutos y son de un solo uso. Las sesiones
-duran 30 días por defecto. Ambos valores se configuran por entorno.
+El flujo anterior de magic link sigue disponible como legacy y vence a los
+15 minutos con un solo uso. Las sesiones duran 30 días por defecto. El ID token
+de Firebase se verifica en cada canje y no se guarda.
 
 ### Paddle y Mercado Pago
 
@@ -338,8 +344,10 @@ Ver [`.env.example`](.env.example). Las principales:
 | `ANALYZE_MAX_MATCHES` | `50000` | Tope de partidos. |
 | `UPSTREAM_TIMEOUT_MS` | `8000` | Timeout de datos en vivo. |
 | `APP_URL` | `http://localhost:8766` | URL pública del frontend. |
-| `API_PUBLIC_URL` | vacío | URL pública del backend (para magic links). |
+| `API_PUBLIC_URL` | vacío | URL pública del backend (para links heredados). |
 | `DATABASE_URL` | vacío | PostgreSQL de cuentas y suscripciones. |
+| `FIREBASE_PROJECT_ID` | vacío | ProjectId de Firebase; valida el `aud` del ID token. |
+| `FIREBASE_JWKS_URL` | Google | Override opcional de claves públicas. |
 | `SESSION_COOKIE_NAME` | `futbolityx_session` | Nombre de la cookie de sesión. |
 | `SESSION_DAYS` | `30` | Duración de la sesión. |
 | `MAGIC_LINK_MINUTES` | `15` | Vigencia del magic link. |
@@ -502,11 +510,13 @@ cuenta muestra un aviso.
    Mercado Pago.
 2. Crear la base PostgreSQL, ejecutar `sql/001_init.sql` y configurar
    `DATABASE_URL`.
-3. Configurar Resend (`RESEND_API_KEY`, `EMAIL_FROM`) y verificar el dominio.
-4. Desplegar en Vercel y probar magic link, checkout y webhooks en sandbox.
-5. Mover el rate limiting a Redis/Upstash si hay más de una instancia.
-6. Agregar alertas de fallas de webhook y conciliación de pagos.
-7. Evaluar migrar el cálculo de análisis completamente al servidor (hoy el
+3. Crear el proyecto Firebase, completar `js/firebase-config.js` y configurar
+   `FIREBASE_PROJECT_ID` en el backend.
+4. Configurar Resend (`RESEND_API_KEY`, `EMAIL_FROM`) y verificar el dominio.
+5. Desplegar en Vercel y probar login con Firebase, checkout y webhooks en sandbox.
+6. Mover el rate limiting a Redis/Upstash si hay más de una instancia.
+7. Agregar alertas de fallas de webhook y conciliación de pagos.
+8. Evaluar migrar el cálculo de análisis completamente al servidor (hoy el
    frontend sigue calculando localmente).
 
 ## Seguridad

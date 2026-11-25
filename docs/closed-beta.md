@@ -6,9 +6,11 @@ La app pública sigue funcionando: el análisis local, los datos históricos y
 
 ## Qué se activó
 
-- `BETA_MODE=closed` limita `/v1/auth/magic-link` y las sesiones a los emails de
-  `BETA_ALLOWED_EMAILS`. Un email fuera de la lista recibe
-  `403 beta_invite_required`.
+- `BETA_MODE=closed` limita `/v1/auth/firebase` y las sesiones a los emails de
+  `BETA_ALLOWED_EMAILS`. El email se toma del ID token ya verificado de Firebase,
+  nunca del navegador. Un email fuera de la lista recibe
+  `403 beta_invite_required`. El endpoint legacy de magic link mantiene la misma
+  restricción.
 - `BETA_TEST_PLAN` da ese plan (por defecto `pro`, opcional `elite`) a los
   invitados sin suscripción ni cobro. Si el tester tiene una suscripción paga
   real, esa tiene prioridad.
@@ -30,6 +32,7 @@ APP_URL=https://tu-proyecto.vercel.app
 API_PUBLIC_URL=https://tu-proyecto.vercel.app
 CORS_ORIGINS=https://tu-proyecto.vercel.app,https://francotomas44-del.github.io
 DATABASE_URL=postgresql://...
+FIREBASE_PROJECT_ID=tu-proyecto-firebase
 RESEND_API_KEY=re_...
 EMAIL_FROM=Futbolityx <no-reply@tudominio.com>
 AUTH_DEV_MODE=false
@@ -42,6 +45,12 @@ BETA_DISABLE_CHECKOUT=true
 BETA_LABEL=Prueba cerrada
 ```
 
+Además, completá `js/firebase-config.js` con el config web de Firebase (es
+público) y habilitá **Google** y **Email/Contraseña** en Firebase Console →
+Authentication → Sign-in method. El `projectId` de ese archivo debe coincidir con
+`FIREBASE_PROJECT_ID` del backend. Las cuentas creadas con email deben verificar
+el correo antes de poder iniciar sesión.
+
 Si `BETA_ALLOWED_EMAILS` está vacío con `BETA_MODE=closed`, nadie puede entrar.
 Eso es deliberado: cargá la lista antes de invitar.
 
@@ -52,20 +61,22 @@ Mercado Pago usar credenciales y planes de prueba (`TEST-...`).
 ## Paso a paso
 
 1. Crear la base PostgreSQL y ejecutar `server/sql/001_init.sql`.
-2. Verificar Resend y el dominio de `EMAIL_FROM`.
-3. Cargar las variables de arriba y redeployar.
-4. Probar con un email invitado:
-   - Abrir la app → **Ingresar** → pedir magic link.
-   - El link llega a `/api/auth/callback` y redirige a `/?auth=ok`.
+2. Crear el proyecto Firebase, habilitar Google y Email/Contraseña y completar
+   `js/firebase-config.js` + `FIREBASE_PROJECT_ID`.
+3. Verificar Resend y el dominio de `EMAIL_FROM` (para avisos transaccionales).
+4. Cargar las variables de arriba y redeployar.
+5. Probar con un email invitado:
+   - Abrir la app → **Ingresar** → **Continuar con Google** o email/contraseña.
+   - El ID token se canjea en `/api/auth/firebase` y se crea la cookie de sesión.
    - **Mi cuenta** debe mostrar `Pro · plan de prueba` (o `Elite`), uso
      ilimitado y cartel de prueba cerrada.
    - Probar **Hoy**, análisis, evaluación, rendimiento, informe, backtest y
      exportación. Deben estar habilitados según el plan.
-5. Probar con un email no invitado: debe aparecer el aviso de acceso limitado y
+6. Probar con un email no invitado: debe aparecer el aviso de acceso limitado y
    no debe crearse usuario.
-6. Revisar `/api/plans`: `beta.enabled=true`, `beta.checkoutDisabled=true`,
+7. Revisar `/api/plans`: `beta.enabled=true`, `beta.checkoutDisabled=true`,
    `billing="not_available"`.
-7. Pedir feedback por email a `futbolityx@gmail.com` con:
+8. Pedir feedback por email a `futbolityx@gmail.com` con:
    - qué pantalla usaba,
    - qué esperaba ver,
    - qué pasó,
@@ -77,8 +88,10 @@ Mercado Pago usar credenciales y planes de prueba (`TEST-...`).
 - [ ] `cd server; npm test` pasa (incluye los tests de beta).
 - [ ] `GET /api/health` responde `ok: true`.
 - [ ] `GET /api/plans` expone `beta` con los valores esperados.
-- [ ] Magic link de invitado crea cookie `HttpOnly`, `Secure`, `SameSite=Lax`.
-- [ ] Magic link de no invitado devuelve `beta_invite_required`.
+- [ ] Login de Firebase con email invitado crea cookie `HttpOnly`, `Secure`,
+      `SameSite=Lax` en `/api/auth/firebase`.
+- [ ] Login con email no invitado devuelve `beta_invite_required`.
+- [ ] El ID token con `email_verified=false` devuelve `firebase_email_unverified`.
 - [ ] Cuenta invitada muestra plan de prueba y entitlements correctos.
 - [ ] Límite diario del plan Free no se aplica al plan de prueba.
 - [ ] Checkout devuelve `beta_checkout_disabled`.
@@ -86,7 +99,7 @@ Mercado Pago usar credenciales y planes de prueba (`TEST-...`).
 - [ ] El filtro de competiciones incluye CONMEBOL Sudamericana y su final en vivo.
 - [ ] Backtest de smoke: Sudamericana, 73 partidos evaluados sin errores.
 - [ ] 0 errores en consola del navegador en los 10 flux principales.
-- [ ] Los documentos legales v2.0 se abren desde el pie y desde la cuenta.
+- [ ] Los documentos legales v2.1 se abren desde el pie y desde la cuenta.
 - [ ] La app sin backend (GitHub Pages) sigue funcionando para usuarios no invitados.
 
 ## Salir de la beta
@@ -101,4 +114,5 @@ Cuando se aprueben precios y proveedores:
 Para volver atrás, reaplicar las variables de beta y redeployar. No borrar
 `users`, `sessions`, `subscriptions` ni `payment_events`.
 
-Fecha de preparación: 24 de noviembre de 2026.
+Preparado el 24 de noviembre de 2026; actualizado para Firebase Auth el
+25 de noviembre de 2026.

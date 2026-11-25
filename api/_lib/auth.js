@@ -1,12 +1,14 @@
 import { buildAuthenticator, requireScope } from "../../server/src/auth.js";
 import { config } from "../../server/src/config.js";
 import { AccountService } from "../../server/src/lib/accounts/service.js";
+import { createFirebaseVerifier } from "../../server/src/lib/firebase-auth.js";
 import { getSessionToken } from "../../server/src/lib/accounts/cookies.js";
 import { HttpError } from "../../server/src/errors.js";
 import { getIp } from "./http.js";
 
 var authenticate = buildAuthenticator(config);
 var accountService = null;
+var firebaseVerifier = null;
 
 function service() {
   if (!accountService) {
@@ -94,6 +96,17 @@ export function requireFeature(auth, feature) {
 
 export function getAccountService() {
   return service();
+}
+
+export function getFirebaseVerifier() {
+  if (!firebaseVerifier) {
+    firebaseVerifier = createFirebaseVerifier(config.firebase);
+  }
+  return firebaseVerifier;
+}
+
+export function setFirebaseVerifier(value) {
+  firebaseVerifier = value;
 }
 
 export { config };

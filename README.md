@@ -188,7 +188,7 @@ El proyecto podrá desarrollarse progresivamente mediante los siguientes módulo
 - **Confidence Engine:** evaluación de incertidumbre y fiabilidad de las predicciones.
 - **Reporting Engine:** generación de informes comprensibles y estructurados.
 - **Evaluation Engine:** seguimiento del rendimiento histórico de los modelos y detección de errores.
-- **Account & Billing Engine:** cuentas por magic link, sesiones, planes y entitlements, checkout con Mercado Pago/Paddle y webhooks firmados.
+- **Account & Billing Engine:** cuentas con Firebase Auth (Google y email), sesiones propias, planes y entitlements, checkout con Mercado Pago/Paddle y webhooks firmados.
 
 Los módulos deberán diseñarse para poder actualizarse y mejorarse de manera independiente.
 
@@ -327,8 +327,8 @@ La app sigue funcionando sin cuenta para el análisis local. El backend propio e
 - `POST /v1/analyze`: mismo motor de análisis, ejecutado en el servidor.
 - `GET /v1/live/scoreboard` y `GET /v1/live/summary`: proxy de datos en vivo con
   caché, timeout y validación de ligas.
-- **Cuentas** por magic link, sesiones con cookie `HttpOnly`, entitlements y cuotas
-  por plan (Free, Pro y Elite).
+- **Cuentas** con Firebase Auth (Google y email/contraseña), sesiones con cookie
+  `HttpOnly`, entitlements y cuotas por plan (Free, Pro y Elite).
 - **Pagos** con Mercado Pago (ARS) y Paddle (USD), checkout y webhooks firmados e
   idempotentes.
 - Autenticación por **API key** para integraciones, scopes, allowlist de IP

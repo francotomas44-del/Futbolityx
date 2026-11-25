@@ -1,4 +1,7 @@
-/* account.js - login por magic link, panel de cuenta y planes.
+/* account.js - login con Firebase (Google/email), panel de cuenta y planes.
+   Firebase emite el ID token; el backend lo canjea por una cookie de sesion
+   propia y resuelve plan, beta y cuotas. Si Firebase no esta configurado se
+   mantiene el flujo legacy de magic link para no romper las pruebas locales.
    Se apoya en window.AD.api (js/api.js). Si el backend no esta configurado,
    muestra un aviso y no rompe la app.
 */
@@ -31,6 +34,11 @@
 
   function isConfigured() {
     return !!(api() && api().isConfigured && api().isConfigured());
+  }
+
+  function firebaseEnabled() {
+    var auth = AD.firebaseAuth;
+    return !!(auth && auth.isConfigured && auth.isConfigured());
   }
 
   function betaInfo() {
@@ -165,7 +173,9 @@
                 : "Gestioná tu plan, tus análisis y tu suscripción."
               : betaEnabled()
                 ? "Acceso solo para invitados a la prueba cerrada."
-                : "Sin contraseñas: te enviamos un enlace de acceso a tu email.") +
+                : firebaseEnabled()
+                  ? "Ingresá con Google o con tu email y contraseña de Firebase."
+                  : "Ingresá con tu email para recibir un enlace de acceso.") +
           "</p>" +
         "</div>" +
       "</div>" +
@@ -191,7 +201,63 @@
     );
   }
 
-  function renderLogin() {
+  function renderBetaNote() {
+    if (!betaEnabled()) return "";
+
+    return (
+      '<p class="account-note">' + esc(betaLabel()) +
+        ': el acceso está limitado a los emails invitados. Si no tenés acceso, escribí a ' +
+        '<a href="mailto:futbolityx@gmail.com">futbolityx@gmail.com</a>.</p>'
+    );
+  }
+
+  function renderLegalNote() {
+    return (
+      '<p class="account-note">Al ingresar aceptás los ' +
+        '<a href="legal.html#doc-terminos">Términos</a> y la ' +
+        '<a href="legal.html#doc-privacidad">Política de Privacidad</a>.</p>'
+    );
+  }
+
+  function renderFirebaseLogin() {
+    return (
+      '<section class="account-section">' +
+        "<h3>Ingresá a tu cuenta</h3>" +
+        '<button class="btn btn-google" type="button" data-action="google"' +
+          (state.busy ? " disabled" : "") + ">" +
+          '<span aria-hidden="true">G</span> Continuar con Google' +
+        "</button>" +
+        '<div class="account-divider"><span>o con tu email</span></div>' +
+        '<form id="account-login-form" class="account-form account-form-stack" autocomplete="on">' +
+          '<label class="field">' +
+            "<span>Email</span>" +
+            '<input type="email" name="email" required maxlength="254" autocomplete="email" placeholder="vos@email.com" value="' +
+              esc(state.email || "") + '" />' +
+          "</label>" +
+          '<label class="field">' +
+            "<span>Contraseña</span>" +
+            '<input type="password" name="password" required minlength="6" maxlength="128" autocomplete="current-password" placeholder="Mínimo 6 caracteres" />' +
+          "</label>" +
+          '<div class="account-form-actions">' +
+            '<button class="btn btn-primary" type="submit" name="intent" value="login"' +
+              (state.busy ? " disabled" : "") + ">" +
+              (state.busy ? "Ingresando…" : "Ingresar") +
+            "</button>" +
+            '<button class="btn btn-secondary" type="submit" name="intent" value="register"' +
+              (state.busy ? " disabled" : "") + ">Crear cuenta</button>" +
+            '<button class="btn btn-ghost" type="button" data-action="reset-password"' +
+              (state.busy ? " disabled" : "") + ">Recuperar contraseña</button>" +
+          "</div>" +
+        "</form>" +
+        renderBetaNote() +
+        '<p class="account-note">Si creás una cuenta con email, verificá el correo antes de ingresar. ' +
+          'El acceso solo habilita las funciones de cuenta; el análisis público sigue sin login.</p>' +
+        renderLegalNote() +
+      "</section>"
+    );
+  }
+
+  function renderLegacyLogin() {
     return (
       '<section class="account-section">' +
         "<h3>Entrá con tu email</h3>" +
@@ -208,16 +274,16 @@
         (state.devLink
           ? '<a class="account-devlink" href="' + esc(state.devLink) + '">Abrir enlace de acceso (desarrollo)</a>'
           : "") +
-        (betaEnabled()
-          ? '<p class="account-note">' + esc(betaLabel()) +
-            ': el acceso está limitado a los emails invitados. Si no tenés acceso, escribí a ' +
-            '<a href="mailto:futbolityx@gmail.com">futbolityx@gmail.com</a>.</p>'
-          : "") +
-        '<p class="account-note">El enlace vence en 15 minutos y es de un solo uso. Al ingresar aceptás los ' +
-          '<a href="legal.html#doc-terminos">Términos</a> y la ' +
-          '<a href="legal.html#doc-privacidad">Política de Privacidad</a>.</p>' +
+        renderBetaNote() +
+        '<p class="account-note">El enlace vence en 15 minutos y es de un solo uso. ' +
+          'Configurá Firebase para habilitar Google y email/contraseña.</p>' +
+        renderLegalNote() +
       "</section>"
     );
+  }
+
+  function renderLogin() {
+    return firebaseEnabled() ? renderFirebaseLogin() : renderLegacyLogin();
   }
 
   function usagePercent(usage) {
@@ -541,6 +607,121 @@
     }
   }
 
+  async function finishFirebaseSignIn(user) {
+    if (!user) {
+      throw new Error("No pudimos identificar tu cuenta de Firebase.");
+    }
+
+    if (!user.emailVerified) {
+      setMessage("Verificá tu email antes de continuar. Te enviamos el mensaje a " + user.email + ".", "info");
+      try {
+        await AD.firebaseAuth.sendVerificationEmail();
+      } catch (error) {
+        // El mensaje ya se envio al crear la cuenta; no bloqueamos por reenvio.
+      }
+      render();
+      return false;
+    }
+
+    var idToken = await AD.firebaseAuth.getIdToken();
+    if (!idToken) {
+      throw new Error("Tu sesión de Firebase venció. Volvé a ingresar.");
+    }
+
+    var account = await api().authenticateFirebase(idToken);
+    state.account = account;
+    clearDevLink();
+    setMessage("Sesión iniciada como " + (account.user && account.user.email ? account.user.email : user.email) + ".", "ok");
+    updateTrigger();
+    render();
+    return true;
+  }
+
+  async function signInWithEmail(email, password) {
+    state.busy = true;
+    setMessage(null);
+    render();
+
+    try {
+      var credential = await AD.firebaseAuth.signInWithEmail(email, password);
+      await finishFirebaseSignIn(credential.user);
+    } catch (error) {
+      setMessage(error && error.message ? error.message : "No pudimos iniciar sesión.", "error");
+    } finally {
+      state.busy = false;
+      render();
+    }
+  }
+
+  async function registerWithEmail(email, password) {
+    state.email = email;
+    state.busy = true;
+    setMessage(null);
+    render();
+
+    try {
+      await AD.firebaseAuth.createAccount(email, password, email.split("@")[0]);
+      setMessage("Cuenta creada. Te enviamos un email de verificación; confirmalo y tocá Ingresar.", "ok");
+    } catch (error) {
+      setMessage(error && error.message ? error.message : "No pudimos crear la cuenta.", "error");
+    } finally {
+      state.busy = false;
+      render();
+    }
+  }
+
+  async function signInWithGoogle() {
+    state.busy = true;
+    setMessage(null);
+    render();
+
+    try {
+      var credential = await AD.firebaseAuth.signInWithGoogle();
+      await finishFirebaseSignIn(credential.user);
+    } catch (error) {
+      setMessage(error && error.message ? error.message : "No pudimos iniciar sesión con Google.", "error");
+    } finally {
+      state.busy = false;
+      render();
+    }
+  }
+
+  async function resetPassword() {
+    var input = root ? root.querySelector('input[name="email"]') : null;
+    var email = input ? String(input.value || "").trim() : "";
+
+    if (!email) {
+      setMessage("Ingresá tu email para recuperar la contraseña.", "error");
+      render();
+      return;
+    }
+
+    state.email = email;
+    state.busy = true;
+    setMessage(null);
+    render();
+
+    try {
+      await AD.firebaseAuth.sendPasswordReset(email);
+      setMessage("Te enviamos un enlace para restablecer la contraseña a " + email + ".", "ok");
+    } catch (error) {
+      setMessage(error && error.message ? error.message : "No pudimos enviar el enlace.", "error");
+    } finally {
+      state.busy = false;
+      render();
+    }
+  }
+
+  async function restoreFirebaseSession() {
+    if (!firebaseEnabled() || !AD.firebaseAuth.currentUser) return;
+
+    try {
+      await finishFirebaseSignIn(AD.firebaseAuth.currentUser);
+    } catch (error) {
+      // Si la beta revoco el email o el backend no responde, seguimos sin cuenta.
+    }
+  }
+
   async function sendMagicLink(email) {
     state.email = email;
     state.busy = true;
@@ -566,6 +747,9 @@
 
     try {
       await api().logout();
+      if (firebaseEnabled()) {
+        await AD.firebaseAuth.signOut();
+      }
       state.account = null;
       clearDevLink();
       setMessage("Cerraste sesión.", "ok");
@@ -685,6 +869,16 @@
 
     var action = target.getAttribute("data-action");
 
+    if (action === "google") {
+      signInWithGoogle();
+      return;
+    }
+
+    if (action === "reset-password") {
+      resetPassword();
+      return;
+    }
+
     if (action === "interval") {
       state.interval = target.getAttribute("data-interval") === "year" ? "year" : "month";
       render();
@@ -743,7 +937,30 @@
       return;
     }
 
-    sendMagicLink(email);
+    if (!firebaseEnabled()) {
+      sendMagicLink(email);
+      return;
+    }
+
+    var passwordInput = form.querySelector('input[name="password"]');
+    var password = passwordInput ? String(passwordInput.value || "") : "";
+    if (!password) {
+      setMessage("Ingresá tu contraseña.", "error");
+      render();
+      return;
+    }
+
+    var submitter = event.submitter ||
+      (document.activeElement && form.contains(document.activeElement) ? document.activeElement : null);
+    var intent = submitter && submitter.getAttribute("name") === "intent"
+      ? String(submitter.value || "login")
+      : "login";
+
+    if (intent === "register") {
+      registerWithEmail(email, password);
+    } else {
+      signInWithEmail(email, password);
+    }
   }
 
   function cleanQuery() {
@@ -806,7 +1023,10 @@
       }).catch(function () {
         state.account = null;
         updateTrigger();
+        restoreFirebaseSession();
       });
+    } else {
+      restoreFirebaseSession();
     }
   }
 

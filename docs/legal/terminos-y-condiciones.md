@@ -1,6 +1,6 @@
 # Términos y Condiciones de Uso
 
-**Futbolityx** · Versión 2.0 · Última actualización: 14 de noviembre de 2026
+**Futbolityx** · Versión 2.1 · Última actualización: 25 de noviembre de 2026
 
 > Este documento regula el acceso y el uso de Futbolityx. Forma parte del conjunto
 > de documentos legales; ver el [índice](README.md).
@@ -56,7 +56,10 @@ apuestas.
 
 El uso básico puede realizarse sin cuenta. Para contratar planes pagos, acceder a
 determinadas funciones o gestionar una suscripción, el usuario debe crear una
-cuenta mediante un enlace de acceso enviado a su email (magic link).
+cuenta autenticándose con Firebase Auth, ya sea con su cuenta de Google o con
+email y contraseña. En las cuentas creadas con email, Firebase envía un mensaje
+de verificación que debe completarse antes de acceder. El enlace mágico por email
+permanece disponible solo como mecanismo heredado para cuentas preexistentes.
 
 El usuario se compromete a:
 

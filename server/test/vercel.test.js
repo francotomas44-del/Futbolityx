@@ -13,6 +13,7 @@ process.env.API_KEYS = JSON.stringify([
 
 const { setStore, MemoryStore } = await import("../src/lib/accounts/store.js");
 const { hmacSha256Hex } = await import("../src/lib/payments/signatures.js");
+const { setFirebaseVerifier } = await import("../../api/_lib/auth.js");
 
 setStore(new MemoryStore());
 
@@ -22,6 +23,7 @@ const whoami = (await import("../../api/whoami.js")).default;
 const analyze = (await import("../../api/analyze.js")).default;
 const scoreboard = (await import("../../api/live/scoreboard.js")).default;
 const summary = (await import("../../api/live/summary.js")).default;
+const firebaseAuth = (await import("../../api/auth/firebase.js")).default;
 const magicLink = (await import("../../api/auth/magic-link.js")).default;
 const callback = (await import("../../api/auth/callback.js")).default;
 const account = (await import("../../api/account.js")).default;
@@ -167,6 +169,54 @@ test("Vercel /api/live/summary valida el evento", async function () {
 
   assert.equal(res.statusCode, 400);
   assert.equal(JSON.parse(res.body).error.code, "invalid_event");
+});
+
+test("Vercel /api/auth/firebase crea la sesion con el ID token", async function () {
+  setFirebaseVerifier({
+    configured: true,
+    projectId: "test-project",
+    async verify(token) {
+      if (token !== "vercel-firebase-token") {
+        var error = new Error("Token invalido");
+        error.code = "invalid_firebase_token";
+        error.statusCode = 401;
+        throw error;
+      }
+
+      return {
+        uid: "vercel-uid",
+        email: "firebase-vercel@example.com",
+        emailVerified: true,
+        displayName: "Firebase Vercel",
+        provider: "google.com"
+      };
+    }
+  });
+
+  var res = mockRes();
+  await firebaseAuth(mockReq({
+    method: "POST",
+    url: "/api/auth/firebase",
+    body: { idToken: "vercel-firebase-token" }
+  }), res);
+
+  assert.equal(res.statusCode, 200);
+  assert.ok(String(res.headers["set-cookie"]).indexOf("futbolityx_session=") === 0);
+
+  var body = JSON.parse(res.body);
+  assert.equal(body.ok, true);
+  assert.equal(body.user.email, "firebase-vercel@example.com");
+  assert.equal(body.plan, "free");
+
+  var cookie = String(res.headers["set-cookie"]).split(";")[0];
+  var accountRes = mockRes();
+  await account(mockReq({
+    method: "GET",
+    url: "/api/account",
+    headers: { cookie: cookie }
+  }), accountRes);
+  assert.equal(accountRes.statusCode, 200);
+  assert.equal(JSON.parse(accountRes.body).user.displayName, "Firebase Vercel");
 });
 
 test("Vercel auth, cuenta, checkout y webhook de Paddle", async function () {

@@ -14,10 +14,46 @@ function publicBase(request, config) {
   return protocol + "://" + host;
 }
 
+function setSessionCookie(reply, token, config) {
+  reply.header("set-cookie", serializeSessionCookie(token, {
+    name: config.auth.sessionCookie,
+    maxAge: config.auth.sessionDays * 24 * 60 * 60,
+    secure: config.isProduction
+  }));
+}
+
 export default async function accountRoutes(app, opts) {
   var config = opts.config;
   var accountService = opts.accountService;
   var requireSession = opts.requireSession;
+  var firebaseVerifier = opts.firebaseVerifier;
+
+  app.post("/v1/auth/firebase", {
+    schema: {
+      body: {
+        type: "object",
+        required: ["idToken"],
+        additionalProperties: false,
+        properties: {
+          idToken: { type: "string", minLength: 10, maxLength: 8192 }
+        }
+      }
+    },
+    config: {
+      rateLimit: { max: 10, timeWindow: "15 minutes" }
+    }
+  }, async function (request, reply) {
+    var claims = await firebaseVerifier.verify(request.body.idToken);
+    var result = await accountService.authenticateWithFirebase(claims, {
+      ip: request.ip,
+      userAgent: request.headers["user-agent"]
+    });
+
+    setSessionCookie(reply, result.sessionToken, config);
+
+    var account = await accountService.getAccount(result.sessionToken);
+    return Object.assign({ ok: true }, account);
+  });
 
   app.post("/v1/auth/magic-link", {
     schema: {
@@ -64,12 +100,7 @@ export default async function accountRoutes(app, opts) {
         userAgent: request.headers["user-agent"]
       });
 
-      reply.header("set-cookie", serializeSessionCookie(result.sessionToken, {
-        name: config.auth.sessionCookie,
-        maxAge: config.auth.sessionDays * 24 * 60 * 60,
-        secure: config.isProduction
-      }));
-
+      setSessionCookie(reply, result.sessionToken, config);
       return reply.redirect(joinUrl(config.appUrl, "/?auth=ok"));
     } catch (error) {
       request.log.warn({ err: error }, "magic link invalido");

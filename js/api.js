@@ -12,7 +12,7 @@
      };
 
    La key del navegador es publica. Para usuarios finales se usa la cookie
-   de sesion creada por el magic link; el backend resuelve el plan y las
+   de sesion creada al canjear el ID token de Firebase; el backend resuelve el plan y las
    cuotas. La key queda para integraciones server-to-server.
 */
 (function () {
@@ -93,7 +93,7 @@
   }
 
   window.AD.api = {
-    version: "0.2.0",
+    version: "0.3.0",
     isConfigured: isConfigured,
     hasKey: hasKey,
     base: function () {
@@ -130,6 +130,9 @@
       return request(
         "/v1/live/summary?league=" + encodeURIComponent(league) + "&event=" + encodeURIComponent(event)
       );
+    },
+    authenticateFirebase: function (idToken) {
+      return request("/v1/auth/firebase", { method: "POST", body: { idToken: idToken } });
     },
     requestMagicLink: function (email) {
       return request("/v1/auth/magic-link", { method: "POST", body: { email: email } });

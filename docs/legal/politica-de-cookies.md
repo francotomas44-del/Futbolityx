@@ -1,6 +1,6 @@
 # Política de Cookies
 
-**Futbolityx** · Versión 2.0 · Última actualización: 14 de noviembre de 2026
+**Futbolityx** · Versión 2.1 · Última actualización: 25 de noviembre de 2026
 
 > Este documento explica qué cookies y tecnologías de almacenamiento usa
 > Futbolityx y cómo gestionarlas. Forma parte del conjunto de documentos legales;
@@ -58,8 +58,9 @@ deshabilitarse sin afectar el servicio. Se usan para:
 
 - **Nombre:** `futbolityx_session` (configurable por entorno).
 - **Tipo:** cookie técnica, `HttpOnly`, `SameSite=Lax` y `Secure` en producción.
-- **Finalidad:** mantener la sesión iniciada por magic link y permitir el acceso a
-  la cuenta, el panel y el checkout.
+- **Finalidad:** mantener la sesión iniciada después de autenticarse con Firebase
+  (Google o email/contraseña) y permitir el acceso a la cuenta, el panel y el
+  checkout.
 - **Duración:** 30 días por defecto, o hasta cerrar sesión.
 
 La cookie contiene un identificador de sesión. El servidor guarda su hash, no el
@@ -81,7 +82,10 @@ La Plataforma se apoya en:
 
 - **Vercel** para el alojamiento del sitio y las funciones del backend;
 - un servicio **PostgreSQL gestionado** para cuentas, sesiones y suscripciones;
-- **Resend** para el envío de magic links y emails transaccionales;
+- **Google/Firebase Auth** para la autenticación con Google y email/contraseña y
+  el almacenamiento local de la sesión de Firebase en el dispositivo;
+- **Resend** para el envío de emails transaccionales y, en cuentas heredadas, de
+  magic links;
 - **Mercado Pago** (ARS) y **Paddle** (USD) para los pagos y las suscripciones;
 - una **fuente pública de datos deportivos y de noticias** (ESPN) para las funciones
   en vivo;

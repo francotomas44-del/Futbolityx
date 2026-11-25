@@ -1,6 +1,6 @@
 # Política de Privacidad
 
-**Futbolityx** · Versión 2.0 · Última actualización: 14 de noviembre de 2026
+**Futbolityx** · Versión 2.1 · Última actualización: 25 de noviembre de 2026
 
 > Este documento explica qué información existe cuando usás Futbolityx, dónde se
 > guarda, quién la trata y qué derechos tenés. Forma parte del conjunto de
@@ -99,14 +99,20 @@ Cuando creás una cuenta, iniciás sesión o usás el backend, Futbolityx trata:
 ### 5.1 Datos de cuenta
 
 - **Email** y un identificador interno de usuario.
+- Proveedor de acceso (Google o email/contraseña) y nombre mostrado, cuando
+  Firebase los entrega. El backend valida el `uid` del token, pero la cuenta se
+  vincula por email verificado.
+- Estado de verificación del email.
 - Fecha de creación, último acceso y estado de la cuenta.
 - Plan actual (Free, Pro o Elite) y funciones habilitadas.
 - Preferencias necesarias para la cuenta.
 
 ### 5.2 Acceso y seguridad
 
-- **Tokens de magic link** (guardados como hash, con vencimiento de 15 minutos y
-  un solo uso).
+- **ID tokens de Firebase**: se verifican en el servidor contra las claves públicas
+  de Google y no se guardan.
+- **Tokens de magic link heredados** (guardados como hash, con vencimiento de 15
+  minutos y un solo uso).
 - **Sesiones** (identificador de sesión guardado como hash, con vencimiento de 30
   días, cookie `HttpOnly` y `SameSite=Lax`).
 - Fecha y hora de creación, uso y cierre de sesión.
@@ -137,9 +143,11 @@ bancarias.** Esos datos los procesa directamente **Mercado Pago** o **Paddle**.
 
 ### 5.5 Email
 
-- Dirección de destino, asunto, fecha de envío y estado de entrega del magic link
-  o de comunicaciones transaccionales.
-- El contenido de los emails transaccionales (por ejemplo, el enlace de acceso).
+- Dirección de destino, asunto, fecha de envío y estado de entrega de las
+  comunicaciones transaccionales (verificación de email, recuperación de contraseña
+  y, en cuentas heredadas, magic links).
+- El contenido de los emails transaccionales. Los mensajes de verificación y
+  recuperación los entrega Firebase; los avisos propios los entrega Resend.
 
 ## 6. Datos técnicos tratados por terceros
 
@@ -154,32 +162,40 @@ las funciones y proteger su infraestructura.
 un servicio PostgreSQL gestionado (por ejemplo, **Neon**, **Vercel Postgres** o
 **Supabase**). El proveedor trata los datos por cuenta y orden de Futbolityx.
 
-**c) Email transaccional.** Los magic links y avisos se envían con **Resend**. Resend
-recibe la dirección de destino y el contenido del mensaje para entregarlo.
+**c) Identidad.** **Google/Firebase Auth** autentica el acceso con cuenta de Google
+o email/contraseña, emite el ID token y envía los emails de verificación y
+recuperación de contraseña. Firebase recibe la dirección de email, el identificador
+de cuenta, datos técnicos del dispositivo y del navegador, conforme a su política.
+Futbolityx verifica el token en el backend y no recibe la contraseña.
 
-**d) Pagos.** **Mercado Pago** procesa pagos en ARS y **Paddle** procesa pagos en
+**d) Email transaccional.** Los avisos propios y, en cuentas heredadas, los magic
+links se envían con **Resend**. Resend recibe la dirección de destino y el contenido
+del mensaje para entregarlo.
+
+**e) Pagos.** **Mercado Pago** procesa pagos en ARS y **Paddle** procesa pagos en
 USD. Ambos reciben los datos necesarios para cobrar, emitir comprobantes y gestionar
 la suscripción, conforme a sus propias políticas. Paddle puede actuar como
 comerciante registrado (merchant of record) para las ventas internacionales.
 
-**e) Fuentes públicas de datos.** Para mostrar partidos en vivo, alineaciones,
+**f) Fuentes públicas de datos.** Para mostrar partidos en vivo, alineaciones,
 estadísticas, noticias y estado de los encuentros, el backend o el navegador
 consultan una **fuente pública de datos deportivos y de noticias** (ESPN). Esa
 fuente recibe la dirección IP del servidor o del navegador, el tipo de cliente y la
 URL consultada, y aplica sus propias políticas. La fuente está identificada en
 [`docs/atribuciones.md`](../atribuciones.md).
 
-**f) Enlaces externos.** Los botones “Buscar en Google News” abren una búsqueda en
+**g) Enlaces externos.** Los botones “Buscar en Google News” abren una búsqueda en
 Google. Esa consulta solo se realiza si hacés clic; a partir de ese momento se aplica
 la política de privacidad de Google.
 
-**g) Correo de contacto.** Si escribís al correo de contacto, tu proveedor y el
+**h) Correo de contacto.** Si escribís al correo de contacto, tu proveedor y el
 destinatario tratarán los datos que incluyas en el mensaje. Se usan solo para
 responder la consulta.
 
 Futbolityx no recibe copia de los registros internos de Vercel, del proveedor de
-base de datos, de Resend, de los proveedores de pago, de ESPN ni de Google, salvo
-los datos que esos servicios devuelvan por API para prestar el servicio.
+base de datos, de Firebase/Google, de Resend, de los proveedores de pago, de ESPN
+ni de Google News, salvo los datos que esos servicios devuelvan por API para
+prestar el servicio.
 
 ## 7. Base legal
 
@@ -187,8 +203,8 @@ Cuando resulte aplicable, el tratamiento se apoya en:
 
 - la **ejecución del contrato o del servicio** solicitado (cuenta, análisis,
   suscripción, soporte);
-- el **consentimiento** del usuario (por ejemplo, al crear la cuenta, recibir el
-  magic link o escribir al correo de contacto);
+- el **consentimiento** del usuario (por ejemplo, al crear la cuenta con Firebase,
+  recibir un email de verificación o escribir al correo de contacto);
 - el **interés legítimo** en la seguridad, la prevención de abuso, la integridad
   del servicio y la defensa de derechos;
 - el **cumplimiento de obligaciones legales** (facturación, contabilidad,
@@ -201,7 +217,7 @@ aplicables en la medida en que exista tratamiento de datos personales.
 
 Los datos se usan para:
 
-- crear y autenticar la cuenta por magic link;
+- crear y autenticar la cuenta con Firebase (Google o email/contraseña);
 - mantener la sesión y permitir el cierre de sesión;
 - resolver el plan, las funciones habilitadas y las cuotas;
 - procesar pagos, activar, renovar y cancelar suscripciones;
@@ -257,7 +273,8 @@ Se adoptan medidas razonables, entre ellas:
 
 - HTTPS en el sitio y en el backend;
 - cookies de sesión `HttpOnly`, `SameSite=Lax` y `Secure` en producción;
-- tokens de magic link y de sesión guardados como hash;
+- verificación de ID tokens de Firebase contra claves públicas de Google;
+- tokens de magic link heredados y de sesión guardados como hash;
 - API keys guardadas como hash y comparadas de forma timing-safe;
 - rate limiting, CORS restringido y allowlist opcional de IP para integraciones;
 - separación de funciones y acceso mínimo a la base de datos;

@@ -8,8 +8,8 @@ técnico de la API está en [`server/README.md`](../server/README.md).
 - Frontend estático en la raíz del repo.
 - Backend serverless en `api/`, con rewrite `/v1/*` → `/api/*` en
   [`vercel.json`](../vercel.json).
-- Cuentas por magic link, sesiones con cookie `HttpOnly`, planes Free/Pro/Elite,
-  cuotas y entitlements.
+- Cuentas con Firebase Auth (Google y email/contraseña), sesiones con cookie
+  `HttpOnly`, planes Free/Pro/Elite, cuotas y entitlements.
 - Checkout y webhooks de Paddle (USD) y Mercado Pago (ARS) implementados.
 - Los cobros quedan deshabilitados hasta que se cumplan estas tres condiciones:
   1. `PRICING_STATUS=approved`.
@@ -51,10 +51,12 @@ BODY_LIMIT_BYTES=4500000
 - Generar el hash de la API key con `cd server; npm run hash-key`.
 - No usar `AUTH_DEV_MODE=true` en producción.
 
-### Cuentas y email
+### Cuentas, Firebase y email
 
 ```env
 DATABASE_URL=postgresql://...
+FIREBASE_PROJECT_ID=tu-proyecto-firebase
+FIREBASE_JWKS_URL=
 SESSION_COOKIE_NAME=futbolityx_session
 SESSION_DAYS=30
 MAGIC_LINK_MINUTES=15
@@ -63,8 +65,14 @@ RESEND_API_KEY=re_...
 EMAIL_FROM=Futbolityx <no-reply@tudominio.com>
 ```
 
-Sin `RESEND_API_KEY` y `EMAIL_FROM`, el magic link falla con
-`email_not_configured` en producción.
+- Completar `js/firebase-config.js` con el config web público de Firebase y
+  habilitar **Google** y **Email/Contraseña** en Firebase Console. El `projectId`
+  debe coincidir con `FIREBASE_PROJECT_ID`.
+- Sin `FIREBASE_PROJECT_ID`, `/api/auth/firebase` responde
+  `503 firebase_not_configured`. El magic link legacy necesita `RESEND_API_KEY` y
+  `EMAIL_FROM` para enviar el enlace.
+- En Firebase Console → Authentication → Settings → Authorized domains, agregar
+  el dominio de Vercel (y `localhost` para desarrollo).
 
 ### Prueba cerrada (beta)
 
@@ -80,8 +88,9 @@ BETA_LABEL=Prueba cerrada
 PRICING_STATUS=proposed
 ```
 
-- Solo los emails listados pueden pedir el magic link. Los demás reciben
-  `beta_invite_required`.
+- Solo los emails listados pueden iniciar sesión con Firebase. El email se toma
+  del ID token verificado; los demás reciben `beta_invite_required`. Las cuentas
+  con email deben tener el correo verificado (`firebase_email_unverified`).
 - Los invitados entran directo al plan `BETA_TEST_PLAN` sin pago y con los
   entitlements de ese plan.
 - El checkout queda deshabilitado aunque haya precios aprobados y proveedores
@@ -153,13 +162,16 @@ psql "$env:DATABASE_URL" -f server/sql/001_init.sql
 Sin `DATABASE_URL`, en Vercel las rutas de cuenta fallan con
 `database_not_configured`; el resto de la app sigue funcionando.
 
-## 4. Resend y dominio de envío
+## 4. Firebase, Resend y dominio de envío
 
-1. Crear una cuenta en Resend y verificar el dominio de `EMAIL_FROM`.
-2. Crear una API key y cargarla en `RESEND_API_KEY`.
-3. Probar un magic link real a un email propio.
-4. Revisar que el enlace llegue a `https://tu-proyecto.vercel.app/api/auth/callback`
-   y que después redirija a `APP_URL/?auth=ok`.
+1. Crear el proyecto Firebase, registrar la Web app y copiar su config a
+   `js/firebase-config.js`.
+2. En Authentication → Sign-in method, habilitar **Google** y **Email/Contraseña**.
+3. Agregar el dominio de Vercel a Authorized domains.
+4. Crear una cuenta en Resend y verificar el dominio de `EMAIL_FROM`.
+5. Crear una API key y cargarla en `RESEND_API_KEY`.
+6. Opcional (legacy): probar un magic link real y revisar que redirija a
+   `APP_URL/?auth=ok`.
 
 ## 5. Verificación de cuentas en producción
 
@@ -173,7 +185,7 @@ curl.exe https://tu-proyecto.vercel.app/v1/plans
 Luego, en el navegador:
 
 1. Abrir la app y pulsar **Ingresar**.
-2. Pedir el magic link y completar el login.
+2. Completar el login con Google o con email/contraseña de Firebase.
 3. Verificar la cookie `futbolityx_session` como `HttpOnly`, `Secure` y
    `SameSite=Lax`.
 4. Abrir **Mi cuenta** y comprobar plan Free, uso `0 / 10` y logout.
@@ -222,8 +234,9 @@ Antes de cobrar de verdad:
 - [ ] Credenciales de producción de Mercado Pago.
 - [ ] Webhooks apuntando a las URLs públicas y secrets actualizados.
 - [ ] `AUTH_DEV_MODE=false`.
-- [ ] `RESEND_API_KEY` y dominio verificado.
-- [ ] Documentos legales v2.0 publicados y enlazados desde la app.
+- [ ] `FIREBASE_PROJECT_ID` configurado y dominio autorizado en Firebase.
+- [ ] `RESEND_API_KEY` y dominio verificado (para avisos transaccionales).
+- [ ] Documentos legales v2.1 publicados y enlazados desde la app.
 - [ ] Probar un pago real de bajo monto y reembolsarlo.
 - [ ] Verificar cancelación y acceso hasta `current_period_end`.
 - [ ] Configurar alertas de errores 5xx y de webhooks fallidos.
@@ -262,7 +275,11 @@ Si un deploy rompe cuentas o cobros:
 | Síntoma | Causa probable | Solución |
 | --- | --- | --- |
 | `database_not_configured` | Falta `DATABASE_URL` | Cargarla y redeployar |
-| `email_not_configured` | Falta Resend | Cargar `RESEND_API_KEY` y `EMAIL_FROM` |
+| `firebase_not_configured` | Falta `FIREBASE_PROJECT_ID` | Cargarlo con el projectId del config web |
+| `invalid_firebase_token` | Token vencido o proyecto distinto | Reingresar y revisar `projectId` |
+| `firebase_email_unverified` | Email no verificado | Verificar el correo en Firebase |
+| `beta_invite_required` | Email fuera de la lista | Agregarlo a `BETA_ALLOWED_EMAILS` |
+| `email_not_configured` | Falta Resend (legacy) | Cargar `RESEND_API_KEY` y `EMAIL_FROM` |
 | El login no setea cookie | `APP_URL` no coincide con el host | Corregir `APP_URL` |
 | `pricing_not_approved` | `PRICING_STATUS` no es `approved` | Aprobarlo antes de cobrar |
 | `paddle_not_configured` | Falta API key, webhook secret o price ID | Completar variables |

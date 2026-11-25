@@ -23,7 +23,7 @@ Vercel, espejo en GitHub Pages y aplicación web instalable).
 
 ## Versión
 
-- **Versión del conjunto:** 2.0
+- **Versión del conjunto:** 2.1
 - **Última actualización:** 14 de noviembre de 2026
 - **Idioma:** español (Argentina). En caso de traducción, prevalece la versión en español.
 
@@ -64,6 +64,9 @@ en todos los documentos del conjunto.
 
 ## Control de versiones
 
+- **2.1 — 2026-11-25:** acceso con Firebase Auth (Google y email/contraseña),
+  verificación del ID token en el backend, cookie de sesión propia y beta cerrada
+  por email verificado. El magic link queda solo como mecanismo legacy.
 - **2.0 — 2026-11-14:** cuentas por magic link, planes Free/Pro/Elite, pagos con
   Mercado Pago y Paddle, suscripciones, cancelación, reembolsos, cookie de sesión y
   datos tratados en el backend.

@@ -1,6 +1,6 @@
 # Juego Responsable
 
-**Futbolityx** · Versión 2.0 · Última actualización: 14 de noviembre de 2026
+**Futbolityx** · Versión 2.1 · Última actualización: 25 de noviembre de 2026
 
 > Este documento aplica solo si el usuario decide usar la información de Futbolityx
 > con fines de apuestas. Forma parte del conjunto de documentos legales; ver el

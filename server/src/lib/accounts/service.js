@@ -175,6 +175,22 @@ export class AccountService {
     };
   }
 
+  async createSessionForUser(user, context) {
+    var sessionToken = newToken();
+    await this.store.createSession(
+      user.id,
+      hashToken(sessionToken),
+      expiresIn(SESSION_TTL_MS),
+      context && context.ip,
+      context && context.userAgent
+    );
+
+    return {
+      sessionToken: sessionToken,
+      user: user
+    };
+  }
+
   async consumeMagicLink(token, context) {
     if (!token) {
       throw new HttpError(400, "missing_token", "Falta el token de acceso.");
@@ -189,20 +205,33 @@ export class AccountService {
     assertBetaAccess(user && user.email);
 
     await this.store.markEmailVerified(userId);
+    return this.createSessionForUser(user, context);
+  }
 
-    var sessionToken = newToken();
-    await this.store.createSession(
-      userId,
-      hashToken(sessionToken),
-      expiresIn(SESSION_TTL_MS),
-      context && context.ip,
-      context && context.userAgent
-    );
+  /**
+   * Firebase verifica el ID token (Google o email/password). Aca solo recibimos
+   * los claims ya validados: el email no viene del cliente y se aplica la misma
+   * beta cerrada y el mismo store de Postgres que en el flujo anterior.
+   */
+  async authenticateWithFirebase(claims, context) {
+    if (!claims || !claims.email || !claims.uid) {
+      throw new HttpError(401, "invalid_firebase_token", "El token de Firebase no es valido.");
+    }
 
-    return {
-      sessionToken: sessionToken,
-      user: user
-    };
+    var email = normalizeEmail(claims.email);
+    assertBetaAccess(email);
+
+    var user = await this.store.findOrCreateUser(email);
+    if (!user) {
+      throw new HttpError(500, "account_error", "No pudimos crear la cuenta.");
+    }
+
+    if (claims.displayName) {
+      user = await this.store.setDisplayName(user.id, claims.displayName) || user;
+    }
+
+    await this.store.markEmailVerified(user.id);
+    return this.createSessionForUser(user, context);
   }
 
   async getSession(sessionToken) {

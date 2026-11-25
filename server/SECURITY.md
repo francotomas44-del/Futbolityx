@@ -66,8 +66,9 @@ autorización de pagos.**
 
 ## 6. Camino a suscripciones seguras
 
-1. **Cuentas**: email magic link u OAuth. Sesión con cookie `HttpOnly`, `Secure`,
-   `SameSite=Lax` o token JWT de corta duración.
+1. **Cuentas**: Firebase Auth (Google y email/contraseña) con verificación del ID
+   token en el backend y sesión propia con cookie `HttpOnly`, `Secure`,
+   `SameSite=Lax`. El magic link queda como mecanismo legacy.
 2. **Entitlements**: tabla `subscriptions` con `user_id`, `plan`, `status`,
    `current_period_end`, `provider`, `provider_subscription_id`.
 3. **Middleware**: cada endpoint premium resuelve `request.user` y verifica el

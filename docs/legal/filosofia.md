@@ -1,6 +1,6 @@
 # Filosofía
 
-**Futbolityx** · Versión 2.0 · Última actualización: 14 de noviembre de 2026
+**Futbolityx** · Versión 2.1 · Última actualización: 25 de noviembre de 2026
 
 > Visión, misión y principios del proyecto. Forma parte del conjunto de documentos
 > legales; ver el [índice](README.md).

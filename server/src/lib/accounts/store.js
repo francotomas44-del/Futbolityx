@@ -90,6 +90,14 @@ export class MemoryStore {
     return clone(user);
   }
 
+  async setDisplayName(userId, displayName) {
+    var user = this.users.find(function (item) { return item.id === userId; });
+    if (!user) return null;
+    user.display_name = displayName || null;
+    user.updated_at = new Date();
+    return clone(user);
+  }
+
   async createLoginToken(userId, tokenHash, expiresAt) {
     var row = {
       id: crypto.randomUUID(),
@@ -295,6 +303,14 @@ export class PostgresStore {
     var result = await this.pool.query(
       "update users set email_verified_at = now(), updated_at = now() where id = $1 returning *",
       [userId]
+    );
+    return result.rows[0] || null;
+  }
+
+  async setDisplayName(userId, displayName) {
+    var result = await this.pool.query(
+      "update users set display_name = $2, updated_at = now() where id = $1 returning *",
+      [userId, displayName || null]
     );
     return result.rows[0] || null;
   }

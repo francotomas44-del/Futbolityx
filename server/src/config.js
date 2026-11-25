@@ -109,6 +109,14 @@ export var config = {
     devMode: process.env.AUTH_DEV_MODE === "true"
   },
 
+  // Firebase Auth es el proveedor de identidad de la UI (Google y email).
+  // El backend solo necesita el projectId para validar el `aud` del ID token;
+  // las claves publicas se descargan del endpoint de Google.
+  firebase: {
+    projectId: process.env.FIREBASE_PROJECT_ID || "",
+    jwksUrl: process.env.FIREBASE_JWKS_URL || ""
+  },
+
   email: {
     from: process.env.EMAIL_FROM || "",
     resendApiKey: process.env.RESEND_API_KEY || ""

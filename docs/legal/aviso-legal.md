@@ -1,6 +1,6 @@
 # Aviso Legal
 
-**Futbolityx** · Versión 2.0 · Última actualización: 14 de noviembre de 2026
+**Futbolityx** · Versión 2.1 · Última actualización: 25 de noviembre de 2026
 
 > Datos de identificación del titular, objeto del sitio y condiciones generales de
 > acceso. Forma parte del conjunto de documentos legales; ver el
@@ -54,7 +54,7 @@ privacidad. El detalle está en la [Política de Privacidad](politica-de-privaci
 
 El uso básico es gratuito y no requiere registro. Para contratar planes pagos,
 acceder a determinadas funciones o gestionar una suscripción se requiere una cuenta
-creada por magic link.
+creada con Firebase Auth (Google o email y contraseña).
 
 El uso del sitio implica la aceptación de los [Términos y Condiciones de Uso](terminos-y-condiciones.md), el documento de [Pagos, Suscripciones y Reembolsos](pagos-suscripciones-reembolsos.md), la [Política de Privacidad](politica-de-privacidad.md) y la [Política de Cookies](politica-de-cookies.md).
 

@@ -7,6 +7,7 @@ import { pathToFileURL } from "node:url";
 import { config as baseConfig } from "./config.js";
 import { buildAuthenticator, requireScope } from "./auth.js";
 import { registerErrorHandler } from "./errors.js";
+import { createFirebaseVerifier } from "./lib/firebase-auth.js";
 import { AccountService } from "./lib/accounts/service.js";
 import { buildAuthenticateAny, buildRequireSession, requireFeature } from "./lib/accounts/middleware.js";
 import healthRoutes from "./routes/health.js";
@@ -68,6 +69,9 @@ export async function buildServer(overrides) {
   var accountService = new AccountService();
   var requireSession = buildRequireSession(config, accountService);
   var authenticateAny = buildAuthenticateAny(config, authenticate, accountService);
+  var firebaseVerifier = overrides && overrides.firebaseVerifier
+    ? overrides.firebaseVerifier
+    : createFirebaseVerifier(config.firebase);
 
   app.get("/", async function () {
     return {
@@ -91,7 +95,8 @@ export async function buildServer(overrides) {
   await app.register(accountRoutes, {
     config: config,
     accountService: accountService,
-    requireSession: requireSession
+    requireSession: requireSession,
+    firebaseVerifier: firebaseVerifier
   });
   await app.register(billingRoutes, {
     config: config,
