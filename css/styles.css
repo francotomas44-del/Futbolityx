@@ -824,3 +824,12 @@ td strong { color: #fff; }
 @media print {
   #valor-panel { display: none !important; }
 }
+
+/* Modo invitado: solo el panel Hoy. El resto se oculta y showView() lo bloquea. */
+body.guest-mode .tabs .tab:not([data-view="hoy"]) { display: none; }
+body.guest-mode [data-goto="acerca"] { display: none !important; }
+body.guest-mode [data-fx="analizar"],
+body.guest-mode [data-fx="live"] { display: none !important; }
+body.guest-mode #btn-mode,
+body.guest-mode #btn-load-base,
+body.guest-mode #btn-wipe { display: none !important; }

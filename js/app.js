@@ -37,6 +37,11 @@
 
   /* ---------- navegación ---------- */
   function showView(name) {
+    // El invitado no tiene sesión: solo puede ver Hoy. Bloqueamos acá también
+    // aunque algún botón intente navegar a otra vista.
+    var access = window.AD && window.AD.access;
+    if (access && access.isGuest() && name !== "hoy") name = "hoy";
+
     var views = document.querySelectorAll(".view");
     for (var i = 0; i < views.length; i++) views[i].classList.remove("is-active");
     var tabs = document.querySelectorAll(".tab");
@@ -1503,6 +1508,14 @@
       var t = e.target.closest(".tab");
       if (t) showView(t.getAttribute("data-view"));
     });
+
+    if (window.AD.access && window.AD.access.onChange) {
+      window.AD.access.onChange(function (guest) {
+        if (guest) { showView("hoy"); return; }
+        var active = document.querySelector(".view.is-active");
+        showView(active ? active.id.replace(/^view-/, "") : "hoy");
+      });
+    }
 
     // botones que navegan a una vista (p. ej. acciones del hero)
     document.addEventListener("click", function (e) {

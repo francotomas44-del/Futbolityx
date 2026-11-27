@@ -30,6 +30,11 @@ Estado actual:
 El rol se calcula en el servidor desde el ID token verificado y se expone en
 `/v1/account` como `role` e `isAdmin`.
 
+El **modo invitado local** del frontend es otra cosa: se elige con el botón
+"Invitado" en el modal "Ingresar", no autentica, no crea sesión de backend y
+solo permite la vista `Hoy` (sin "Analizar completo"). Se guarda en
+`localStorage` (`futbolityx:guest`).
+
 ## Requisitos
 
 - Node.js 20 o superior.

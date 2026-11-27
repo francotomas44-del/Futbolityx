@@ -41,6 +41,10 @@
     return !!(auth && auth.isConfigured && auth.isConfigured());
   }
 
+  function isGuestAccess() {
+    return !!(AD.access && AD.access.isGuest && AD.access.isGuest());
+  }
+
   function betaInfo() {
     return (state.account && state.account.beta) || (state.plans && state.plans.beta) || null;
   }
@@ -136,7 +140,8 @@
 
   function updateTrigger() {
     if (!trigger) return;
-    trigger.textContent = state.account ? "Mi cuenta" : "Ingresar";
+    if (isGuestAccess()) trigger.textContent = "Invitado";
+    else trigger.textContent = state.account ? "Mi cuenta" : "Ingresar";
   }
 
   function setMessage(message, type) {
@@ -164,18 +169,20 @@
         "<div>" +
           '<p class="account-kicker">Futbolityx</p>' +
           '<h2 class="account-title" id="account-title">' +
-            (state.account ? "Tu cuenta" : "Ingresá a Futbolityx") +
+            (state.account ? "Tu cuenta" : isGuestAccess() ? "Modo invitado" : "Ingresá a Futbolityx") +
           "</h2>" +
           '<p class="account-sub">' +
             (state.account
               ? betaInvited()
                 ? "Prueba cerrada: estás usando un plan de prueba sin cobro."
                 : "Gestioná tu plan, tus análisis y tu suscripción."
-              : betaEnabled()
-                ? "Acceso solo para invitados a la prueba cerrada."
-                : firebaseEnabled()
-                  ? "Ingresá con Google o con tu email y contraseña de Firebase."
-                  : "Ingresá con tu email para recibir un enlace de acceso.") +
+              : isGuestAccess()
+                ? "Acceso solo al panel Hoy. Ingresá con tu cuenta para usar todas las herramientas."
+                : betaEnabled()
+                  ? "Acceso solo para invitados a la prueba cerrada."
+                  : firebaseEnabled()
+                    ? "Ingresá con Google o con tu email y contraseña de Firebase."
+                    : "Ingresá con tu email para recibir un enlace de acceso.") +
           "</p>" +
         "</div>" +
       "</div>" +
@@ -219,6 +226,28 @@
     );
   }
 
+  function renderGuestEntry() {
+    return (
+      '<div class="account-divider"><span>o</span></div>' +
+      '<button class="btn btn-secondary" type="button" data-action="guest">Invitado</button>' +
+      '<p class="account-note">Entrá sin cuenta: solo vas a ver el panel Hoy, sin Analizar completo.</p>'
+    );
+  }
+
+  function renderGuestPanel() {
+    return (
+      '<section class="account-section">' +
+        "<h3>Estás en modo invitado</h3>" +
+        '<p class="account-note">Tenés acceso solo al panel <strong>Hoy</strong>. ' +
+          "Para Analizar completo y el resto de las herramientas, ingresá con tu cuenta.</p>" +
+        '<div class="account-form-actions">' +
+          '<button class="btn btn-primary" type="button" data-action="exit-guest">Ingresar con mi cuenta</button>' +
+          '<button class="btn btn-secondary" type="button" data-action="stay-guest">Seguir como invitado</button>' +
+        "</div>" +
+      "</section>"
+    );
+  }
+
   function renderFirebaseLogin() {
     return (
       '<section class="account-section">' +
@@ -252,6 +281,7 @@
         renderBetaNote() +
         '<p class="account-note">Si creás una cuenta con email, verificá el correo antes de ingresar. ' +
           'El acceso solo habilita las funciones de cuenta; el análisis público sigue sin login.</p>' +
+        renderGuestEntry() +
         renderLegalNote() +
       "</section>"
     );
@@ -277,12 +307,14 @@
         renderBetaNote() +
         '<p class="account-note">El enlace vence en 15 minutos y es de un solo uso. ' +
           'Configurá Firebase para habilitar Google y email/contraseña.</p>' +
+        renderGuestEntry() +
         renderLegalNote() +
       "</section>"
     );
   }
 
   function renderLogin() {
+    if (isGuestAccess()) return renderGuestPanel();
     return firebaseEnabled() ? renderFirebaseLogin() : renderLegacyLogin();
   }
 
@@ -640,6 +672,8 @@
     }
 
     var account = await api().authenticateFirebase(idToken);
+    // Al iniciar sesión se sale del modo invitado y se liberan las herramientas.
+    if (AD.access) AD.access.exit();
     state.account = account;
     clearDevLink();
     setMessage("Sesión iniciada como " + (account.user && account.user.email ? account.user.email : user.email) + ".", "ok");
@@ -754,6 +788,22 @@
       state.busy = false;
       render();
     }
+  }
+
+  function enterAsGuest() {
+    if (!AD.access) return;
+    AD.access.enter();
+    setMessage("Ingresaste como invitado. Solo podés ver el panel Hoy.", "ok");
+    updateTrigger();
+    close();
+  }
+
+  function exitGuest() {
+    if (!AD.access) return;
+    AD.access.exit();
+    setMessage("Saliste del modo invitado.", "ok");
+    updateTrigger();
+    render();
   }
 
   async function logout() {
@@ -886,6 +936,21 @@
 
     if (action === "google") {
       signInWithGoogle();
+      return;
+    }
+
+    if (action === "guest") {
+      enterAsGuest();
+      return;
+    }
+
+    if (action === "exit-guest") {
+      exitGuest();
+      return;
+    }
+
+    if (action === "stay-guest") {
+      close();
       return;
     }
 

@@ -1314,12 +1314,18 @@
         "</div>";
     }
 
-    var liveBtn = (window.AD.live && window.AD.live.slugForCode(f.code))
+    var guest = !!(window.AD.access && window.AD.access.isGuest());
+
+    var liveBtn = (!guest && window.AD.live && window.AD.live.slugForCode(f.code))
       ? '<button class="btn btn-ghost btn-mini" type="button" data-fx="live" data-i="' + i + '">Alineaciones</button>'
       : "";
 
+    var analyzeBtn = guest
+      ? ""
+      : '<button class="btn btn-primary btn-mini" type="button" data-fx="analizar" data-i="' + i + '">Analizar completo</button>';
+
     var actions = '<div class="fx-actions">' +
-      '<button class="btn btn-primary btn-mini" type="button" data-fx="analizar" data-i="' + i + '">Analizar completo</button>' +
+      analyzeBtn +
       liveBtn +
       '<button class="btn btn-secondary btn-mini" type="button" data-fx="compartir" data-i="' + i + '">Compartir</button>' +
       '<button class="btn btn-ghost btn-mini" type="button" data-fx="imagen" data-i="' + i + '">Imagen</button>' +
