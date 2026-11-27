@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import { HttpError } from "../../errors.js";
+import { isAdminEmail, roleForEmail } from "../admin.js";
 import { assertBetaAccess, getBetaForUser } from "../beta.js";
 import { getBillingStatus, getPlan, getPlans } from "../plans.js";
 import { cancelPaddleSubscription, createPaddleCheckout } from "../payments/paddle.js";
@@ -240,15 +241,18 @@ export class AccountService {
     var found = await this.store.findSession(hashToken(sessionToken));
     if (!found) return null;
 
+    var admin = isAdminEmail(found.user.email);
     var beta = getBetaForUser(found.user.email);
-    if (beta.enabled && !beta.invited) return null;
+    if (beta.enabled && !beta.invited && !admin) return null;
 
     var subscription = await this.store.findLatestSubscription(found.user.id);
     var paidPlanId = planIdForSubscription(subscription);
     var betaPlan = beta.invited && beta.testPlan && beta.testPlan !== "free" && paidPlanId === "free"
       ? beta.testPlan
       : null;
-    var planId = betaPlan || paidPlanId;
+    // Los administradores usan siempre el catalogo completo (Elite), sin
+    // depender de la beta ni de un proveedor de pagos.
+    var planId = admin ? "elite" : (betaPlan || paidPlanId);
 
     return {
       user: found.user,
@@ -257,6 +261,8 @@ export class AccountService {
       planId: planId,
       betaPlan: betaPlan,
       beta: beta,
+      role: roleForEmail(found.user.email),
+      isAdmin: admin,
       entitlements: getEntitlements(planId)
     };
   }
@@ -270,6 +276,8 @@ export class AccountService {
     return {
       user: publicUser(session.user),
       plan: session.planId,
+      role: session.role,
+      isAdmin: session.isAdmin,
       subscription: publicSubscription(session.subscription),
       entitlements: session.entitlements,
       beta: session.beta,

@@ -296,6 +296,10 @@
     var text = planName(account.plan);
     var sub = account.subscription;
 
+    if (account.role === "admin") {
+      return text + " · acceso de administrador";
+    }
+
     if (!sub && account.beta && account.beta.invited) {
       return text + " · plan de prueba";
     }
@@ -324,7 +328,8 @@
     var account = state.account;
     var usage = account.usage || {};
     var badgeClass = account.plan === "pro" ? " is-pro" : account.plan === "elite" ? " is-elite" : "";
-    var badgeText = planName(account.plan) + (account.beta && account.beta.invited ? " · Beta" : "");
+    var badgeText = planName(account.plan) +
+      (account.role === "admin" ? " · Administrador" : account.beta && account.beta.invited ? " · Beta" : "");
     var initial = String(account.user && account.user.email ? account.user.email : "?").charAt(0).toUpperCase();
     var usageHtml;
 

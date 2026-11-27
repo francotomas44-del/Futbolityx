@@ -1,4 +1,5 @@
 import { HttpError } from "../errors.js";
+import { isAdminEmail } from "./admin.js";
 
 /**
  * Modo de prueba cerrada.
@@ -58,6 +59,7 @@ export function isBetaTester(email) {
 }
 
 export function assertBetaAccess(email) {
+  if (isAdminEmail(email)) return;
   if (!getBetaConfig().enabled || isBetaTester(email)) return;
 
   throw new HttpError(

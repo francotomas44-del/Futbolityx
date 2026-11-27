@@ -16,7 +16,9 @@ export function buildRequireSession(config, accountService) {
       kind: "session",
       userId: session.user.id,
       scopes: ["analyze", "live"],
-      plan: session.planId
+      plan: session.planId,
+      role: session.role,
+      admin: session.isAdmin
     };
   };
 }
@@ -51,7 +53,9 @@ export function buildAuthenticateAny(config, apiAuthenticate, accountService) {
       kind: "session",
       userId: session.user.id,
       scopes: ["analyze", "live"],
-      plan: session.planId
+      plan: session.planId,
+      role: session.role,
+      admin: session.isAdmin
     };
   };
 }
