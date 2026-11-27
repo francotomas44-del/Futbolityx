@@ -300,6 +300,10 @@
       return text + " · acceso de administrador";
     }
 
+    if (account.role === "guest") {
+      return text + " · plan invitado";
+    }
+
     if (!sub && account.beta && account.beta.invited) {
       return text + " · plan de prueba";
     }
@@ -328,8 +332,10 @@
     var account = state.account;
     var usage = account.usage || {};
     var badgeClass = account.plan === "pro" ? " is-pro" : account.plan === "elite" ? " is-elite" : "";
-    var badgeText = planName(account.plan) +
-      (account.role === "admin" ? " · Administrador" : account.beta && account.beta.invited ? " · Beta" : "");
+    var roleBadge = account.role === "admin" ? " · Administrador"
+      : account.beta && account.beta.invited ? " · Beta"
+      : account.role === "guest" ? " · Invitado" : "";
+    var badgeText = planName(account.plan) + roleBadge;
     var initial = String(account.user && account.user.email ? account.user.email : "?").charAt(0).toUpperCase();
     var usageHtml;
 

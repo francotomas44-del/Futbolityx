@@ -26,6 +26,14 @@ export function isAdminEmail(email) {
   return normalized ? getAdminEmails().indexOf(normalized) !== -1 : false;
 }
 
-export function roleForEmail(email) {
-  return isAdminEmail(email) ? "admin" : "user";
+/**
+ * Roles de la app:
+ * - admin: emails de ADMIN_EMAILS, siempre plan Elite.
+ * - guest: cualquier cuenta verificada de Firebase sin plan de pago; plan Free.
+ * - member: cuenta con plan superior (beta o suscripcion).
+ */
+export function roleFor(email, planId) {
+  if (isAdminEmail(email)) return "admin";
+  if (planId && planId !== "free") return "member";
+  return "guest";
 }

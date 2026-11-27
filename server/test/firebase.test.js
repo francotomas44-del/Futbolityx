@@ -211,6 +211,20 @@ test("ID token invalido no crea sesion", async function () {
   assert.equal(response.json().error.code, "invalid_firebase_token");
 });
 
+test("token verificado de Firebase crea sesion guest con plan Free", async function () {
+  var response = await login(app, "google-token");
+  assert.equal(response.statusCode, 200);
+
+  var body = response.json();
+  assert.equal(body.ok, true);
+  assert.equal(body.user.email, "invited@example.com");
+  assert.equal(body.role, "guest");
+  assert.equal(body.isAdmin, false);
+  assert.equal(body.plan, "free");
+  assert.equal(body.entitlements.features.live, false);
+  assert.equal(body.usage.analysesPerDay, 10);
+});
+
 test("beta cerrada: invitado obtiene sesion, plan de prueba y nombre", async function () {
   process.env.BETA_MODE = "closed";
   process.env.BETA_ALLOWED_EMAILS = "invited@example.com,banned@example.com";
@@ -227,6 +241,7 @@ test("beta cerrada: invitado obtiene sesion, plan de prueba y nombre", async fun
   assert.equal(body.user.emailVerified, true);
   assert.equal(body.user.displayName, "Invitado Google");
   assert.equal(body.plan, "elite");
+  assert.equal(body.role, "member");
   assert.equal(body.subscription, null);
   assert.equal(body.beta.invited, true);
   assert.equal(body.entitlements.features.live, true);

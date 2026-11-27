@@ -18,6 +18,18 @@ Estado actual:
 - Todavía **no** hay cobros activos: faltan credenciales, price IDs, base de
   datos PostgreSQL, proveedor de email y la aprobación de precios.
 
+## Roles
+
+- `admin`: emails listados en `ADMIN_EMAILS`; siempre plan Elite y acceso
+  completo. Puede entrar aunque la beta cerrada no lo invite.
+- `guest`: cualquier cuenta verificada de Firebase sin plan superior; plan Free
+  (10 análisis por día). El alta o baja se resuelve en Firebase Console:
+  deshabilitando o borrando al usuario se le corta el acceso.
+- `member`: cuenta con plan de prueba (beta) o suscripción activa.
+
+El rol se calcula en el servidor desde el ID token verificado y se expone en
+`/v1/account` como `role` e `isAdmin`.
+
 ## Requisitos
 
 - Node.js 20 o superior.

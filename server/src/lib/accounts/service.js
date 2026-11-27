@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import { HttpError } from "../../errors.js";
-import { isAdminEmail, roleForEmail } from "../admin.js";
+import { isAdminEmail, roleFor } from "../admin.js";
 import { assertBetaAccess, getBetaForUser } from "../beta.js";
 import { getBillingStatus, getPlan, getPlans } from "../plans.js";
 import { cancelPaddleSubscription, createPaddleCheckout } from "../payments/paddle.js";
@@ -261,7 +261,7 @@ export class AccountService {
       planId: planId,
       betaPlan: betaPlan,
       beta: beta,
-      role: roleForEmail(found.user.email),
+      role: roleFor(found.user.email, planId),
       isAdmin: admin,
       entitlements: getEntitlements(planId)
     };

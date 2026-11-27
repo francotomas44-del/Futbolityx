@@ -149,6 +149,8 @@ test("beta cerrada: invitados, plan de prueba y checkout bloqueado", async funct
     assert.equal(account.statusCode, 200);
     var body = account.json();
     assert.equal(body.plan, "elite");
+    assert.equal(body.role, "member");
+    assert.equal(body.isAdmin, false);
     assert.equal(body.subscription, null);
     assert.equal(body.beta.enabled, true);
     assert.equal(body.beta.invited, true);

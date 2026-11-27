@@ -136,7 +136,7 @@ test("admin entra con beta cerrada y obtiene Elite, todos los features y cuota i
   }
 });
 
-test("usuario normal conserva plan Free y rol user", async function () {
+test("cuenta sin permisos de admin entra como guest con plan Free", async function () {
   var saved = saveBeta();
   clearBeta();
 
@@ -148,7 +148,7 @@ test("usuario normal conserva plan Free y rol user", async function () {
     assert.equal(response.statusCode, 200);
 
     var account = response.json();
-    assert.equal(account.role, "user");
+    assert.equal(account.role, "guest");
     assert.equal(account.isAdmin, false);
     assert.equal(account.plan, "free");
     assert.equal(account.entitlements.features.live, false);
